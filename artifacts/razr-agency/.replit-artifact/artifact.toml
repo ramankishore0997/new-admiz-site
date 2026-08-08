@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "RAZR Agency"
+version = "1.0.0"
+id = "artifacts/razr-agency"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18964
+
+[services.development]
+run = "pnpm --filter @workspace/razr-agency run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/razr-agency", "run", "build" ]
+publicDir = "artifacts/razr-agency/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18964"
+BASE_PATH = "/"

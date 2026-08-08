@@ -1,0 +1,179 @@
+IMPORTANT:
+Do NOT change content, text, page structure or sections.
+
+Only upgrade visual perception, interaction quality and premium feel.
+
+Goal:
+Remove all AI-generated feeling.
+Make website look handcrafted by elite UI/UX agency.
+
+━━━━━━━━━━━━━━━━━━
+MICRO INTERACTIONS
+━━━━━━━━━━━━━━━━━━
+
+Add micro animations everywhere:
+
+- Buttons slightly move on hover
+- Cards lift with depth
+- Icons animate subtly
+- Text reveal motion
+- Hover light sweep
+- CTA pulse
+- Soft elastic transitions
+
+Nothing static.
+
+━━━━━━━━━━━━━━━━━━
+DEPTH SYSTEM
+━━━━━━━━━━━━━━━━━━
+
+Create visual depth:
+
+Background layer
+Particle layer
+Glow layer
+Content layer
+Floating layer
+
+Add subtle parallax.
+
+━━━━━━━━━━━━━━━━━━
+LIGHTING SYSTEM
+━━━━━━━━━━━━━━━━━━
+
+Dynamic lighting:
+
+Moving gradient lights
+Soft spotlight
+Floating light beams
+Ambient glow
+
+Sections should feel alive.
+
+━━━━━━━━━━━━━━━━━━
+TEXTURE SYSTEM
+━━━━━━━━━━━━━━━━━━
+
+Add premium textures:
+
+Noise overlay
+Glass reflections
+Soft grain
+Blur depth
+
+Avoid flat surfaces.
+
+━━━━━━━━━━━━━━━━━━
+SPACING RANDOMIZATION
+━━━━━━━━━━━━━━━━━━
+
+AI websites look too perfect.
+
+Fix:
+
+Different paddings
+Different card heights
+Asymmetry
+Organic spacing
+
+Make layout human-made.
+
+━━━━━━━━━━━━━━━━━━
+ANIMATION QUALITY
+━━━━━━━━━━━━━━━━━━
+
+Replace default animations.
+
+Use:
+
+GSAP
+Spring physics
+Smooth inertia
+Stagger effects
+Delayed reveals
+
+No basic fade-ins.
+
+━━━━━━━━━━━━━━━━━━
+PREMIUM DETAILS
+━━━━━━━━━━━━━━━━━━
+
+Add:
+
+Tiny status lights
+Floating indicators
+Animated separators
+Gradient borders
+Live dots
+Mini particles
+Cursor response
+
+━━━━━━━━━━━━━━━━━━
+PREMIUM NAVIGATION FEEL
+━━━━━━━━━━━━━━━━━━
+
+Navbar reacts to scroll:
+Opacity
+Blur
+Depth
+Shrink
+Light motion
+
+━━━━━━━━━━━━━━━━━━
+MOUSE EXPERIENCE
+━━━━━━━━━━━━━━━━━━
+
+Cursor glow trail
+Hover spotlight
+Section illumination
+Soft magnetic effects
+
+━━━━━━━━━━━━━━━━━━
+SCROLL EXPERIENCE
+━━━━━━━━━━━━━━━━━━
+
+Scrolling must feel expensive.
+
+Add:
+
+Velocity transitions
+Layer movement
+Sticky scenes
+Depth shifts
+Section morphing
+
+━━━━━━━━━━━━━━━━━━
+IMAGE TREATMENT
+━━━━━━━━━━━━━━━━━━
+
+Add:
+Reflections
+Soft shadows
+Depth blur
+Glow edges
+Floating effect
+
+━━━━━━━━━━━━━━━━━━
+MOBILE PREMIUM
+━━━━━━━━━━━━━━━━━━
+
+Mobile must feel native app.
+
+Smooth transitions
+Glass cards
+Momentum feel
+Touch animations
+Premium spacing
+
+━━━━━━━━━━━━━━━━━━
+FINAL RULE
+━━━━━━━━━━━━━━━━━━
+
+Site should feel:
+
+$1M agency website
+Apple launch experience
+Luxury fintech product
+
+Do not redesign content.
+Only elevate craftsmanship.

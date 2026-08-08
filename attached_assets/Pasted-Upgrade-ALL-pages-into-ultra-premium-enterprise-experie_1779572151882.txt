@@ -1,0 +1,206 @@
+Upgrade ALL pages into ultra-premium enterprise experience.
+
+Goal:
+Customer opens website → instantly thinks:
+“This company is huge / premium / trusted”
+
+Do NOT keep normal SaaS design.
+Every page must feel handcrafted, cinematic and high-budget.
+
+GLOBAL DESIGN UPGRADE:
+
+- Apple + Stripe + Linear + futuristic fintech style
+- Premium typography hierarchy
+- Layered depth
+- Glassmorphism only where useful
+- Dynamic lighting
+- Floating gradients
+- Noise texture overlays
+- Premium shadows
+- Micro interactions everywhere
+- Cinematic transitions
+
+ADD THESE PREMIUM SYSTEMS TO WHOLE SITE:
+
+✓ Scroll storytelling
+✓ Page reveal transitions
+✓ Mouse spotlight
+✓ Cursor glow trail
+✓ Floating particles
+✓ Dynamic light beams
+✓ Premium hover states
+✓ Magnetic buttons
+✓ Animated borders
+✓ Floating status chips
+✓ Parallax movement
+✓ Smooth GSAP animations
+✓ Interactive backgrounds
+
+━━━━━━━━━━━━━━
+
+HOME PAGE → SHOWSTOPPER
+
+Hero:
+Full cinematic section
+3D AI robot assistant
+Live Ads command center
+Moving analytics
+Floating cards
+Animated counters
+Light rays
+Interactive CTA
+
+Below Hero:
+Enterprise stats wall
+Infinite marquee
+Animated trust badges
+
+Premium Bento Grid:
+Large asymmetrical cards
+Spotlight hover
+Depth motion
+
+Interactive world map:
+Glowing activity nodes
+Connection animations
+
+Luxury CTA:
+Holographic glass panel
+Glow border
+Animated lighting
+
+━━━━━━━━━━━━━━
+
+FEATURES PAGE
+
+Replace normal cards.
+
+Create:
+Large showcase blocks
+Alternating layouts
+Animated dashboards
+Mini demos
+Hover transitions
+Glass metric widgets
+
+Each feature:
+Own animation
+Own visual style
+
+━━━━━━━━━━━━━━
+
+SOLUTIONS PAGE
+
+Interactive timeline experience.
+
+Sections unlock while scrolling.
+
+Sticky storytelling:
+Problem → Solution → Scaling → Result
+
+Add:
+Before/After animation
+Growth charts
+Activity feed
+
+━━━━━━━━━━━━━━
+
+HOW IT WORKS
+
+Transform into premium journey.
+
+Step cards:
+3D tilt effect
+Glow on hover
+Animated connector lines
+Progress tracker
+
+Add futuristic roadmap design.
+
+━━━━━━━━━━━━━━
+
+PLANS PAGE
+
+Luxury pricing experience.
+
+Cards:
+Glassmorphism
+Floating glow
+Animated border
+Hover expansion
+
+Background:
+Particles + gradient orbs
+
+Premium CTA section below.
+
+━━━━━━━━━━━━━━
+
+ABOUT PAGE
+
+Agency documentary style.
+
+Large visuals
+Company journey timeline
+Mission section
+Animated achievements
+Interactive numbers
+Premium team layout
+
+━━━━━━━━━━━━━━
+
+FAQ PAGE
+
+Accordion redesign:
+Glass panels
+Smooth reveal
+Icon animation
+Hover light effect
+
+━━━━━━━━━━━━━━
+
+CONTACT PAGE
+
+Futuristic command center.
+
+Split layout:
+Left:
+Interactive office scene
+Floating widgets
+
+Right:
+Premium glass form
+Animated inputs
+Glow states
+
+Sticky support dock:
+WhatsApp
+Telegram
+Live support
+
+━━━━━━━━━━━━━━
+
+FOOTER
+
+Do NOT use normal footer.
+
+Create:
+Animated star field
+Floating particles
+Gradient beams
+Glass sections
+Interactive links
+
+━━━━━━━━━━━━━━
+
+FINAL RULE:
+
+Every page must feel like a $50k custom agency website.
+
+Avoid:
+Template look
+Equal layouts
+Empty sections
+AI generated feeling
+
+Result should look handcrafted by elite UI/UX team.

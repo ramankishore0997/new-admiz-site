@@ -1,0 +1,13 @@
+{
+  "name": "Razr Marketing",
+  "short_name": "Razr",
+  "description": "Hong Kong-based premium Meta & Google Agency Ad Accounts supplier — delivering worldwide.",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "64x64", "type": "image/png" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#0066ff",
+  "background_color": "#000000",
+  "display": "standalone",
+  "start_url": "/"
+}

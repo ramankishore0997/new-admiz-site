@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+**/dist
+**/.vite
+.git
+.local
+attached_assets
+/tmp
+**/*.log
+.DS_Store
+.replit
+.replit-artifact
+artifacts/api-server
+artifacts/mockup-sandbox

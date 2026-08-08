@@ -1,0 +1,133 @@
+IMPORTANT: Do NOT create a generic AI-looking website. The website must feel like it was designed by a premium UI/UX agency with manual design decisions.
+
+Avoid:
+- Template layouts
+- Repetitive cards
+- Equal spacing everywhere
+- Generic SaaS sections
+- Default gradients
+- Stock AI design patterns
+- Predictable layouts
+- Symmetrical blocks everywhere
+
+Website Goal:
+Build a premium multi-page website for “RAZR Agency” that looks handcrafted, high-budget and enterprise level.
+
+Design Direction:
+Mix of Apple + Stripe + Linear + modern fintech aesthetic.
+
+Style:
+Dark luxury theme
+Black / deep navy base
+Electric blue highlights
+Glassmorphism only where needed
+Soft glow shadows
+Micro interactions
+High-end motion design
+
+MAKE THE SITE FEEL HUMAN DESIGNED:
+
+- Different section layouts on every page
+- Asymmetrical composition
+- Custom spacing
+- Layered backgrounds
+- Floating UI cards
+- Overlapping elements
+- Premium typography hierarchy
+- Dynamic visual depth
+- Editorial style blocks
+
+PREMIUM ELEMENTS TO ADD:
+
+1. Interactive 3D AI robot assistant
+- Mouse tracking
+- Idle animation
+- Hover reactions
+- Floating effect
+- Premium neon styling
+
+2. Animated metrics wall
+Live counters
+Growth charts
+Campaign cards
+
+3. Glass command center section
+Ads manager style dashboard
+Moving graphs
+Live widgets
+Status indicators
+
+4. Mouse glow effect
+
+5. Premium cursor animation
+
+6. Particle background
+
+7. Floating badges
+
+8. Scroll reveal animations
+
+9. Page transitions
+
+10. Loading animation screen
+
+11. Parallax effects
+
+12. Dynamic grid movement
+
+13. Spotlight hover cards
+
+14. Marquee logos
+
+15. Animated testimonials
+
+16. Bento grid sections
+
+17. Sticky reveal sections
+
+18. Interactive timeline
+
+19. Hover magnetic buttons
+
+20. Animated CTA blocks
+
+21. Live status indicators
+
+22. Floating gradient orbs
+
+23. Noise texture overlays
+
+24. Blur glass layers
+
+25. Animated statistics
+
+26. Scroll progress indicator
+
+27. Dynamic navbar effects
+
+28. Expandable FAQ
+
+29. Premium footer
+
+30. Interactive world map section
+
+MULTI PAGE STRUCTURE:
+Home
+Features
+Solutions
+How It Works
+Plans
+About
+FAQ
+Contact
+
+TECH:
+Next.js
+Tailwind
+Framer Motion
+GSAP
+React Three Fiber
+Spline
+
+FINAL RULE:
+Every page must feel unique. Design should look agency-made and expensive, not AI generated. Add custom sections and creative decisions automatically.

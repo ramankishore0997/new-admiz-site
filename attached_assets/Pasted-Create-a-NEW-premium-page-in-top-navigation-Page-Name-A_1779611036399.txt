@@ -1,0 +1,134 @@
+Create a NEW premium page in top navigation:
+
+Page Name:
+Agency Accounts
+
+Theme:
+Ultra premium dark luxury
+Glassmorphism
+Blue neon accents
+Enterprise fintech style
+
+PAGE STRUCTURE:
+
+━━━━━━━━━━━━━━━━━━
+HERO SECTION
+━━━━━━━━━━━━━━━━━━
+
+Large cinematic hero.
+
+Headline:
+Premium Agency Advertising Accounts
+
+Subtitle:
+Built for advertisers, agencies and scaling businesses.
+
+Background:
+Particles
+Light beams
+Floating cards
+Animated dashboard
+
+Buttons:
+Meta Accounts
+Google Accounts
+
+━━━━━━━━━━━━━━━━━━
+SECTION 1
+META AGENCY AD ACCOUNTS
+━━━━━━━━━━━━━━━━━━
+
+Create premium split layout.
+
+LEFT:
+3D Meta Ads dashboard mockup
+Campaign analytics
+Floating widgets
+Graphs
+Status indicators
+
+RIGHT:
+Glass benefit cards.
+
+Benefits:
+
+✓ High Spending Capacity  
+✓ Better Stability For Scaling  
+✓ Lower Restriction Risk  
+✓ Faster Campaign Scaling  
+✓ Multiple Business Support  
+✓ Agency-Level Infrastructure  
+✓ Team Access Support  
+✓ Long-Term Advertising Setup  
+✓ Faster Activation  
+✓ Better Campaign Management  
+
+Add:
+Hover glow
+Animated icons
+Spotlight effects
+
+Below:
+Premium CTA card:
+“Scale Faster With Meta Agency Accounts”
+
+━━━━━━━━━━━━━━━━━━
+SECTION 2
+GOOGLE AGENCY AD ACCOUNTS
+━━━━━━━━━━━━━━━━━━
+
+Premium alternating layout.
+
+LEFT:
+Benefits showcase
+
+RIGHT:
+Google Ads dashboard mockup
+Campaign graphs
+Analytics cards
+
+Benefits:
+
+✓ Higher Advertising Capacity  
+✓ Better Campaign Scaling  
+✓ Agency Support  
+✓ Multi-Niche Compatibility  
+✓ Business Friendly Structure  
+✓ Better Stability  
+✓ Faster Launch Support  
+✓ Team Collaboration  
+✓ Enterprise Environment  
+✓ Long-Term Growth Support  
+
+Effects:
+Animated counters
+Glow borders
+Floating gradients
+
+CTA:
+“Grow With Google Agency Accounts”
+
+━━━━━━━━━━━━━━━━━━
+BOTTOM SECTION
+━━━━━━━━━━━━━━━━━━
+
+Comparison table:
+
+Meta Agency
+vs
+Google Agency
+
+Interactive glass cards.
+
+Final CTA:
+Need Agency Access?
+Get Started
+
+FINAL RULE:
+
+This page must feel like enterprise product showcase.
+
+No simple card grids.
+No template design.
+
+Make it long, immersive and premium.

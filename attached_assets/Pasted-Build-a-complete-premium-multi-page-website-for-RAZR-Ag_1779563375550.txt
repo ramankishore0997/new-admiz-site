@@ -1,0 +1,153 @@
+Build a complete premium multi-page website for “RAZR Agency” (Meta Agency Ad Accounts Provider).
+
+Tech Stack:
+Next.js + Tailwind CSS + Framer Motion
+Dark premium UI
+Fully responsive
+Fast loading
+Luxury SaaS style
+
+Theme:
+Black + dark navy background
+Electric blue glow accents
+Glassmorphism
+Animated gradients
+Floating particles
+Smooth transitions
+Premium fintech feel
+
+PAGES REQUIRED:
+
+1) HOME PAGE
+Hero:
+Headline: Premium Meta Agency Ad Accounts
+Subtitle: Scale campaigns with agency-level advertising solutions
+
+Buttons:
+Get Started
+View Account First
+
+Sections:
+- Why Choose RAZR
+- Features cards
+- How it works
+- Statistics counters
+- Testimonials slider
+- CTA banner
+- FAQ
+- Footer
+
+2) FEATURES PAGE
+Premium cards with icons:
+
+High Spending Capacity
+Lower Restriction Risk
+Fast Activation
+Business Friendly Setup
+Agency Support
+Better Scaling
+Multiple Niches
+Team Access
+Long-Term Support
+Lifetime Replacement
+Balance Transfer Support
+Priority Assistance
+
+Include hover animations + glow effects.
+
+3) HOW IT WORKS PAGE
+Timeline style layout:
+
+Step 1:
+Contact Team
+
+Step 2:
+View Account Access First
+
+Step 3:
+Activation Process
+
+Step 4:
+Campaign Launch
+
+Step 5:
+Scaling Support
+
+Animated progress timeline.
+
+4) PLANS PAGE
+Two premium pricing cards:
+
+Setup Access
+Full Access
+
+Glass cards
+Hover animation
+Feature checklist
+CTA buttons
+
+5) ABOUT US PAGE
+Company introduction
+Mission
+Vision
+Why clients choose us
+Animated counters
+Team style layout
+
+6) FAQ PAGE
+Accordion design:
+Activation time
+Replacement policy
+Account support
+Business categories
+Balance transfer
+Scaling support
+
+7) CONTACT PAGE
+Premium form:
+Name
+Telegram
+WhatsApp
+Email
+Message
+
+Sticky contact panel:
+Telegram
+WhatsApp
+Live support
+
+GLOBAL COMPONENTS:
+
+Premium navbar:
+Logo
+Home
+Features
+How It Works
+Plans
+About
+FAQ
+Contact
+
+Sticky glass navbar
+Mobile menu animation
+
+Footer:
+Company info
+Quick links
+Social icons
+Copyright
+
+EXTRA FEATURES:
+
+Loading screen animation
+Page transitions
+Framer motion animations
+Scroll reveal
+Hover glow
+Particle background
+Mouse effects
+Premium icons
+Dark luxury shadows
+Responsive mobile version
+
+Create production-ready code structure and modern folder organization.

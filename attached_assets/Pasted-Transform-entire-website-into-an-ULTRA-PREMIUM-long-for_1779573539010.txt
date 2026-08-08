@@ -1,0 +1,217 @@
+Transform entire website into an ULTRA PREMIUM long-form enterprise experience.
+
+Goal:
+Customer opens site → spends time scrolling → gets impressed → feels trust → converts.
+
+IMPORTANT:
+Current pages are short.
+Increase content depth and page length significantly.
+
+Do NOT add empty spacing.
+Every extra section must have purpose + premium visuals.
+
+━━━━━━━━━━━━━━━━━━
+GLOBAL UPGRADE
+━━━━━━━━━━━━━━━━━━
+
+Desktop:
+Luxury enterprise experience
+
+Mobile:
+Premium app-like feel
+
+Add:
+
+✓ Scroll storytelling
+✓ GSAP transitions
+✓ Smooth reveal
+✓ Dynamic lighting
+✓ Mouse spotlight
+✓ Cursor glow
+✓ Floating particles
+✓ Glass layers
+✓ Noise texture
+✓ Gradient beams
+✓ Parallax
+✓ Magnetic buttons
+✓ Hover depth
+✓ Premium shadows
+✓ Floating badges
+✓ Animated borders
+
+NO AI TEMPLATE LOOK.
+
+━━━━━━━━━━━━━━━━━━
+HOME PAGE
+━━━━━━━━━━━━━━━━━━
+
+Make page very long.
+
+Add sections:
+
+1. Cinematic Hero
+3D AI robot
+Live command center
+Floating analytics
+Particles
+Light rays
+
+2. Enterprise Stats Wall
+
+3. Infinite logo strip
+
+4. Interactive Bento Grid
+
+5. Feature storytelling blocks
+
+6. Live dashboard showcase
+
+7. World activity map
+
+8. Premium timeline
+
+9. Trust section
+
+10. Video testimonial area
+
+11. Growth metrics
+
+12. FAQ preview
+
+13. Holographic CTA
+
+14. Luxury footer
+
+━━━━━━━━━━━━━━━━━━
+FEATURES PAGE
+━━━━━━━━━━━━━━━━━━
+
+Convert into showcase journey.
+
+Add:
+
+Hero
+Dashboard demo
+Interactive features
+Metrics wall
+Horizontal reveal
+Mini animations
+Comparison section
+Advanced capabilities
+Live widgets
+Case showcase
+CTA
+
+━━━━━━━━━━━━━━━━━━
+SOLUTIONS PAGE
+━━━━━━━━━━━━━━━━━━
+
+Long scroll storytelling.
+
+Problem
+Pain points
+Solutions
+Activation flow
+Scaling flow
+Results
+Growth journey
+Metrics
+Timeline
+CTA
+
+Use sticky sections.
+
+━━━━━━━━━━━━━━━━━━
+PLANS PAGE
+━━━━━━━━━━━━━━━━━━
+
+Luxury pricing experience.
+
+Add:
+
+Hero
+Plan comparison
+Benefits
+Feature matrix
+FAQ
+Trust blocks
+Testimonials
+CTA
+
+━━━━━━━━━━━━━━━━━━
+ABOUT PAGE
+━━━━━━━━━━━━━━━━━━
+
+Agency documentary feel.
+
+Add:
+
+Hero
+Mission
+Vision
+Company journey
+Timeline
+Stats
+Achievements
+Values
+Premium team layout
+Office section
+CTA
+
+━━━━━━━━━━━━━━━━━━
+CONTACT PAGE
+━━━━━━━━━━━━━━━━━━
+
+Command center style.
+
+Interactive office scene
+Widgets
+Glass form
+Support dock
+Map
+FAQ
+CTA
+
+━━━━━━━━━━━━━━━━━━
+MOBILE EXPERIENCE
+━━━━━━━━━━━━━━━━━━
+
+Mobile MUST feel ultra premium.
+
+Rules:
+
+App-like transitions
+Bottom safe spacing
+Rounded sections
+Glass cards
+Smooth animation
+Large touch targets
+Sticky CTA
+Compact spacing
+Premium typography
+Swipe sections
+
+Mobile hero:
+70–80vh max
+
+Desktop hero:
+85vh max
+
+NO giant gaps.
+
+━━━━━━━━━━━━━━━━━━
+FINAL RULE
+━━━━━━━━━━━━━━━━━━
+
+Website should feel like:
+
+Apple event site
+Luxury fintech platform
+Enterprise SaaS
+$100k custom agency project
+
+No empty areas.
+No repetitive cards.
+No generic sections.
+
+Every page must feel handcrafted and expensive.
