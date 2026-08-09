@@ -8,7 +8,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import LoadingScreen from "@/components/LoadingScreen";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import GlassDock from "@/components/GlassDock";
-import LiveActivityFeed from "@/components/LiveActivityFeed";
 import StickyUrgencyBar from "@/components/StickyUrgencyBar";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 import CursorGlow from "@/components/effects/CursorGlow";
@@ -240,7 +239,6 @@ function App() {
             <Router />
           </WouterRouter>
           <WhatsAppFloat />
-          <LiveActivityFeed />
           <ExitIntentPopup />
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <GlassDock />
