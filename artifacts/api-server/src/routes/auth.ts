@@ -38,19 +38,22 @@ const handleRegister = async (req: any, res: Response, next: any) => {
   try {
     const { email, password, username, companyName, telegramHandle, phoneNumber, country } = req.body;
 
-    if (!email || !password || !username) {
-      return res.status(400).json({ error: "Missing required registration parameters." });
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email address and password are required." });
     }
 
-    // Check duplicate email
+    const cleanEmail = email.toLowerCase().trim();
+    const finalUsername = (username || email.split("@")[0] || "user").trim();
+
+    // Check duplicate email or username
     const [existing] = await db
       .select()
       .from(usersTable)
-      .where(eq(usersTable.email, email.toLowerCase().trim()))
+      .where(or(eq(usersTable.email, cleanEmail), ilike(usersTable.username, finalUsername)))
       .limit(1);
 
     if (existing) {
-      return res.status(400).json({ error: "An account with this email address already exists." });
+      return res.status(400).json({ error: "An account with this email address or username already exists." });
     }
 
     // Check if it's the very first user (auto-escalate to SUPER_ADMIN for setup convenience)
@@ -58,18 +61,17 @@ const handleRegister = async (req: any, res: Response, next: any) => {
     const role = allUsers.length === 0 ? "SUPER_ADMIN" : "CLIENT";
 
     const hashedPassword = hashPassword(password);
-    const cleanEmail = email.toLowerCase().trim();
 
     const [newUser] = await db
       .insert(usersTable)
       .values({
         email: cleanEmail,
         password: hashedPassword,
-        username,
-        companyName,
-        telegramHandle,
-        phoneNumber,
-        country,
+        username: finalUsername,
+        companyName: companyName || "",
+        telegramHandle: telegramHandle || "",
+        phoneNumber: phoneNumber || "",
+        country: country || "",
         role,
         status: "ACTIVE",
       })
@@ -83,8 +85,8 @@ const handleRegister = async (req: any, res: Response, next: any) => {
     // Return profile
     const { password: _, ...profile } = newUser;
     return res.status(201).json(profile);
-  } catch (err) {
-    return next(err);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || "Registration failed" });
   }
 };
 
