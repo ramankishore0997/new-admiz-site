@@ -235,7 +235,11 @@ async function usersList(page: number): Promise<{ text: string; markup: ReplyMar
   const nav: Btn[] = [];
   if (page > 0) nav.push(btn("◀️ Prev", `users:${page - 1}`));
   if (offset + list.length < total) nav.push(btn("Next ▶️", `users:${page + 1}`));
-  return { text: lines.join("\n"), markup: kb([...nav.length ? [nav] : [], mainRow()]) };
+  const pickRows: Btn[][] = [];
+  for (let i = 0; i < list.length; i += 2) {
+    pickRows.push(list.slice(i, i + 2).map((u) => btn(`#${u.id}`, `user:${u.id}`)));
+  }
+  return { text: lines.join("\n"), markup: kb([...pickRows, ...nav.length ? [nav] : [], mainRow()]) };
 }
 
 async function requestsList(page: number): Promise<{ text: string; markup: ReplyMarkup }> {
@@ -256,7 +260,11 @@ async function requestsList(page: number): Promise<{ text: string; markup: Reply
   if (page > 0) nav.push(btn("◀️ Prev", `reqs:${page - 1}`));
   const totalRes = await pool.query<{ n: string }>("SELECT COUNT(*)::int AS n FROM applications");
   if (offset + list.length < Number(totalRes.rows[0]?.n || 0)) nav.push(btn("Next ▶️", `reqs:${page + 1}`));
-  return { text: lines.join("\n"), markup: kb([...nav.length ? [nav] : [], mainRow()]) };
+  const pickRows: Btn[][] = [];
+  for (let i = 0; i < list.length; i += 2) {
+    pickRows.push(list.slice(i, i + 2).map(({ a }) => btn(a.publicId, `req:${a.id}`)));
+  }
+  return { text: lines.join("\n"), markup: kb([...pickRows, ...nav.length ? [nav] : [], mainRow()]) };
 }
 
 async function paymentsList(page: number, status?: string): Promise<{ text: string; markup: ReplyMarkup }> {
@@ -288,7 +296,11 @@ async function paymentsList(page: number, status?: string): Promise<{ text: stri
   if (page > 0) nav.push(btn("◀️ Prev", status ? `pays_st:${status}:${page - 1}` : `pays:${page - 1}`));
   const totalRes = await pool.query<{ n: string }>(`SELECT COUNT(*)::int AS n FROM payments${status ? ` WHERE status='${status.replace(/'/g, "")}'` : ""}`);
   if (offset + rows.length < Number(totalRes.rows[0]?.n || 0)) nav.push(btn("Next ▶️", status ? `pays_st:${status}:${page + 1}` : `pays:${page + 1}`));
-  return { text: lines.join("\n"), markup: kb([...nav.length ? [nav] : [], mainRow()]) };
+  const pickRows: Btn[][] = [];
+  for (let i = 0; i < rows.length; i += 2) {
+    pickRows.push(rows.slice(i, i + 2).map(({ p }) => btn(`#${p.id} ${p.amount} ${p.currency}`, `pay:${p.id}`)));
+  }
+  return { text: lines.join("\n"), markup: kb([...pickRows, ...nav.length ? [nav] : [], mainRow()]) };
 }
 
 async function pendingOverview(): Promise<{ text: string; markup: ReplyMarkup }> {
@@ -333,7 +345,11 @@ async function documentsPending(page: number): Promise<{ text: string; markup: R
   const nav: Btn[] = [];
   if (page > 0) nav.push(btn("◀️ Prev", `docs_pending:${page - 1}`));
   if (offset + list.length < Number(totalRes.rows[0]?.n || 0)) nav.push(btn("Next ▶️", `docs_pending:${page + 1}`));
-  return { text: lines.join("\n"), markup: kb([...nav.length ? [nav] : [], mainRow()]) };
+  const pickRows: Btn[][] = [];
+  for (let i = 0; i < list.length; i += 2) {
+    pickRows.push(list.slice(i, i + 2).map((d) => btn(`#${d.id} → App`, `req:${d.appId}`)));
+  }
+  return { text: lines.join("\n"), markup: kb([...pickRows, ...nav.length ? [nav] : [], mainRow()]) };
 }
 
 async function servicesOverview(): Promise<{ text: string; markup: ReplyMarkup }> {
@@ -925,7 +941,11 @@ async function handleCallback(cb: NonNullable<TelegramUpdate["callback_query"]>)
         const nav: Btn[] = [];
         if (page > 0) nav.push(btn("◀️ Prev", `user_reqs:${uid}:${page - 1}`));
         if (list.length === PAGE_SIZE) nav.push(btn("Next ▶️", `user_reqs:${uid}:${page + 1}`));
-        await tgClient.editMessageText(chatId, msgId!, lines.join("\n"), kb([...nav.length ? [nav] : [], backRow(`user:${uid}`)]));
+        const pickRows: Btn[][] = [];
+        for (let i = 0; i < list.length; i += 2) {
+          pickRows.push(list.slice(i, i + 2).map(({ a }) => btn(a.publicId, `req:${a.id}`)));
+        }
+        await tgClient.editMessageText(chatId, msgId!, lines.join("\n"), kb([...pickRows, ...nav.length ? [nav] : [], backRow(`user:${uid}`)]));
         break;
       }
       case "user_pays": {
@@ -944,7 +964,11 @@ async function handleCallback(cb: NonNullable<TelegramUpdate["callback_query"]>)
         const nav: Btn[] = [];
         if (page > 0) nav.push(btn("◀️ Prev", `user_pays:${uid}:${page - 1}`));
         if (list.length === PAGE_SIZE) nav.push(btn("Next ▶️", `user_pays:${uid}:${page + 1}`));
-        await tgClient.editMessageText(chatId, msgId!, lines.join("\n"), kb([...nav.length ? [nav] : [], backRow(`user:${uid}`)]));
+        const pickRows: Btn[][] = [];
+        for (let i = 0; i < list.length; i += 2) {
+          pickRows.push(list.slice(i, i + 2).map(({ p }) => btn(`#${p.id} ${p.amount} USDT`, `pay:${p.id}`)));
+        }
+        await tgClient.editMessageText(chatId, msgId!, lines.join("\n"), kb([...pickRows, ...nav.length ? [nav] : [], backRow(`user:${uid}`)]));
         break;
       }
       case "user_act":
@@ -970,7 +994,11 @@ async function handleCallback(cb: NonNullable<TelegramUpdate["callback_query"]>)
         const nav: Btn[] = [];
         if (page > 0) nav.push(btn("◀️ Prev", `reqs_st:${status}:${page - 1}`));
         if (list.length === PAGE_SIZE) nav.push(btn("Next ▶️", `reqs_st:${status}:${page + 1}`));
-        await tgClient.editMessageText(chatId, msgId!, lines.join("\n"), kb([...nav.length ? [nav] : [], backRow("pending")]));
+        const pickRows: Btn[][] = [];
+        for (let i = 0; i < list.length; i += 2) {
+          pickRows.push(list.slice(i, i + 2).map(({ a }) => btn(a.publicId, `req:${a.id}`)));
+        }
+        await tgClient.editMessageText(chatId, msgId!, lines.join("\n"), kb([...pickRows, ...nav.length ? [nav] : [], backRow("pending")]));
         break;
       }
       case "req": {
@@ -1105,7 +1133,7 @@ async function handleCallback(cb: NonNullable<TelegramUpdate["callback_query"]>)
       case "pay_appc": {
         const id = Number(rest[0]);
         const result = await approvePayment(chatId, id);
-        await tgClient.editMessageText(chatId, msgId!, result, kb([mainRow()]));
+        await tgClient.editMessageText(chatId, msgId!, result, kb([[btn("👁 View Payment", `pay:${id}`)], mainRow()]));
         break;
       }
       case "pay_rej": {
@@ -1128,7 +1156,7 @@ async function handleCallback(cb: NonNullable<TelegramUpdate["callback_query"]>)
         }
         flows.delete(chatId);
         const result = await rejectPayment(chatId, id, flow.reason || "Rejected");
-        await tgClient.editMessageText(chatId, msgId!, result, kb([mainRow()]));
+        await tgClient.editMessageText(chatId, msgId!, result, kb([[btn("👁 View Payment", `pay:${id}`)], mainRow()]));
         break;
       }
       case "svc":
