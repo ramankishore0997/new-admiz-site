@@ -3,8 +3,13 @@ import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, DEP
 import { eq, or, ilike } from "drizzle-orm";
 import { hashPassword, verifyPassword, signToken, verifyToken } from "../lib/crypto";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
+import { rateLimit } from "../middlewares/rate-limit";
 
 const router = Router();
+
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: "Too many attempts. Please wait a few minutes and try again." });
+const registerLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: "Too many registrations from this network. Please try again later." });
+const resetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: "Too many reset requests. Please try again later." });
 
 // Configure cookie properties
 const isProd = process.env.NODE_ENV === "production";
@@ -56,11 +61,10 @@ const handleRegister = async (req: any, res: Response, next: any) => {
       return res.status(400).json({ error: "An account with this email address or username already exists." });
     }
 
-    // Check if it's the very first user (auto-escalate to SUPER_ADMIN for setup convenience)
-    const allUsers = await db.select({ id: usersTable.id }).from(usersTable).limit(1);
-    const role = allUsers.length === 0 ? "SUPER_ADMIN" : "CLIENT";
-
     const hashedPassword = hashPassword(password);
+
+    // New accounts always start as CLIENT; admin roles are granted by an existing SUPER_ADMIN
+    const role = "CLIENT";
 
     const [newUser] = await db
       .insert(usersTable)
@@ -90,8 +94,8 @@ const handleRegister = async (req: any, res: Response, next: any) => {
   }
 };
 
-router.post("/auth/register", handleRegister);
-router.post("/register", handleRegister);
+router.post("/auth/register", registerLimiter, handleRegister);
+router.post("/register", registerLimiter, handleRegister);
 
 /**
  * Build full client profile: account records, payment deposit history and
@@ -184,17 +188,26 @@ const handleLogin = async (req: any, res: Response, next: any) => {
       )
       .limit(1);
 
-    if (!user || !verifyPassword(password, user.password)) {
+    if (!user) {
       return res.status(401).json({ error: "Invalid email address/username or password." });
     }
 
-    // Auto-migrate legacy plain text password to hashed format if needed
+    // Migrate legacy plain-text passwords to PBKDF2 hashes on first login.
+    // verifyPassword strictly rejects plain-text storage, so this must run first.
     if (!user.password.includes(":")) {
+      if (password !== user.password) {
+        return res.status(401).json({ error: "Invalid email address/username or password." });
+      }
       const hashedPassword = hashPassword(password);
       await db
         .update(usersTable)
         .set({ password: hashedPassword, updatedAt: new Date() })
         .where(eq(usersTable.id, user.id));
+      user.password = hashedPassword;
+    }
+
+    if (!verifyPassword(password, user.password)) {
+      return res.status(401).json({ error: "Invalid email address/username or password." });
     }
 
     if (user.status !== "ACTIVE") {
@@ -212,8 +225,8 @@ const handleLogin = async (req: any, res: Response, next: any) => {
   }
 };
 
-router.post("/auth/login", handleLogin);
-router.post("/login", handleLogin);
+router.post("/auth/login", authLimiter, handleLogin);
+router.post("/login", authLimiter, handleLogin);
 
 /**
  * Fetch current user profile
@@ -244,7 +257,7 @@ router.post("/auth/logout", (req, res) => {
 /**
  * Change password
  */
-router.post("/auth/change-password", authenticate, async (req: AuthenticatedRequest, res, next) => {
+router.post("/auth/change-password", authLimiter, authenticate, async (req: AuthenticatedRequest, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
     const user = req.user;
@@ -273,30 +286,27 @@ router.post("/auth/change-password", authenticate, async (req: AuthenticatedRequ
 });
 
 /**
- * Mock Forgot Password Request
+ * Forgot Password Request
+ *
+ * NOTE: Password reset requires a working email/SMS delivery channel to send
+ * the reset token. No mailer is configured, so the token is intentionally
+ * never returned to the client. Until SMTP is configured, users who lose
+ * their password must contact support.
  */
-router.post("/auth/forgot-password", async (req, res) => {
+router.post("/auth/forgot-password", resetLimiter, async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: "Email is required." });
-
-  // In production, we generate reset token and mail it. Here, we simulate mail logging
-  const [user] = await db
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.email, email.toLowerCase().trim()))
-    .limit(1);
 
   // Return success message regardless of existence (standard security practice)
   return res.json({
     message: "If the email exists in our system, a password reset link has been dispatched.",
-    debugToken: user ? signToken({ id: user.id, reset: true }) : null, // for testing convenience
   });
 });
 
 /**
- * Mock Reset Password Validation
+ * Reset Password Validation
  */
-router.post("/auth/reset-password", async (req, res, next) => {
+router.post("/auth/reset-password", resetLimiter, async (req, res, next) => {
   try {
     const { token, newPassword } = req.body;
     if (!token || !newPassword) {

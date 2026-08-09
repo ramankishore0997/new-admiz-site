@@ -29,10 +29,30 @@ app.use(
   }),
 );
 
-// CORS configuration supporting credentials (cookies) in dev & prod
+// CORS configuration supporting credentials (cookies) in dev & prod.
+// Origins are whitelisted explicitly — the API never reflects arbitrary origins.
+const DEFAULT_ALLOWED_ORIGINS = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:5173",
+  "https://legendary-kitsune-1449d7.netlify.app",
+];
+const allowedOrigins = new Set(
+  (process.env.CORS_ORIGINS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .concat(DEFAULT_ALLOWED_ORIGINS),
+);
+
 app.use(
   cors({
-    origin: true,
+    origin: (origin, callback) => {
+      // Non-browser clients (curl, server-to-server) send no Origin header
+      if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+      return callback(new Error("Origin not allowed by CORS"));
+    },
     credentials: true,
   })
 );
