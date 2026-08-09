@@ -29,17 +29,10 @@ app.use(
   }),
 );
 
-// CORS configuration supporting credentials (cookies) in dev
-const allowedOrigins = ["http://localhost:3000", "http://127.0.0.1:3000"];
+// CORS configuration supporting credentials (cookies) in dev & prod
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: true,
     credentials: true,
   })
 );
