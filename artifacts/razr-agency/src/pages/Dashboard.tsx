@@ -60,8 +60,33 @@ export default function Dashboard() {
 
   // Apply Form State
   const [applyPlatform, setApplyPlatform] = useState("meta");
-  const [applySpendLimit, setApplySpendLimit] = useState("Starter ($50/day warmup)");
-  const [applyNotes, setApplyNotes] = useState("");
+  const [applyBmId, setApplyBmId] = useState("");
+  const [applyGmail, setApplyGmail] = useState("");
+  const [applyHatType, setApplyHatType] = useState<"" | "BLACK" | "GREY" | "WHITE">("");
+
+  const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; features: string[]; styles: string }> = {
+    BLACK: {
+      title: "Black Hat",
+      emoji: "⚫",
+      desc: "High-risk verticals. Maximum aggressiveness.",
+      features: ["Crypto, casino, nutra & gambling offers allowed", "Instant re-provisioning after bans", "Aggressive scaling, high volume", "Ban risk: HIGH · Shorter lifespan"],
+      styles: "border-slate-800 bg-slate-900 text-white",
+    },
+    GREY: {
+      title: "Grey Hat",
+      emoji: "🌫️",
+      desc: "Moderate-risk offers. Balanced stability.",
+      features: ["Semi-verified accounts", "Steady scaling with fewer flags", "Replacement covered on first ban", "Ban risk: MEDIUM · Medium lifespan"],
+      styles: "border-amber-300 bg-amber-50 text-amber-900",
+    },
+    WHITE: {
+      title: "White Hat",
+      emoji: "⚪",
+      desc: "Fully compliant. Maximum stability.",
+      features: ["100% policy-compliant accounts", "Best stability & longest lifespan", "Ideal for long-term brand builds", "Ban risk: LOW · Long lifespan"],
+      styles: "border-emerald-300 bg-emerald-50 text-emerald-900",
+    },
+  };
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -82,7 +107,24 @@ export default function Dashboard() {
         ? "TikTok Ads"
         : "Other Ads Platform";
 
-    const result = await applyAdAccount(platName, applySpendLimit, applyNotes);
+    if (applyPlatform === "meta" && !applyBmId.trim()) {
+      toast({ variant: "destructive", title: "BM ID Required", description: "Please enter your Meta Business Manager ID." });
+      return;
+    }
+    if (applyPlatform === "google" && !applyGmail.trim()) {
+      toast({ variant: "destructive", title: "Gmail Required", description: "Please enter the Gmail for your Google Ads account." });
+      return;
+    }
+    if (!applyHatType) {
+      toast({ variant: "destructive", title: "Hat Type Required", description: "Please choose Black, Grey or White hat type." });
+      return;
+    }
+
+    const result = await applyAdAccount(platName, {
+      hatType: applyHatType,
+      businessManagerId: applyPlatform === "meta" ? applyBmId.trim() : undefined,
+      gmail: applyPlatform === "google" ? applyGmail.trim() : undefined,
+    });
 
     if (!result.success) {
       toast({
@@ -95,11 +137,13 @@ export default function Dashboard() {
 
     toast({
       title: "Account Request Submitted",
-      description: `Your request for a ${platName} account is pending verification.`,
+      description: `Your ${applyHatType} hat ${platName} account request is pending verification.`,
     });
 
     setShowApplyModal(false);
-    setApplyNotes("");
+    setApplyBmId("");
+    setApplyGmail("");
+    setApplyHatType("");
   };
 
   const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -755,31 +799,67 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Requested Spend Cap *</label>
-                  <select
-                    value={applySpendLimit}
-                    onChange={(e) => setApplySpendLimit(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm outline-none focus:border-primary/50 transition-colors"
-                  >
-                    <option value="Starter ($50/day warmup)">Starter ($50/day warmup)</option>
-                    <option value="Growth ($5,000/day limit)">Growth ($5,000/day limit)</option>
-                    <option value="Enterprise (Unlimited daily spend)">Enterprise (Unlimited daily spend)</option>
-                  </select>
-                </div>
+                {applyPlatform === "meta" && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Business Manager ID (BM ID) *</label>
+                    <input
+                      type="text"
+                      value={applyBmId}
+                      onChange={(e) => setApplyBmId(e.target.value)}
+                      placeholder="e.g. 4920491029302"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm outline-none focus:border-primary/50 transition-colors"
+                    />
+                    <span className="text-[10px] text-slate-400">The BM ID your ad account will be granted under.</span>
+                  </div>
+                )}
+
+                {applyPlatform === "google" && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Gmail for the Ad Account *</label>
+                    <input
+                      type="email"
+                      value={applyGmail}
+                      onChange={(e) => setApplyGmail(e.target.value)}
+                      placeholder="yourgmail@gmail.com"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm outline-none focus:border-primary/50 transition-colors"
+                    />
+                    <span className="text-[10px] text-slate-400">Your Google Ads account will be created on this Gmail.</span>
+                  </div>
+                )}
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>Niche Details & Notes</span>
-                    <span className="text-[9px] text-slate-400 capitalize tracking-normal font-normal">Optional</span>
-                  </label>
-                  <textarea
-                    value={applyNotes}
-                    onChange={(e) => setApplyNotes(e.target.value)}
-                    rows={3}
-                    placeholder="Describe your offer, landing page, and target geography..."
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm outline-none focus:border-primary/50 transition-colors resize-none"
-                  />
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Choose Hat Type *</label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {(Object.keys(HAT_FEATURES) as Array<"BLACK" | "GREY" | "WHITE">).map((key) => {
+                      const hat = HAT_FEATURES[key];
+                      const isSelected = applyHatType === key;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setApplyHatType(key)}
+                          className={`text-left rounded-xl border p-3 transition-all cursor-pointer ${
+                            isSelected ? `${hat.styles} border-current shadow-lg` : "border-slate-200 bg-white hover:border-slate-300 text-slate-700"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className={`text-xs font-black uppercase tracking-wider ${isSelected ? "" : "text-slate-900"}`}>
+                              {hat.emoji} {hat.title}
+                            </span>
+                            {isSelected && <CheckCircle className="w-4 h-4" />}
+                          </div>
+                          <span className={`block text-[10px] font-semibold mb-1.5 ${isSelected ? "opacity-90" : "text-slate-600"}`}>{hat.desc}</span>
+                          <ul className={`space-y-0.5 ${isSelected ? "opacity-90" : "text-slate-500"}`}>
+                            {hat.features.map((f) => (
+                              <li key={f} className="text-[10px] flex items-start gap-1">
+                                <span className="shrink-0">•</span> {f}
+                              </li>
+                            ))}
+                          </ul>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {user.balance < 10 ? (

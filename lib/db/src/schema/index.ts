@@ -63,8 +63,10 @@ export const applicationsTable = pgTable("applications", {
     accountCount?: string;
     currency?: string;
     timezone?: string;
-    businessManagerId?: string;
+    businessManagerId?: string; // Meta: BM ID
     existingAccountId?: string;
+    gmail?: string; // Google: Gmail used for the ad account
+    hatType?: "BLACK" | "GREY" | "WHITE"; // account risk profile
   }>(),
   rejectionReason: text("rejection_reason"),
   assignedAdminId: integer("assigned_admin_id").references(() => usersTable.id),

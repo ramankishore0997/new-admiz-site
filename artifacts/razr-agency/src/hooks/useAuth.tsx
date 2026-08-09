@@ -74,8 +74,11 @@ interface AuthContextType {
   }) => Promise<SubmitDepositResult>;
   applyAdAccount: (
     platform: string,
-    spendLimit: string,
-    notes?: string
+    requirements?: {
+      hatType?: "BLACK" | "GREY" | "WHITE";
+      businessManagerId?: string;
+      gmail?: string;
+    }
   ) => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -221,8 +224,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Create real application in DRAFT state when they request account
   const applyAdAccount = async (
     platform: string,
-    spendLimit: string,
-    notes?: string
+    requirements?: {
+      hatType?: "BLACK" | "GREY" | "WHITE";
+      businessManagerId?: string; // Meta BM ID
+      gmail?: string; // Google Gmail
+    }
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       // 1. Create Application Draft
@@ -237,7 +243,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({
           personalInfo: { fullName: user?.username || "", email: user?.email || "" },
           advertisingInfo: { platform },
-          accountRequirements: { spendLimit, existingAccountId: notes },
+          accountRequirements: {
+            hatType: requirements?.hatType,
+            businessManagerId: requirements?.businessManagerId,
+            gmail: requirements?.gmail,
+          },
         }),
       });
 

@@ -152,10 +152,15 @@ function formatApp(a: Application, email: string): string {
     `User: ${email}`,
     `Status: ${statusEmoji(a.status)} ${a.status}`,
     `Platform: ${a.advertisingInfo?.platform || "-"}`,
+    `Hat type: ${a.accountRequirements?.hatType || "-"}`,
+  ];
+  if (a.accountRequirements?.businessManagerId) lines.push(`BM ID: ${a.accountRequirements.businessManagerId}`);
+  if (a.accountRequirements?.gmail) lines.push(`Gmail: ${a.accountRequirements.gmail}`);
+  lines.push(
     `Expected spend: ${a.advertisingInfo?.expectedSpend || "-"}`,
     `Submitted: ${formatDate(a.submittedAt)}`,
     `Created: ${formatDate(a.createdAt)}`,
-  ];
+  );
   if (a.rejectionReason) lines.push(`Reason: ${truncate(a.rejectionReason, 100)}`);
   return lines.join("\n");
 }
