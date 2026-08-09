@@ -6,8 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import LoadingScreen from "@/components/LoadingScreen";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
-import GlassDock from "@/components/GlassDock";
 import StickyUrgencyBar from "@/components/StickyUrgencyBar";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 import CursorGlow from "@/components/effects/CursorGlow";
@@ -243,14 +241,10 @@ function App() {
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <Router />
           </WouterRouter>
-          <WhatsAppFloat />
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <ChatWidget />
           </WouterRouter>
           <ExitIntentPopup />
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <GlassDock />
-          </WouterRouter>
           <Toaster />
         </AuthProvider>
       </TooltipProvider>
