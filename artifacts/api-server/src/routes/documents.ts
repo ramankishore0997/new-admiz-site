@@ -1,6 +1,7 @@
 import { Router } from "express";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import crypto from "node:crypto";
 import { db, documentsTable, applicationsTable, applicationTimelineTable, type Document } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
@@ -8,10 +9,27 @@ import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
 
 const router = Router();
 
-// Create uploads directory outside the public web root
-const UPLOAD_DIR = path.resolve(import.meta.dirname, "../../../uploads");
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+// Resolve the module directory in both ESM (import.meta.dirname) and bundled
+// CJS output (where import.meta.dirname is unavailable) and fall back to a
+// writable temp dir when the repo-relative path cannot be created (serverless).
+const moduleDir =
+  typeof __dirname !== "undefined"
+    ? __dirname
+    : typeof import.meta.dirname === "string"
+      ? import.meta.dirname
+      : process.cwd();
+
+let UPLOAD_DIR: string;
+try {
+  UPLOAD_DIR = path.resolve(moduleDir, "../../../uploads");
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
+} catch {
+  UPLOAD_DIR = path.join(os.tmpdir(), "razr-uploads");
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
 }
 
 const ALLOWED_MIMES = ["application/pdf", "image/png", "image/jpeg", "image/jpg"];

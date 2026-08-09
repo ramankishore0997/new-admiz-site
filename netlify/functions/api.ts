@@ -1,3 +1,4 @@
+import "./netlify-env";
 import serverless from "serverless-http";
 import express from "../../artifacts/api-server/node_modules/express/index.js";
 import app from "../../artifacts/api-server/src/app";
