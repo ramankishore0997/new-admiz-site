@@ -36,7 +36,7 @@ function MagneticCTA() {
   };
   const onLeave = () => { mx.set(0); my.set(0); };
 
-  const targetPath = user ? "/dashboard" : "/apply-agency";
+  const targetPath = user ? "/app/dashboard" : "/apply-agency";
 
   return (
     <motion.a
@@ -68,7 +68,7 @@ export default function Navbar() {
   const dynamicLinks = user
     ? [
         ...navLinks.filter((l) => l.name !== "Contact" && l.name !== "Run Ads"),
-        { name: "Dashboard", href: "/dashboard", icon: Briefcase },
+        { name: "Dashboard", href: "/app/dashboard", icon: Briefcase },
       ]
     : [
         ...navLinks.filter((l) => l.name !== "Run Ads"),
@@ -270,7 +270,7 @@ export default function Navbar() {
               {/* Mobile CTA */}
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
                 <Link
-                  href={user ? "/dashboard" : "/apply-agency"}
+                  href={user ? "/app/dashboard" : "/apply-agency"}
                   onClick={() => setOpen(false)}
                   className="relative block group rounded-2xl overflow-hidden"
                 >

@@ -27,7 +27,6 @@ import Terms from "@/pages/Terms";
 import ApplyAgencyAccount from "@/pages/ApplyAgencyAccount";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
-import Dashboard from "@/pages/Dashboard";
 import ForgotPassword from "@/pages/ForgotPassword";
 
 import ClientDashboard from "@/pages/ClientDashboard";
@@ -58,6 +57,19 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 const queryClient = new QueryClient();
+
+function DashboardRedirect() {
+  const { user, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!isLoading) {
+      setLocation(user ? "/app/dashboard" : "/login");
+    }
+  }, [user, isLoading]);
+
+  return null;
+}
 
 function ProtectedRoute({ path, component: Component, role }: { path: string; component: React.ComponentType; role?: string }) {
   const { user, isLoading } = useAuth();
@@ -119,7 +131,9 @@ function Router() {
           <Route path="/signup" component={Signup} />
           <Route path="/register" component={Signup} />
           <Route path="/forgot-password" component={ForgotPassword} />
-          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/dashboard">
+            {() => <DashboardRedirect />}
+          </Route>
           <Route path="/advertise" component={Advertise} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/refund" component={Refund} />
