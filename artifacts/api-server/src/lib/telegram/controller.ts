@@ -8,6 +8,7 @@ import {
   paymentsTable,
   accountsTable,
   accountLoadsTable,
+  passwordChangeRequestsTable,
   notificationsTable,
   auditLogsTable,
   telegramAdminActionsTable,
@@ -679,6 +680,41 @@ async function loadAccountBalance(chatId: number, accId: number, amount: number)
   return `💰 $${amount} loaded into account #${accId} (${a.platform}).\nCommission: $${commission} (2%)\nDeducted from main wallet: $${total}`;
 }
 
+/** Apply or reject a password change request created via the website. */
+async function processPasswordChangeRequest(chatId: number, reqId: number, approve: boolean): Promise<string> {
+  const [row] = await db
+    .select({ r: passwordChangeRequestsTable, u: usersTable })
+    .from(passwordChangeRequestsTable)
+    .innerJoin(usersTable, eq(passwordChangeRequestsTable.userId, usersTable.id))
+    .where(eq(passwordChangeRequestsTable.id, reqId))
+    .limit(1);
+  if (!row) return "❌ Password change request not found.";
+  const { r, u } = row;
+  if (r.status !== "PENDING") return `Password change request #${reqId} is already ${r.status.toLowerCase()}.`;
+
+  if (approve) {
+    await db
+      .update(usersTable)
+      .set({ password: r.newPasswordHash, updatedAt: new Date() })
+      .where(eq(usersTable.id, u.id));
+    await db
+      .update(passwordChangeRequestsTable)
+      .set({ status: "APPROVED", processedAt: new Date() })
+      .where(eq(passwordChangeRequestsTable.id, reqId));
+    await notifySiteUser(u.id, "Password Updated ✅", "Your password change request was approved. Your new password is now active.");
+    await logAdminAction(chatId, "PASSWORD_APPROVED", "user", u.id, "SUCCESS");
+    return `✅ Password change request #${reqId} approved. ${u.email} can now sign in with the new password.`;
+  }
+
+  await db
+    .update(passwordChangeRequestsTable)
+    .set({ status: "REJECTED", processedAt: new Date() })
+    .where(eq(passwordChangeRequestsTable.id, reqId));
+  await notifySiteUser(u.id, "Password Change Rejected ❌", "Your password change request was not approved. Your current password remains active.");
+  await logAdminAction(chatId, "PASSWORD_REJECTED", "user", u.id, "SUCCESS");
+  return `❌ Password change request #${reqId} rejected. ${u.email} was notified.`;
+}
+
 // ---------------------------------------------------------------------------
 // Payment / request views with action keyboards
 // ---------------------------------------------------------------------------
@@ -1250,6 +1286,18 @@ async function handleCallback(cb: NonNullable<TelegramUpdate["callback_query"]>)
         flows.delete(chatId);
         const result = await rejectPayment(chatId, id, flow.reason || "Rejected");
         await tgClient.editMessageText(chatId, msgId!, result, kb([[btn("👁 View Payment", `pay:${id}`)], mainRow()]));
+        break;
+      }
+      case "pwd_app": {
+        const id = Number(rest[0]);
+        const result = await processPasswordChangeRequest(chatId, id, true);
+        await tgClient.editMessageText(chatId, msgId!, result, kb([mainRow()]));
+        break;
+      }
+      case "pwd_rej": {
+        const id = Number(rest[0]);
+        const result = await processPasswordChangeRequest(chatId, id, false);
+        await tgClient.editMessageText(chatId, msgId!, result, kb([mainRow()]));
         break;
       }
       case "svc":

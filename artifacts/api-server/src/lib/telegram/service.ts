@@ -138,6 +138,17 @@ export async function notifyRequestStatusChange(app: TgAppRef, user: TgUserRef):
   await recordEvent("REQUEST_STATUS_CHANGE", ok, { applicationId: app.id, publicId: app.publicId, userId: user.id, status: app.status || null });
 }
 
+export async function notifyPasswordChangeRequest(req: { id: number; source: string }, user: TgUserRef): Promise<void> {
+  const ok = await sendTelegramMessage(
+    `🔑 PASSWORD CHANGE REQUEST\n\nRequest: #${req.id}\nUser: ${user.email}\nSource: ${req.source === "RESET" ? "Forgot Password (login page)" : "Profile Settings"}\n\nApprove to apply the new password.`,
+    [
+      { text: "✅ Approve", data: `pwd_app:${req.id}` },
+      { text: "❌ Reject", data: `pwd_rej:${req.id}` },
+    ],
+  );
+  await recordEvent("PASSWORD_CHANGE_REQUEST", ok, { requestId: req.id, userId: user.id, source: req.source });
+}
+
 /**
  * Report a critical backend error to the admin chat. Never includes secrets or
  * full stack traces — only service/endpoint/error message/timestamp.

@@ -11,10 +11,24 @@ export const usersTable = pgTable("users", {
   telegramHandle: text("telegram_handle"),
   phoneNumber: text("phone_number"),
   country: text("country"),
+  referCode: text("refer_code"), // referral code entered at signup
   role: text("role").default("CLIENT").notNull(), // CLIENT, SUPER_ADMIN, ADMIN, REVIEWER, SUPPORT
   status: text("status").default("ACTIVE").notNull(), // ACTIVE, SUSPENDED, DELETED
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Password change approvals — the new password is only applied after an
+// admin approves the request from Telegram (both from profile settings and
+// from the login-page forgot-password flow).
+export const passwordChangeRequestsTable = pgTable("password_change_requests", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
+  newPasswordHash: text("new_password_hash").notNull(),
+  source: text("source").notNull(), // PROFILE (logged in) or RESET (login page)
+  status: text("status").default("PENDING").notNull(), // PENDING, APPROVED, REJECTED
+  requestedAt: timestamp("requested_at").defaultNow().notNull(),
+  processedAt: timestamp("processed_at"),
 });
 
 // 2. Applications Table
@@ -360,5 +374,8 @@ export type NewApplicationFee = typeof applicationFeesTable.$inferInsert;
 
 export type AccountLoad = typeof accountLoadsTable.$inferSelect;
 export type NewAccountLoad = typeof accountLoadsTable.$inferInsert;
+
+export type PasswordChangeRequest = typeof passwordChangeRequestsTable.$inferSelect;
+export type NewPasswordChangeRequest = typeof passwordChangeRequestsTable.$inferInsert;
 
 export * from "./telegram";

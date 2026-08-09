@@ -17,6 +17,7 @@ export default function Signup() {
   const [telegramHandle, setTelegramHandle] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [country, setCountry] = useState("United States");
+  const [referCode, setReferCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -69,7 +70,8 @@ export default function Signup() {
       companyName,
       telegramHandle,
       phoneNumber,
-      country
+      country,
+      referCode
     );
     setIsSubmitting(false);
 
@@ -118,22 +120,37 @@ export default function Signup() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Contact Name</label>
+                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Refer Code (Optional)</label>
                   <div className="relative">
-                    <User className="absolute left-4 top-3 w-4 h-4 text-slate-400" />
+                    <ShieldAlert className="absolute left-4 top-3 w-4 h-4 text-slate-400" />
                     <input
                       type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="John Doe"
-                      required
+                      value={referCode}
+                      onChange={(e) => setReferCode(e.target.value)}
+                      placeholder="e.g. RAZR-2026"
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-slate-900 text-xs outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors"
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Company Name</label>
+                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Country</label>
+                  <div className="relative">
+                    <Globe className="absolute left-4 top-3 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      placeholder="United States"
+                      required
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-slate-900 text-xs outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Company Name</label>
                   <div className="relative">
                     <Building className="absolute left-4 top-3 w-4 h-4 text-slate-400" />
                     <input
@@ -146,7 +163,6 @@ export default function Signup() {
                     />
                   </div>
                 </div>
-              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">

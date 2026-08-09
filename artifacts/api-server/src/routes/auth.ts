@@ -1,5 +1,5 @@
 import { Router, type Response } from "express";
-import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, accountLoadsTable, type User } from "@workspace/db";
+import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, accountLoadsTable, passwordChangeRequestsTable, type User } from "@workspace/db";
 import { eq, or, ilike } from "drizzle-orm";
 import { hashPassword, verifyPassword, signToken, verifyToken } from "../lib/crypto";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
@@ -42,7 +42,7 @@ router.get("/auth/debug-users", authenticate, async (req: AuthenticatedRequest, 
  */
 const handleRegister = async (req: any, res: Response, next: any) => {
   try {
-    const { email, password, username, companyName, telegramHandle, phoneNumber, country } = req.body;
+    const { email, password, username, companyName, telegramHandle, phoneNumber, country, referCode } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email address and password are required." });
@@ -77,6 +77,7 @@ const handleRegister = async (req: any, res: Response, next: any) => {
         telegramHandle: telegramHandle || "",
         phoneNumber: phoneNumber || "",
         country: country || "",
+        referCode: referCode ? String(referCode).trim().slice(0, 64) : null,
         role,
         status: "ACTIVE",
       })
@@ -278,7 +279,8 @@ router.post("/auth/logout", (req, res) => {
 });
 
 /**
- * Change password
+ * Change password (profile settings) — the new password is only applied
+ * after an admin approves the request from Telegram.
  */
 router.post("/auth/change-password", authLimiter, authenticate, async (req: AuthenticatedRequest, res, next) => {
   try {
@@ -295,35 +297,100 @@ router.post("/auth/change-password", authLimiter, authenticate, async (req: Auth
       return res.status(400).json({ error: "The current password you entered is incorrect." });
     }
 
-    // Update with new password
-    const hashedPassword = hashPassword(newPassword);
-    await db
-      .update(usersTable)
-      .set({ password: hashedPassword, updatedAt: new Date() })
-      .where(eq(usersTable.id, user.id));
+    // Create approval request instead of changing immediately
+    const [request] = await db
+      .insert(passwordChangeRequestsTable)
+      .values({
+        userId: user.id,
+        newPasswordHash: hashPassword(newPassword),
+        source: "PROFILE",
+      })
+      .returning();
 
-    return res.json({ message: "Password updated successfully." });
+    // Telegram admin notification (fail-soft)
+    void telegramNotify.notifyPasswordChangeRequest({ id: request.id, source: "PROFILE" }, { id: user.id, email: user.email });
+
+    return res.json({
+      message: "Password change request sent for admin approval. Your password will be updated once approved.",
+      requestId: request.id,
+    });
   } catch (err) {
     return next(err);
   }
 });
 
 /**
- * Forgot Password Request
- *
- * NOTE: Password reset requires a working email/SMS delivery channel to send
- * the reset token. No mailer is configured, so the token is intentionally
- * never returned to the client. Until SMTP is configured, users who lose
- * their password must contact support.
+ * Forgot Password Request (login page) — the user submits their email plus
+ * the new password they want. An admin approves from Telegram before the
+ * password is applied.
  */
-router.post("/auth/forgot-password", resetLimiter, async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: "Email is required." });
+router.post("/auth/forgot-password", resetLimiter, async (req, res, next) => {
+  try {
+    const { email, newPassword } = req.body;
+    if (!email || !newPassword) {
+      return res.status(400).json({ error: "Email address and new password are required." });
+    }
 
-  // Return success message regardless of existence (standard security practice)
-  return res.json({
-    message: "If the email exists in our system, a password reset link has been dispatched.",
-  });
+    const inputClean = String(email).toLowerCase().trim();
+    const [user] = await db
+      .select({ id: usersTable.id, email: usersTable.email })
+      .from(usersTable)
+      .where(eq(usersTable.email, inputClean))
+      .limit(1);
+
+    // Never reveal whether the account exists.
+    if (!user) {
+      return res.json({
+        message: "If the account exists, your password reset request has been sent for admin approval.",
+      });
+    }
+
+    const [request] = await db
+      .insert(passwordChangeRequestsTable)
+      .values({
+        userId: user.id,
+        newPasswordHash: hashPassword(newPassword),
+        source: "RESET",
+      })
+      .returning();
+
+    void telegramNotify.notifyPasswordChangeRequest({ id: request.id, source: "RESET" }, { id: user.id, email: user.email });
+
+    return res.json({
+      message: "Password reset request submitted. An admin will review it — your new password becomes active after approval.",
+      requestId: request.id,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * Update profile fields (contact name, company name, telegram handle)
+ */
+router.patch("/auth/profile", authenticate, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const user = req.user;
+    if (!user) return res.status(401).json({ error: "Unauthenticated" });
+
+    const { username, companyName, telegramHandle } = req.body || {};
+
+    const [updated] = await db
+      .update(usersTable)
+      .set({
+        username: typeof username === "string" && username.trim() ? username.trim() : user.username,
+        companyName: typeof companyName === "string" ? companyName.trim() : user.companyName,
+        telegramHandle: typeof telegramHandle === "string" ? telegramHandle.replace(/^@/, "").trim() : user.telegramHandle,
+        updatedAt: new Date(),
+      })
+      .where(eq(usersTable.id, user.id))
+      .returning();
+
+    const { password: _pw, ...profile } = updated;
+    return res.json(profile);
+  } catch (err) {
+    return next(err);
+  }
 });
 
 /**

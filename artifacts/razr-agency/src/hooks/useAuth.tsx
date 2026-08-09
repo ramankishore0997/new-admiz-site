@@ -61,7 +61,8 @@ interface AuthContextType {
     companyName: string,
     telegramHandle: string,
     phoneNumber?: string,
-    country?: string
+    country?: string,
+    referCode?: string
   ) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -151,7 +152,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     companyName: string,
     telegramHandle: string,
     phoneNumber?: string,
-    country?: string
+    country?: string,
+    referCode?: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const res = await fetch("/api/auth/register", {
@@ -166,6 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           telegramHandle,
           phoneNumber,
           country,
+          referCode,
         }),
       });
       const data = await safeJson(res);
