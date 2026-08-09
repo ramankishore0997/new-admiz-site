@@ -140,15 +140,11 @@ export default function ClientDashboard() {
     e.preventDefault();
 
     const amt = Number(depositAmount);
-    const isFirstDeposit = !(user?.deposits && user.deposits.length > 0);
-    const minDeposit = isFirstDeposit ? 10 : 100;
-    if (!amt || amt < minDeposit) {
+    if (!amt || amt <= 0) {
       toast({
         variant: "destructive",
         title: "Invalid Amount",
-        description: isFirstDeposit
-          ? "First-time top-up minimum is $10 USDT — this covers the $10 ad-account application fee."
-          : "Minimum top-up is $100 USDT.",
+        description: "Please enter a valid top-up amount. Deposits are commission-free — full credit, no fees.",
       });
       return;
     }
@@ -311,7 +307,11 @@ export default function ClientDashboard() {
 
         {/* Live Application Tracker card */}
         <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg shadow-slate-200/60 p-6">
-          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Live Application Status</div>
+          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
+            Live Application Status {applications.length > 0 && (
+              <span className="ml-1 text-primary">· {applications.length} account{applications.length > 1 ? "s" : ""}</span>
+            )}
+          </div>
           {appsError ? (
             <div>
               <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5">
@@ -574,11 +574,11 @@ export default function ClientDashboard() {
                       <div className="relative flex-1">
                         <input
                           type="number"
-                          min={user?.deposits?.length ? "100" : "10"}
+                          min={1}
                           value={depositAmount}
                           onChange={(e) => setDepositAmount(e.target.value)}
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm outline-none focus:border-primary/50 font-bold"
-                          placeholder={user?.deposits?.length ? "100" : "10"}
+                          placeholder="Enter amount"
                         />
                         <span className="absolute right-4 top-3 text-xs font-black uppercase text-emerald-600">USDT</span>
                       </div>
@@ -590,9 +590,7 @@ export default function ClientDashboard() {
                       </button>
                     </div>
                     <p className="text-[9px] text-slate-400 mt-1.5">
-                      {user?.deposits?.length
-                        ? "Minimum top-up is $100 USDT. No commission on deposits — the full amount is credited to your main wallet."
-                        : "First-time top-up minimum is $10 USDT (covers the $10 ad-account application fee). No commission on deposits."}
+                      Zero commission on deposits — the full amount is credited to your main wallet. No fees, no deductions.
                     </p>
                   </div>
 

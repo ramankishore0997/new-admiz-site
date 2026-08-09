@@ -64,27 +64,48 @@ export default function Dashboard() {
   const [applyGmail, setApplyGmail] = useState("");
   const [applyHatType, setApplyHatType] = useState<"" | "BLACK" | "GREY" | "WHITE">("");
 
-  const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; features: string[]; styles: string }> = {
+  const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; badge: string; features: string[]; styles: string }> = {
     BLACK: {
       title: "Black Hat",
       emoji: "⚫",
-      desc: "High-risk verticals. Maximum aggressiveness.",
-      features: ["Crypto, casino, nutra & gambling offers allowed", "Instant re-provisioning after bans", "Aggressive scaling, high volume", "Ban risk: HIGH · Shorter lifespan"],
-      styles: "border-slate-800 bg-slate-900 text-white",
+      desc: "The elite tier for aggressive media buyers. Zero limits, maximum scale.",
+      badge: "UNLIMITED REPLACEMENTS",
+      features: [
+        "Crypto, casino, nutra, gambling & every high-risk vertical allowed",
+        "Unlimited free replacements — new account re-provisioned instantly, every time",
+        "Aggressive scaling with zero daily-spend ceilings",
+        "Priority provisioning queue — accounts ready in minutes",
+        "Dedicated compliance manager on Telegram 24/7",
+      ],
+      styles: "border-slate-900 bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-[0_10px_40px_-10px_rgba(2,6,23,0.55)]",
     },
     GREY: {
       title: "Grey Hat",
       emoji: "🌫️",
-      desc: "Moderate-risk offers. Balanced stability.",
-      features: ["Semi-verified accounts", "Steady scaling with fewer flags", "Replacement covered on first ban", "Ban risk: MEDIUM · Medium lifespan"],
-      styles: "border-amber-300 bg-amber-50 text-amber-900",
+      desc: "The power tier — stable, flexible and built to print.",
+      badge: "FREE REPLACEMENTS",
+      features: [
+        "Semi-verified accounts with instant spend approval",
+        "Unlimited free replacements on every single account",
+        "Smooth, steady scaling with zero friction",
+        "Warm accounts with prior spending history",
+        "Round-the-clock Telegram priority support",
+      ],
+      styles: "border-amber-400 bg-gradient-to-br from-amber-100 to-amber-50 text-amber-900 shadow-[0_10px_40px_-10px_rgba(245,158,11,0.4)]",
     },
     WHITE: {
       title: "White Hat",
       emoji: "⚪",
-      desc: "Fully compliant. Maximum stability.",
-      features: ["100% policy-compliant accounts", "Best stability & longest lifespan", "Ideal for long-term brand builds", "Ban risk: LOW · Long lifespan"],
-      styles: "border-emerald-300 bg-emerald-50 text-emerald-900",
+      desc: "The premium tier — fully verified, built to last forever.",
+      badge: "UNLIMITED REPLACEMENTS",
+      features: [
+        "100% verified, policy-perfect accounts",
+        "Unlimited free replacements — your campaigns never stop",
+        "Maximum stability for long-term brand dominance",
+        "Bank-grade account history & full spend limits",
+        "Priority VIP support channel on Telegram",
+      ],
+      styles: "border-emerald-400 bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-900 shadow-[0_10px_40px_-10px_rgba(5,150,105,0.4)]",
     },
   };
 
@@ -533,24 +554,22 @@ export default function Dashboard() {
                       <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
                       <input
                         type="number"
-                        min={user?.deposits?.length ? "100" : "10"}
+                        min={1}
                         value={depositAmount}
                         onChange={(e) => setDepositAmount(e.target.value)}
-                        placeholder={user?.deposits?.length ? "Min 100" : "Min 10"}
+                        placeholder="Enter amount"
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 text-slate-900 font-black outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
                     <span className="text-[10px] text-slate-400">
-                      {user?.deposits?.length
-                        ? "Minimum top-up is $100. No commission on deposits — the full amount is credited to your main wallet."
-                        : "First-time top-up minimum is $10 (covers the $10 ad-account application fee). No commission on deposits."}
+                      Zero commission on deposits — the full amount is credited to your main wallet instantly. No fees, no deductions.
                     </span>
                   </div>
 
                   <div className="flex justify-end pt-4 border-t border-slate-200">
                     <button
                       onClick={() => setDepositStep(2)}
-                      disabled={Number(depositAmount) < (user?.deposits?.length ? 100 : 10)}
+                      disabled={!Number(depositAmount) || Number(depositAmount) <= 0}
                       className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-all"
                     >
                       Next Step <ArrowRight className="w-3.5 h-3.5" />
@@ -846,7 +865,15 @@ export default function Dashboard() {
                             <span className={`text-xs font-black uppercase tracking-wider ${isSelected ? "" : "text-slate-900"}`}>
                               {hat.emoji} {hat.title}
                             </span>
-                            {isSelected && <CheckCircle className="w-4 h-4" />}
+                            <span
+                              className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${
+                                isSelected
+                                  ? "border-current opacity-90 bg-white/10"
+                                  : "border-emerald-300 bg-emerald-50 text-emerald-700"
+                              }`}
+                            >
+                              {hat.badge}
+                            </span>
                           </div>
                           <span className={`block text-[10px] font-semibold mb-1.5 ${isSelected ? "opacity-90" : "text-slate-600"}`}>{hat.desc}</span>
                           <ul className={`space-y-0.5 ${isSelected ? "opacity-90" : "text-slate-500"}`}>
@@ -866,20 +893,17 @@ export default function Dashboard() {
                   <div className="p-3.5 rounded-xl border border-red-200 bg-red-50 flex items-start gap-2 text-[10px] text-red-600 leading-relaxed">
                     <Lock className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                     <p>
-                      The application fee is <strong className="text-red-600">$10 per ad account</strong> (includes unlimited
-                      replacements) and is deducted from your main wallet on submission. Your current balance is insufficient —
-                      please deposit funds first ({user?.deposits?.length
-                        ? "minimum top-up "
-                        : "first-time top-up minimum "}
-                      <strong className="text-red-600">{user?.deposits?.length ? "$100" : "$10"}</strong>, no commission on deposits).
+                      Your wallet balance is too low to unlock this account. Top up your main wallet —{" "}
+                      <strong className="text-red-600">zero commission, full credit</strong> — and apply instantly.
                     </p>
                   </div>
                 ) : (
                   <div className="p-3.5 rounded-xl border border-primary/20 bg-primary/5 flex items-start gap-2 text-[10px] text-primary/90 leading-relaxed">
                     <Wallet className="w-4 h-4 shrink-0 mt-0.5" />
                     <p>
-                      <strong className="text-primary">Application fee: $10 per ad account</strong> — includes unlimited free
-                      replacements. Deducted from your ledger ({'$'}{user.balance.toLocaleString()} available) when you submit.
+                      <strong className="text-primary">Application fee: $10 per ad account</strong> — includes{" "}
+                      <strong className="text-primary">UNLIMITED FREE REPLACEMENTS</strong> on every account, forever. Deducted
+                      from your main wallet ({'$'}{user.balance.toLocaleString()} available) when you submit.
                     </p>
                   </div>
                 )}
@@ -897,7 +921,7 @@ export default function Dashboard() {
                     disabled={user.balance < 10}
                     className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-[0_4px_20px_rgba(5,150,105,0.25)]"
                   >
-                    Submit Application ($10 fee)
+                    Submit & Unlock Account
                   </button>
                 </div>
               </form>

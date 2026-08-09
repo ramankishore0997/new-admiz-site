@@ -40,6 +40,7 @@ export default function ClientApplication() {
     }
   };
 
+  const [applications, setApplications] = useState<any[]>([]);
   const [application, setApplication] = useState<any | null>(null);
   const [timeline, setTimeline] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
@@ -52,27 +53,48 @@ export default function ClientApplication() {
   const [applyGmail, setApplyGmail] = useState("");
   const [applyHatType, setApplyHatType] = useState<"" | "BLACK" | "GREY" | "WHITE">("");
 
-  const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; features: string[]; styles: string }> = {
+  const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; badge: string; features: string[]; styles: string }> = {
     BLACK: {
       title: "Black Hat",
       emoji: "⚫",
-      desc: "High-risk verticals. Maximum aggressiveness.",
-      features: ["Crypto, casino, nutra & gambling offers allowed", "Instant re-provisioning after bans", "Aggressive scaling, high volume", "Ban risk: HIGH · Shorter lifespan"],
-      styles: "border-slate-800 bg-slate-900 text-white",
+      desc: "The elite tier for aggressive media buyers. Zero limits, maximum scale.",
+      badge: "UNLIMITED REPLACEMENTS",
+      features: [
+        "Crypto, casino, nutra, gambling & every high-risk vertical allowed",
+        "Unlimited free replacements — new account re-provisioned instantly, every time",
+        "Aggressive scaling with zero daily-spend ceilings",
+        "Priority provisioning queue — accounts ready in minutes",
+        "Dedicated compliance manager on Telegram 24/7",
+      ],
+      styles: "border-slate-900 bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-[0_10px_40px_-10px_rgba(2,6,23,0.55)]",
     },
     GREY: {
       title: "Grey Hat",
       emoji: "🌫️",
-      desc: "Moderate-risk offers. Balanced stability.",
-      features: ["Semi-verified accounts", "Steady scaling with fewer flags", "Replacement covered on first ban", "Ban risk: MEDIUM · Medium lifespan"],
-      styles: "border-amber-300 bg-amber-50 text-amber-900",
+      desc: "The power tier — stable, flexible and built to print.",
+      badge: "FREE REPLACEMENTS",
+      features: [
+        "Semi-verified accounts with instant spend approval",
+        "Unlimited free replacements on every single account",
+        "Smooth, steady scaling with zero friction",
+        "Warm accounts with prior spending history",
+        "Round-the-clock Telegram priority support",
+      ],
+      styles: "border-amber-400 bg-gradient-to-br from-amber-100 to-amber-50 text-amber-900 shadow-[0_10px_40px_-10px_rgba(245,158,11,0.4)]",
     },
     WHITE: {
       title: "White Hat",
       emoji: "⚪",
-      desc: "Fully compliant. Maximum stability.",
-      features: ["100% policy-compliant accounts", "Best stability & longest lifespan", "Ideal for long-term brand builds", "Ban risk: LOW · Long lifespan"],
-      styles: "border-emerald-300 bg-emerald-50 text-emerald-900",
+      desc: "The premium tier — fully verified, built to last forever.",
+      badge: "UNLIMITED REPLACEMENTS",
+      features: [
+        "100% verified, policy-perfect accounts",
+        "Unlimited free replacements — your campaigns never stop",
+        "Maximum stability for long-term brand dominance",
+        "Bank-grade account history & full spend limits",
+        "Priority VIP support channel on Telegram",
+      ],
+      styles: "border-emerald-400 bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-900 shadow-[0_10px_40px_-10px_rgba(5,150,105,0.4)]",
     },
   };
 
@@ -85,34 +107,50 @@ export default function ClientApplication() {
     setLoadError("");
     try {
       const list = await apiFetch<any[]>("/api/applications");
+      setApplications(list);
       if (list.length > 0) {
-        // Load detailed application (API returns the flat application row)
-        const detail = await apiFetch<any>(`/api/applications/${list[0].id}`);
-
-        setApplication(detail);
-
-        // Timeline and messages are separate endpoints
-        const [tlData, msgData] = await Promise.all([
-          apiFetch<any[]>(`/api/applications/${detail.id}/timeline`).catch(() => []),
-          apiFetch<any[]>(`/api/applications/${detail.id}/messages`).catch(() => []),
-        ]);
-        setTimeline(tlData || []);
-        setMessages(msgData || []);
-
-        // Prepopulate draft fields
-        const advertising = detail.advertisingInfo || {};
-        const reqs = detail.accountRequirements || {};
-
-        const platRaw = String(advertising.platform || "");
-        setApplyPlatform(platRaw.includes("Google") ? "google" : platRaw.includes("TikTok") ? "tiktok" : "meta");
-        setApplyBmId(reqs.businessManagerId || "");
-        setApplyGmail(reqs.gmail || "");
-        setApplyHatType((reqs.hatType as "" | "BLACK" | "GREY" | "WHITE") || "");
+        // Prefer an editable application, otherwise fall back to the first one
+        const chosen =
+          list.find((a) => ["DRAFT", "INFORMATION_REQUIRED", "DOCUMENTS_REQUIRED"].includes(a.status)) || list[0];
+        await selectApplication(chosen.id);
+      } else {
+        setApplication(null);
+        setTimeline([]);
+        setMessages([]);
       }
     } catch (e: any) {
-      setLoadError(e.message || "Failed to load your application.");
+      setLoadError(e.message || "Failed to load your applications.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const selectApplication = async (appId: number) => {
+    setLoadError("");
+    try {
+      const detail = await apiFetch<any>(`/api/applications/${appId}`);
+
+      setApplication(detail);
+
+      // Timeline and messages are separate endpoints
+      const [tlData, msgData] = await Promise.all([
+        apiFetch<any[]>(`/api/applications/${detail.id}/timeline`).catch(() => []),
+        apiFetch<any[]>(`/api/applications/${detail.id}/messages`).catch(() => []),
+      ]);
+      setTimeline(tlData || []);
+      setMessages(msgData || []);
+
+      // Prepopulate draft fields
+      const advertising = detail.advertisingInfo || {};
+      const reqs = detail.accountRequirements || {};
+
+      const platRaw = String(advertising.platform || "");
+      setApplyPlatform(platRaw.includes("Google") ? "google" : platRaw.includes("TikTok") ? "tiktok" : "meta");
+      setApplyBmId(reqs.businessManagerId || "");
+      setApplyGmail(reqs.gmail || "");
+      setApplyHatType((reqs.hatType as "" | "BLACK" | "GREY" | "WHITE") || "");
+    } catch (e: any) {
+      setLoadError(e.message || "Failed to load this application.");
     }
   };
 
@@ -123,8 +161,11 @@ export default function ClientApplication() {
   const handleStartApplication = async () => {
     setIsLoading(true);
     try {
-      await apiFetch("/api/applications", { method: "POST" });
-      await loadData();
+      const newApp = await apiFetch<any>("/api/applications", { method: "POST" });
+      const list = await apiFetch<any[]>("/api/applications");
+      setApplications(list);
+      await selectApplication(newApp.id);
+      setIsLoading(false);
     } catch (e: any) {
       setIsLoading(false);
       toast({
@@ -143,6 +184,40 @@ export default function ClientApplication() {
       : applyPlatform === "tiktok"
       ? "TikTok Ads"
       : "Other Ads Platform";
+
+  // Account switcher bar — clients can hold multiple ad accounts from one main wallet
+  const renderAccountBar = () => {
+    return (
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            My Ad Accounts ({applications.length})
+          </span>
+          <button
+            onClick={handleStartApplication}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary/30 bg-primary/5 text-[9px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+          >
+            + New Account
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {applications.map((app) => (
+            <button
+              key={app.id}
+              onClick={() => selectApplication(app.id)}
+              className={`px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer ${
+                app.id === application?.id
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
+              }`}
+            >
+              #{String(app.publicId || app.id).slice(-6)} · {app.status.replace("_", " ")}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   const validateApplyForm = (): string | null => {
     if (applyPlatform === "meta" && !applyBmId.trim()) return "Please enter your Meta Business Manager ID.";
@@ -195,7 +270,7 @@ export default function ClientApplication() {
 
       toast({
         title: "Application Submitted",
-        description: "Our team is reviewing your request. The $10 application fee was deducted from your main wallet.",
+        description: "Your account request is in review — unlimited free replacements included on every account.",
       });
       await loadData();
     } catch (e: any) {
@@ -245,9 +320,10 @@ export default function ClientApplication() {
             <Sparkles className="w-3.5 h-3.5 text-primary" />
             <span className="text-[9px] font-black tracking-widest text-primary uppercase">Onboarding Queue</span>
           </div>
-          <h2 className="text-3xl font-black uppercase tracking-tight text-slate-900 mb-4">Apply for Agency Ad Account</h2>
+          <h2 className="text-3xl font-black uppercase tracking-tight text-slate-900 mb-4">Unlock Unlimited Ad Accounts</h2>
           <p className="text-sm text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
-            Gain premium agency meta, google and tiktok ad account provisions with priority scaling pipelines. Start your compliance onboarding checklist.
+            Verified agency ad accounts on Meta, Google & TikTok — provisioned in minutes with unlimited free replacements.
+            One wallet, unlimited accounts. Scale across every network with priority pipelines.
           </p>
 
           {loadError && (
@@ -303,6 +379,8 @@ export default function ClientApplication() {
               Save Progress
             </button>
           </div>
+
+          {renderAccountBar()}
 
           {/* Simple apply form */}
           <div className="rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-8 mb-6 relative overflow-hidden">
@@ -385,7 +463,15 @@ export default function ClientApplication() {
                           <span className={`text-xs font-black uppercase tracking-wider ${isSelected ? "" : "text-slate-900"}`}>
                             {hat.emoji} {hat.title}
                           </span>
-                          {isSelected && <CheckCircle className="w-4 h-4" />}
+                          <span
+                            className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${
+                              isSelected
+                                ? "border-current opacity-90 bg-white/10"
+                                : "border-emerald-300 bg-emerald-50 text-emerald-700"
+                            }`}
+                          >
+                            {hat.badge}
+                          </span>
                         </div>
                         <span className={`block text-[10px] font-semibold mb-1.5 ${isSelected ? "opacity-90" : "text-slate-600"}`}>{hat.desc}</span>
                         <ul className={`space-y-0.5 ${isSelected ? "opacity-90" : "text-slate-500"}`}>
@@ -404,10 +490,11 @@ export default function ClientApplication() {
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs text-primary flex items-start gap-2.5">
                 <Wallet className="w-4 h-4 shrink-0 mt-0.5" />
                 <p>
-                  <strong>Application fee: $10 per ad account</strong> — includes unlimited free replacements.
-                  The fee is deducted from your main-wallet balance when you submit. Current balance:{" "}
-                  <strong>${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
-                  {" "}(first-time top-up minimum is $10; later top-ups are $100 minimum — no commission on deposits).
+                  <strong>Application fee: $10 per ad account</strong> — includes{" "}
+                  <strong>UNLIMITED FREE REPLACEMENTS</strong> on every account, forever. Deducted from your
+                  main-wallet balance when you submit. Current balance:{" "}
+                  <strong>${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>{" "}
+                  — deposits are commission-free, credited in full.
                 </p>
               </div>
 
@@ -415,8 +502,8 @@ export default function ClientApplication() {
                 <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs flex items-start gap-2.5 text-red-600">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <p>
-                    Insufficient balance for the $10 application fee. Please top up first (first-time minimum $10, no commission
-                    on deposits) before submitting.
+                    Your wallet balance is too low to unlock this account. Top up first —{" "}
+                    <strong>zero commission, full credit</strong> — then submit instantly.
                   </p>
                 </div>
               )}
@@ -444,7 +531,7 @@ export default function ClientApplication() {
               disabled={user ? (user.balance ?? 0) < 10 : false}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer"
             >
-              Submit Application (Fee: $10) <CheckCircle className="w-4 h-4 text-white" />
+              Submit & Unlock Account <CheckCircle className="w-4 h-4 text-white" />
             </button>
           </div>
         </div>
@@ -481,6 +568,8 @@ export default function ClientApplication() {
           Priority Review Link <ExternalLink className="w-4.5 h-4.5" />
         </a>
       </div>
+
+      {renderAccountBar()}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         {/* LEFT: Documents & Timeline status */}

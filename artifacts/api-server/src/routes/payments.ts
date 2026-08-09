@@ -74,9 +74,7 @@ router.post("/payments/submit-proof", authenticate, async (req: AuthenticatedReq
       return res
         .status(400)
         .json({
-          error: isFirstDeposit
-            ? `First-time top-up minimum is $${minTopup} USD — this covers the $${FIRST_DEPOSIT_MIN_USD} ad-account application fee.`
-            : `Minimum top-up is $${minTopup} USD.`,
+          error: "Top-up amount is below the minimum allowed. Deposits are commission-free — the full amount is credited to your main wallet.",
         });
     }
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, applicationsTable, applicationTimelineTable, applicationMessagesTable, applicationFeesTable, accountLoadsTable, paymentsTable, AD_ACCOUNT_APPLICATION_FEE_USD, FIRST_DEPOSIT_MIN_USD, MIN_TOPUP_USD, type NewApplication, type NewTimelineEvent } from "@workspace/db";
+import { db, applicationsTable, applicationTimelineTable, applicationMessagesTable, applicationFeesTable, accountLoadsTable, paymentsTable, AD_ACCOUNT_APPLICATION_FEE_USD, type NewApplication, type NewTimelineEvent } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
 import * as telegramNotify from "../lib/telegram/service";
@@ -34,17 +34,8 @@ router.post("/applications", authenticate, async (req: AuthenticatedRequest, res
     const userId = req.userId;
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-    // Enforce one single active/draft application limit if needed, or allow multiple
-    // Let's check: typically one draft at a time.
-    const [existingDraft] = await db
-      .select()
-      .from(applicationsTable)
-      .where(and(eq(applicationsTable.userId, userId), eq(applicationsTable.status, "DRAFT")))
-      .limit(1);
-
-    if (existingDraft) {
-      return res.json(existingDraft); // return existing draft
-    }
+    // Clients may apply for multiple ad accounts from one main wallet,
+    // so a new draft is always created (no single-draft limit).
 
     // Generate unique Application ID
     const year = new Date().getFullYear();
@@ -213,7 +204,7 @@ router.post("/applications/:id/submit", authenticate, async (req: AuthenticatedR
 
       if (credited - feesPaid - loadsPaid < AD_ACCOUNT_APPLICATION_FEE_USD) {
         return res.status(402).json({
-          error: `Insufficient main-wallet balance. The application fee is $${AD_ACCOUNT_APPLICATION_FEE_USD} per ad account (includes unlimited replacement). First-time top-up minimum is $${FIRST_DEPOSIT_MIN_USD}; later top-ups are $${MIN_TOPUP_USD} minimum.`,
+          error: `Insufficient main-wallet balance. The application fee is $${AD_ACCOUNT_APPLICATION_FEE_USD} per ad account (includes unlimited free replacements). Top up your main wallet — deposits are commission-free and credited in full.`,
         });
       }
 
