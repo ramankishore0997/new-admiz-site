@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import RazrLogo from "@/components/RazrLogo";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -50,17 +51,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
       {/* Brand logo */}
       <div className="flex items-center gap-3 mb-10 pb-6 border-b border-slate-200 relative z-10">
-        <Link href="/" className="flex items-center gap-2">
-          <img
-            src="/logo.png"
-            alt="Razr Marketing"
-            style={{ height: 48, width: "auto" }}
-            className="object-contain"
-          />
-          <div>
-            <span className="text-sm font-black uppercase tracking-widest text-slate-900 leading-none">RAZR</span>
-            <span className="text-[9px] text-slate-500 block tracking-widest uppercase font-bold leading-none mt-0.5">Marketing</span>
-          </div>
+        <Link href="/">
+          <RazrLogo size={32} />
         </Link>
       </div>
 

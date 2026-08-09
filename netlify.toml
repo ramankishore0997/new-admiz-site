@@ -1,0 +1,6 @@
+[build]
+  command = "pnpm --filter @workspace/razr-agency run build"
+  publish = "artifacts/razr-agency/dist/public"
+
+[build.environment]
+  NODE_VERSION = "22"

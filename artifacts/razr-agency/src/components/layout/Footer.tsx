@@ -61,23 +61,25 @@ export default function Footer() {
             <div className="flex items-center gap-3 mb-8">
               <img
                 src="/logo.png"
-                alt="Razr Marketing"
-                style={{ height: 88, width: "auto" }}
-                className="object-contain"
+                alt="razr.marketing"
+                style={{ height: 64, width: "auto" }}
+                className="object-contain drop-shadow-md"
               />
               <div className="flex flex-col leading-none">
-                <span className="text-xl font-black tracking-[-0.05em] text-slate-900 uppercase">Razr Marketing</span>
-                <span className="text-[9px] font-black uppercase tracking-[0.25em] text-primary mt-1">Hong Kong HQ · Global Supply</span>
+                <span className="text-2xl font-black tracking-tight text-slate-900">
+                  razr<span className="text-orange-500">.marketing</span>
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mt-1">Hong Kong HQ · Global Agency Supply</span>
               </div>
             </div>
           <div className="w-full text-center">
-            <h1 className="text-[12vw] md:text-[15vw] font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-slate-100 to-slate-200 select-none">
-              RAZR
+            <h1 className="text-[9vw] md:text-[11vw] font-black tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-b from-slate-200 to-slate-100 select-none">
+              razr.marketing
             </h1>
           </div>
           <div className="w-full flex flex-col md:flex-row justify-between items-center mt-8 text-xs font-medium tracking-widest text-muted-foreground uppercase gap-4">
             <span className="inline-flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-primary" /> Hong Kong SAR · &copy; {new Date().getFullYear()} RAZR MARKETING
+              <MapPin className="w-3.5 h-3.5 text-primary" /> Hong Kong SAR · &copy; {new Date().getFullYear()} razr.marketing
             </span>
             <span className="inline-flex items-center gap-1.5 text-primary">
               <Globe2 className="w-3.5 h-3.5" /> DELIVERING WORLDWIDE · PERFORMANCE WITHOUT COMPROMISE

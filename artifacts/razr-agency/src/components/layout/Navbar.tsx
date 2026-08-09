@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, type MouseEvent } from "react";
 import { Menu, X, ArrowRight, Home, Sparkles, Layers, Workflow, Building2, HelpCircle, MessageCircle, Briefcase, Megaphone, Lock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
+import RazrLogo from "@/components/RazrLogo";
+
 const navLinks = [
   { name: "Home", href: "/", icon: Home },
   { name: "Features", href: "/features", icon: Sparkles },
@@ -141,27 +143,8 @@ export default function Navbar() {
           <div className="relative flex items-center gap-2">
             {/* Logo */}
             <Link href="/" className="flex items-center pl-2 pr-3 group">
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="flex items-center gap-2">
-                <img
-                  src="/logo.png"
-                  alt="Razr Marketing"
-                  style={{ height: 56, width: "auto" }}
-                  className="object-contain"
-                />
-                <span className="flex flex-col leading-[1] select-none">
-                  <span
-                    className="font-black tracking-[-0.05em] text-slate-900"
-                    style={{ fontSize: 16, fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    RAZR
-                  </span>
-                  <span
-                    className="font-black uppercase tracking-[0.3em] text-emerald-600"
-                    style={{ fontSize: 6.5 }}
-                  >
-                    MARKETING
-                  </span>
-                </span>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <RazrLogo size={36} />
               </motion.div>
             </Link>
 
