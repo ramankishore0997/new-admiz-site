@@ -34,7 +34,7 @@ router.get("/auth/debug-users", authenticate, async (req: AuthenticatedRequest, 
 /**
  * Register a new user
  */
-router.post("/auth/register", async (req, res, next) => {
+const handleRegister = async (req: any, res: Response, next: any) => {
   try {
     const { email, password, username, companyName, telegramHandle, phoneNumber, country } = req.body;
 
@@ -86,7 +86,10 @@ router.post("/auth/register", async (req, res, next) => {
   } catch (err) {
     return next(err);
   }
-});
+};
+
+router.post("/auth/register", handleRegister);
+router.post("/register", handleRegister);
 
 /**
  * Build full client profile: account records, payment deposit history and
@@ -156,9 +159,9 @@ async function buildProfile(user: User) {
 }
 
 /**
- * POST /api/auth/login
+ * POST /api/auth/login and /api/login
  */
-router.post("/auth/login", async (req, res, next) => {
+const handleLogin = async (req: any, res: Response, next: any) => {
   try {
     const { email, password } = req.body;
 
@@ -189,7 +192,10 @@ router.post("/auth/login", async (req, res, next) => {
   } catch (err) {
     return next(err);
   }
-});
+};
+
+router.post("/auth/login", handleLogin);
+router.post("/login", handleLogin);
 
 /**
  * Fetch current user profile
