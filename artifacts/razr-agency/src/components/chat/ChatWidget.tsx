@@ -32,6 +32,7 @@ export default function ChatWidget() {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [streamActive, setStreamActive] = useState(false);
+  const [incomingPreview, setIncomingPreview] = useState<{ message: string; createdAt: string } | null>(null);
   const esRef = useRef<EventSource | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const seenIds = useRef<Set<number>>(new Set());
@@ -59,6 +60,10 @@ export default function ChatWidget() {
       setAgentOnline(state.agentOnline);
       setUnread(state.conversation?.unreadUser ?? 0);
       appendMessages(state.messages);
+      const lastOperator = [...state.messages].reverse().find((m) => m.senderType === "OPERATOR");
+      if ((state.conversation?.unreadUser ?? 0) > 0 && lastOperator && !openRef.current) {
+        setIncomingPreview({ message: lastOperator.message, createdAt: lastOperator.createdAt });
+      }
     } catch {
       // not logged in / server issue — ignore
     } finally {
@@ -93,6 +98,7 @@ export default function ChatWidget() {
           appendMessages([msg]);
           if (data.senderType === "OPERATOR" && !openRef.current) {
             setUnread((u) => u + 1);
+            setIncomingPreview({ message: data.message, createdAt: data.createdAt || new Date().toISOString() });
           }
           if (openRef.current && data.senderType === "OPERATOR") {
             markRead();
@@ -134,6 +140,7 @@ export default function ChatWidget() {
   const handleToggle = () => {
     const next = !open;
     setOpen(next);
+    setIncomingPreview(null);
     if (next) {
       setUnread(0);
       markRead();
@@ -167,6 +174,37 @@ export default function ChatWidget() {
 
   return (
     <>
+      {/* Incoming message preview (visible without opening chat) */}
+      {!open && incomingPreview && (
+        <div className="fixed bottom-44 right-4 md:right-6 z-[70] w-[calc(100vw-2rem)] max-w-sm rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-hidden flex flex-col">
+          <div className="px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+              <span className="text-[11px] font-black uppercase tracking-wider">Support Team</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] text-white/80">
+                {new Date(incomingPreview.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
+              <button onClick={() => setIncomingPreview(null)} className="p-1 rounded-lg hover:bg-white/15 transition-colors cursor-pointer" aria-label="Dismiss message">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+          <div className="p-4 bg-slate-50 flex-1 min-h-0">
+            <p className="text-xs text-slate-800 leading-relaxed whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
+              {incomingPreview.message}
+            </p>
+          </div>
+          <button
+            onClick={handleToggle}
+            className="w-full px-4 py-3 bg-emerald-600 text-white text-[11px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors cursor-pointer shrink-0"
+          >
+            Reply Now
+          </button>
+        </div>
+      )}
+
       {/* Launcher */}
       <button
         onClick={handleToggle}
