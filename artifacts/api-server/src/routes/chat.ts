@@ -13,6 +13,8 @@ import {
   markOnline,
   updatePage,
   getPresence,
+  getOnlineUsers,
+  isUserOnline,
   startPresencePersister,
   type ChatEvent,
 } from "../lib/chat/hub";
@@ -201,6 +203,63 @@ router.get("/chat/stream", authenticate, async (req: AuthenticatedRequest, res) 
 });
 
 /* ============================ OPERATOR ENDPOINTS ============================ */
+
+/** Users currently online (operator "Online Now" panel). */
+router.get("/chat/admin/online-users", authenticate, requireAdmin, async (_req: AuthenticatedRequest, res, next) => {
+  try {
+    const online = getOnlineUsers();
+    if (online.length === 0) return res.json({ users: [] });
+
+    const ids = online.map((u) => u.userId);
+    const idIn = sql`${usersTable.id} IN (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})`;
+    const userRows = await db
+      .select({
+        id: usersTable.id,
+        username: usersTable.username,
+        email: usersTable.email,
+        telegramHandle: usersTable.telegramHandle,
+        telegramId: usersTable.telegramId,
+      })
+      .from(usersTable)
+      .where(idIn);
+    const convRows = await db
+      .select({ id: conversationsTable.id, userId: conversationsTable.userId })
+      .from(conversationsTable)
+      .where(sql`${conversationsTable.userId} IN (${sql.join(ids.map((id) => sql`${id}`), sql`, `)})`);
+    const convByUser = new Map(convRows.map((c) => [c.userId, c.id]));
+
+    return res.json({
+      users: online.map((o) => {
+        const row = userRows.find((r) => r.id === o.userId);
+        return {
+          userId: o.userId,
+          username: row?.username || null,
+          email: row?.email || null,
+          telegramHandle: row?.telegramHandle || null,
+          telegramId: row?.telegramId || null,
+          currentPage: o.currentPage,
+          conversationId: convByUser.get(o.userId) ?? null,
+        };
+      }),
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** Open (find or create) a conversation for a user so the operator can message them. */
+router.post("/chat/admin/open-conversation", authenticate, requireAdmin, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const userId = Number(req.body?.userId);
+    if (!Number.isInteger(userId)) return res.status(400).json({ error: "Invalid user." });
+    const [userRow] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+    if (!userRow) return res.status(404).json({ error: "User not found." });
+    const conv = await findOrCreateConversation(userRow);
+    return res.json({ conversationId: conv.id });
+  } catch (err) {
+    return next(err);
+  }
+});
 
 /** Conversation list for the operator UI (identity comes from the DB). */
 router.get("/chat/admin/conversations", authenticate, requireAdmin, async (_req: AuthenticatedRequest, res, next) => {

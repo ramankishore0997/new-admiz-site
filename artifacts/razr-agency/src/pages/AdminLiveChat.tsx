@@ -27,6 +27,16 @@ interface OperatorMessage {
   createdAt: string;
 }
 
+interface OnlineUser {
+  userId: number;
+  username: string | null;
+  email: string | null;
+  telegramHandle: string | null;
+  telegramId: string | null;
+  currentPage: string | null;
+  conversationId: number | null;
+}
+
 interface StreamEvent {
   type: "message" | "conversation_updated" | "__ping__";
   conversationId?: number;
@@ -49,6 +59,7 @@ const timeAgo = (iso: string | null): string => {
 export default function AdminLiveChat() {
   const { toast } = useToast();
   const [conversations, setConversations] = useState<OperatorConversation[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [messages, setMessages] = useState<OperatorMessage[]>([]);
   const [convDetail, setConvDetail] = useState<OperatorConversation | null>(null);
@@ -70,6 +81,21 @@ export default function AdminLiveChat() {
     }
   }, []);
 
+  const loadOnline = useCallback(async () => {
+    try {
+      const res = await fetch("/api/chat/admin/online-users", { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json();
+      setOnlineUsers(data.users ?? []);
+    } catch {
+      // ignore — polling will retry
+    }
+  }, []);
+
+  const loadAll = useCallback(async () => {
+    await Promise.all([loadList(), loadOnline()]);
+  }, [loadList, loadOnline]);
+
   const loadMessages = useCallback(async (convId: number) => {
     try {
       const res = await fetch(`/api/chat/admin/conversations/${convId}/messages`, { credentials: "include" });
@@ -84,7 +110,7 @@ export default function AdminLiveChat() {
   }, []);
 
   useEffect(() => {
-    loadList();
+    loadAll();
 
     const es = new EventSource("/api/chat/admin/stream");
     esRef.current = es;
@@ -92,7 +118,7 @@ export default function AdminLiveChat() {
       try {
         const data = JSON.parse(ev.data) as StreamEvent;
         if (data.type === "__ping__") return;
-        loadList();
+        loadAll();
         if (data.type === "message" && data.conversationId && data.senderType === "USER") {
           if (selectedIdRef.current === data.conversationId) {
             loadMessages(data.conversationId);
@@ -104,13 +130,13 @@ export default function AdminLiveChat() {
     };
     es.onerror = () => {};
 
-    const iv = setInterval(loadList, 5000);
+    const iv = setInterval(loadAll, 5000);
     return () => {
       es.close();
       esRef.current = null;
       clearInterval(iv);
     };
-  }, [loadList, loadMessages]);
+  }, [loadAll, loadMessages]);
 
   const selectedIdRef = useRef<number | null>(null);
   selectedIdRef.current = selectedId;
@@ -129,6 +155,35 @@ export default function AdminLiveChat() {
   const handleSelect = (convId: number) => {
     setSelectedId(convId);
     setLoading(true);
+  };
+
+  const handleOpenUser = async (u: OnlineUser) => {
+    try {
+      let convId = u.conversationId;
+      if (!convId) {
+        const res = await fetch("/api/chat/admin/open-conversation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ userId: u.userId }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Could not open conversation");
+        }
+        const data = await res.json();
+        convId = data.conversationId;
+      }
+      setSelectedId(convId);
+      setLoading(true);
+      loadAll();
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err?.message || "Could not open conversation.",
+      });
+    }
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -187,8 +242,49 @@ export default function AdminLiveChat() {
           {/* Conversation list */}
           <div className="lg:col-span-5 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-              <div className="text-sm font-black uppercase tracking-tight text-slate-900">LIVE CHATS</div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="text-sm font-black uppercase tracking-tight text-slate-900">ONLINE NOW</div>
+              </div>
               <span className="text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+                {onlineUsers.length} online
+              </span>
+            </div>
+
+            <div className="max-h-48 overflow-y-auto divide-y divide-slate-100 border-b border-slate-200">
+              {onlineUsers.length === 0 && (
+                <div className="text-center text-[10px] text-slate-400 py-4 px-6">No users online right now.</div>
+              )}
+              {onlineUsers.map((u) => (
+                <button
+                  key={u.userId}
+                  onClick={() => handleOpenUser(u)}
+                  className={`w-full text-left px-5 py-3 hover:bg-emerald-50/60 transition-colors cursor-pointer ${
+                    selectedId !== null && u.conversationId === selectedId ? "bg-emerald-50/70" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                    <span className="text-sm font-bold text-slate-900 truncate">{u.username || u.email || `User #${u.userId}`}</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full shrink-0">ONLINE</span>
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-slate-500">
+                    <span className="font-mono">ID: #{u.userId}</span>
+                    {u.telegramId ? (
+                      <span className="font-mono">Telegram ID: {u.telegramId}</span>
+                    ) : u.telegramHandle ? (
+                      <span className="font-mono">Telegram: @{u.telegramHandle.replace(/^@/, "")}</span>
+                    ) : null}
+                  </div>
+                  {u.currentPage && <div className="mt-0.5 text-[10px] text-slate-400 font-mono truncate">Page: {u.currentPage}</div>}
+                </button>
+              ))}
+            </div>
+
+            {/* Conversation list header */}
+            <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div className="text-sm font-black uppercase tracking-tight text-slate-900">LIVE CHATS</div>
+              <span className="text-[9px] font-black uppercase tracking-widest bg-slate-50 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full">
                 {conversations.length} total
               </span>
             </div>
@@ -203,7 +299,9 @@ export default function AdminLiveChat() {
                 </div>
               )}
 
-              {conversations.map((c) => (
+              {[...conversations]
+                .sort((a, b) => Number(b.online) - Number(a.online) || new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime())
+                .map((c) => (
                 <button
                   key={c.id}
                   onClick={() => handleSelect(c.id)}
@@ -215,6 +313,11 @@ export default function AdminLiveChat() {
                     <div className="flex items-center gap-2 min-w-0">
                       <span className={`w-2 h-2 rounded-full shrink-0 ${c.online ? "bg-emerald-500 animate-pulse" : "bg-slate-300"}`} />
                       <span className="text-sm font-bold text-slate-900 truncate">{c.username || c.email || `User #${c.userId}`}</span>
+                      {c.online && (
+                        <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full shrink-0">
+                          ONLINE
+                        </span>
+                      )}
                       {c.unreadOperator > 0 && (
                         <span className="min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center shrink-0">
                           {c.unreadOperator}

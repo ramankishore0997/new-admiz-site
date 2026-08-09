@@ -118,6 +118,14 @@ export default function ChatWidget() {
     return () => clearInterval(iv);
   }, [user, streamActive, loadConversation]);
 
+  // Presence heartbeat — keeps last_seen fresh even if SSE drops; cheap,
+  // throttled client-side (max one POST per 30s per page).
+  useEffect(() => {
+    if (!user) return;
+    const iv = setInterval(() => trackPage(window.location.pathname), 60_000);
+    return () => clearInterval(iv);
+  }, [user]);
+
   // Scroll to bottom when messages change.
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });

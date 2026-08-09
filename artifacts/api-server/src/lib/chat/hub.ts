@@ -152,6 +152,20 @@ export function getPresence(userId: number): { online: boolean; lastSeen: number
   return { online: false, lastSeen: 0, currentPage: null };
 }
 
+export function isUserOnline(userId: number): boolean {
+  const p = presence.get(userId);
+  return Boolean(p && p.online);
+}
+
+/** All users currently marked online (for the operator "Online Now" panel). */
+export function getOnlineUsers(): Array<{ userId: number; currentPage: string | null }> {
+  const out: Array<{ userId: number; currentPage: string | null }> = [];
+  for (const [userId, p] of presence) {
+    if (p.online) out.push({ userId, currentPage: p.currentPage });
+  }
+  return out;
+}
+
 let persistTimer: NodeJS.Timeout | null = null;
 
 /**
