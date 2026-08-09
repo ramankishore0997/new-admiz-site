@@ -42,6 +42,7 @@ app.use(express.json({ limit: "15mb" })); // Support large base64 uploads
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 
 app.use("/api", router);
+app.use(router);
 
 // Global JSON error handler middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

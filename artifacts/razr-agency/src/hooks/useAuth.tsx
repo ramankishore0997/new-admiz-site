@@ -84,15 +84,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Helper for safe JSON parsing
+  const safeJson = async (res: Response) => {
+    try {
+      const text = await res.text();
+      return JSON.parse(text);
+    } catch {
+      return { error: "Server returned non-JSON response." };
+    }
+  };
+
   // Load session from backend on mount
   useEffect(() => {
-    fetch("/api/me")
-      .then((res) => {
-        if (res.ok) return res.json();
+    fetch("/api/me", { credentials: "include" })
+      .then(async (res) => {
+        if (res.ok) return await safeJson(res);
         throw new Error("Unauthenticated");
       })
       .then((userData) => {
-        setUser(userData);
+        if (userData && userData.id) setUser(userData);
+        else setUser(null);
       })
       .catch(() => {
         setUser(null);
@@ -107,15 +118,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password: pass }),
       });
-      if (res.ok) {
-        const userData = await res.json();
-        setUser(userData);
+      const data = await safeJson(res);
+      if (res.ok && data.id) {
+        setUser(data);
         return { success: true };
       } else {
-        const data = await res.json();
-        return { success: false, error: data.error || "Invalid email address or password." };
+        return { success: false, error: data.error || "Invalid email address/username or password." };
       }
     } catch (e: any) {
       console.error("Login request failed", e);
@@ -136,6 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           email,
           password: pass,
@@ -146,12 +158,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           country,
         }),
       });
-      if (res.ok) {
-        const userData = await res.json();
-        setUser(userData);
+      const data = await safeJson(res);
+      if (res.ok && data.id) {
+        setUser(data);
         return { success: true };
       } else {
-        const data = await res.json();
         return { success: false, error: data.error || "Registration failed." };
       }
     } catch (e: any) {
@@ -162,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     } catch (e) {
       console.error("Logout request failed", e);
     } finally {
@@ -172,9 +183,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const res = await fetch("/api/me");
+      const res = await fetch("/api/me", { credentials: "include" });
       if (res.ok) {
-        setUser(await res.json());
+        const data = await safeJson(res);
+        if (data && data.id) setUser(data);
       }
     } catch (e) {
       console.error("Failed to refresh user profile", e);
