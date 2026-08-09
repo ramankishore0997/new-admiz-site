@@ -6,7 +6,7 @@ import { logger } from "../lib/logger";
 import * as telegramNotify from "../lib/telegram/service";
 
 const router = Router();
-const RECEIVING_WALLET = "0x5e094e9Fc46FF77D638682CcB50b6D3b6BFbd2d0";
+const RECEIVING_WALLET = "TTfpa75gZowYgmvJHeYqzfBBRMV9WP8k9w";
 const SUPPORTED_NETWORKS = ["bsc", "eth", "polygon", "arbitrum", "optimism"];
 
 // EVM Transaction Hash Regex (0x followed by 64 hex characters)

@@ -102,6 +102,7 @@ export default function AdminPayments() {
 
   const getExplorerUrl = (txHash: string, network: string) => {
     const net = (network || "").toLowerCase();
+    if (net.includes("tron") || net.includes("trc20")) return `https://tronscan.org/#/transaction/${txHash}`;
     if (net.includes("bsc") || net.includes("bep20")) return `https://bscscan.com/tx/${txHash}`;
     if (net.includes("polygon")) return `https://polygonscan.com/tx/${txHash}`;
     if (net.includes("arbitrum")) return `https://arbiscan.io/tx/${txHash}`;
