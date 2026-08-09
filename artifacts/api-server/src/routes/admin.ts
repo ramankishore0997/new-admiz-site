@@ -16,6 +16,7 @@ import {
 import { eq, and, sql, desc } from "drizzle-orm";
 import { authenticate, requireAdmin, requireSuperAdmin, type AuthenticatedRequest } from "../middlewares/auth";
 import { hashPassword } from "../lib/crypto";
+import * as telegramNotify from "../lib/telegram/service";
 
 const router = Router();
 
@@ -299,6 +300,10 @@ router.post("/admin/applications/:id/request-information", async (req: Authentic
 
     await logAudit(adminId, "REQUEST_INFO", "application", appId, { reason, status });
 
+    // Telegram admin notification (fail-soft)
+    const infoEmail = await telegramNotify.userEmail(app.userId);
+    void telegramNotify.notifyRequestStatusChange({ id: app.id, publicId: app.publicId, status }, { id: app.userId, email: infoEmail });
+
     return res.json({ message: "Information request sent successfully." });
   } catch (err) {
     return next(err);
@@ -345,6 +350,10 @@ router.post("/admin/applications/:id/approve", async (req: AuthenticatedRequest,
     });
 
     await logAudit(adminId, "APPROVE_APPLICATION", "application", appId, { note });
+
+    // Telegram admin notification (fail-soft)
+    const approveEmail = await telegramNotify.userEmail(app.userId);
+    void telegramNotify.notifyRequestStatusChange({ id: app.id, publicId: app.publicId, status: "APPROVED" }, { id: app.userId, email: approveEmail });
 
     return res.json({ message: "Application approved successfully." });
   } catch (err) {
@@ -396,6 +405,10 @@ router.post("/admin/applications/:id/reject", async (req: AuthenticatedRequest, 
     });
 
     await logAudit(adminId, "REJECT_APPLICATION", "application", appId, { reason });
+
+    // Telegram admin notification (fail-soft)
+    const rejectEmail = await telegramNotify.userEmail(app.userId);
+    void telegramNotify.notifyRequestStatusChange({ id: app.id, publicId: app.publicId, status: "REJECTED" }, { id: app.userId, email: rejectEmail });
 
     return res.json({ message: "Application status updated to rejected." });
   } catch (err) {

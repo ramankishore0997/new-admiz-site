@@ -4,6 +4,7 @@ import { eq, or, ilike } from "drizzle-orm";
 import { hashPassword, verifyPassword, signToken, verifyToken } from "../lib/crypto";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
 import { rateLimit } from "../middlewares/rate-limit";
+import * as telegramNotify from "../lib/telegram/service";
 
 const router = Router();
 
@@ -85,6 +86,9 @@ const handleRegister = async (req: any, res: Response, next: any) => {
     const token = signToken({ id: newUser.id, role: newUser.role });
 
     res.cookie("token", token, COOKIE_OPTIONS);
+    
+    // Telegram admin notification (fail-soft)
+    void telegramNotify.notifyNewUser(newUser);
     
     // Return profile
     const { password: _, ...profile } = newUser;

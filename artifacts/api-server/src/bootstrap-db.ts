@@ -143,6 +143,24 @@ const TABLES: string[] = [
     description text,
     created_at timestamp NOT NULL DEFAULT now()
   )`,
+  `CREATE TABLE IF NOT EXISTS telegram_admin_actions (
+    id serial PRIMARY KEY,
+    chat_id text NOT NULL,
+    action text NOT NULL,
+    entity_type text,
+    entity_id integer,
+    result text NOT NULL DEFAULT 'SUCCESS',
+    reason text,
+    created_at timestamp NOT NULL DEFAULT now()
+  )`,
+  `CREATE TABLE IF NOT EXISTS telegram_notification_events (
+    id serial PRIMARY KEY,
+    event text NOT NULL,
+    payload jsonb,
+    success boolean NOT NULL DEFAULT true,
+    error text,
+    created_at timestamp NOT NULL DEFAULT now()
+  )`,
 ];
 
 async function main() {

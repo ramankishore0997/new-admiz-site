@@ -335,3 +335,5 @@ export type NewPayment = typeof paymentsTable.$inferInsert;
 
 export type ApplicationFee = typeof applicationFeesTable.$inferSelect;
 export type NewApplicationFee = typeof applicationFeesTable.$inferInsert;
+
+export * from "./telegram";

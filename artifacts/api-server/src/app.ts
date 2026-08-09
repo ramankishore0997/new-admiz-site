@@ -6,6 +6,7 @@ import fs from "fs";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import * as telegramNotify from "./lib/telegram/service";
 
 const app: Express = express();
 
@@ -89,6 +90,13 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   logger.error(err);
   const status = err.status || err.statusCode || 500;
   const message = err.message || "Internal server error";
+
+  // Telegram admin notification for critical backend errors only (fail-soft,
+  // sanitized: no stack traces, no secrets, no credentials).
+  if (status >= 500) {
+    void telegramNotify.notifySystemError({ service: "api", endpoint: req.originalUrl, error: message });
+  }
+
   return res.status(status).json({ error: message });
 });
 

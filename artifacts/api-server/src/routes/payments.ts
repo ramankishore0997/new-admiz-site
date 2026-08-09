@@ -3,6 +3,7 @@ import { db, paymentsTable, usersTable, MIN_TOPUP_USD, DEPOSIT_COMMISSION_RATE }
 import { eq, desc, and } from "drizzle-orm";
 import { authenticate, requireAdmin, type AuthenticatedRequest } from "../middlewares/auth";
 import { logger } from "../lib/logger";
+import * as telegramNotify from "../lib/telegram/service";
 
 const router = Router();
 const RECEIVING_WALLET = "0x5e094e9Fc46FF77D638682CcB50b6D3b6BFbd2d0";
@@ -93,6 +94,10 @@ router.post("/payments/submit-proof", authenticate, async (req: AuthenticatedReq
       .returning();
 
     logger.info(`Payment proof submitted: ${orderId} by user ${userId} with TXID ${cleanTxHash}`);
+
+    // Telegram admin notification (fail-soft)
+    const email = await telegramNotify.userEmail(userId);
+    void telegramNotify.notifyPaymentProof(payment, { id: userId, email });
 
     return res.status(201).json({
       message: "Payment proof submitted successfully. Your payment is pending verification.",
@@ -206,6 +211,14 @@ router.patch("/admin/payments/:id/verify", authenticate, requireAdmin, async (re
       .returning();
 
     logger.info(`Payment ID ${paymentId} status updated to ${status} by admin ${adminId}`);
+
+    // Telegram admin notification (fail-soft) — also covers web-admin changes
+    const email = await telegramNotify.userEmail(payment.userId);
+    if (status === "PAID") {
+      void telegramNotify.notifyPaymentApproved(updated, { id: payment.userId, email });
+    } else {
+      void telegramNotify.notifyPaymentRejected(updated, { id: payment.userId, email }, rejectionReason || "Verification failed.");
+    }
 
     return res.json(updated);
   } catch (err: any) {

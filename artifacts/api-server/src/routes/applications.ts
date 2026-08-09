@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db, applicationsTable, applicationTimelineTable, applicationMessagesTable, applicationFeesTable, paymentsTable, AD_ACCOUNT_APPLICATION_FEE_USD, MIN_TOPUP_USD, DEPOSIT_COMMISSION_RATE, type NewApplication, type NewTimelineEvent } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
+import * as telegramNotify from "../lib/telegram/service";
 
 const router = Router();
 
@@ -240,6 +241,13 @@ router.post("/applications/:id/submit", authenticate, async (req: AuthenticatedR
       description: "Onboarding form submitted to Razr Marketing review panel.",
       actorId: userId,
     });
+
+    // Telegram admin notification (fail-soft)
+    const email = await telegramNotify.userEmail(userId || 0);
+    void telegramNotify.notifyNewRequest(
+      { id: updated.id, publicId: updated.publicId, advertisingInfo: updated.advertisingInfo },
+      { id: userId || 0, email },
+    );
 
     return res.json(updated);
   } catch (err) {
