@@ -1,6 +1,6 @@
 import { Router, Response, NextFunction } from "express";
-import { db, paymentsTable, usersTable, MIN_TOPUP_USD, DEPOSIT_COMMISSION_RATE } from "@workspace/db";
-import { eq, desc, and } from "drizzle-orm";
+import { db, pool, paymentsTable, usersTable, FIRST_DEPOSIT_MIN_USD, MIN_TOPUP_USD } from "@workspace/db";
+import { eq, desc } from "drizzle-orm";
 import { authenticate, requireAdmin, type AuthenticatedRequest } from "../middlewares/auth";
 import { logger } from "../lib/logger";
 import * as telegramNotify from "../lib/telegram/service";
@@ -60,8 +60,24 @@ router.post("/payments/submit-proof", authenticate, async (req: AuthenticatedReq
     if (!Number.isFinite(numericAmount) || numericAmount <= 0 || numericAmount > 1000000) {
       return res.status(400).json({ error: "Payment amount must be a positive number within limits." });
     }
-    if (numericAmount < MIN_TOPUP_USD) {
-      return res.status(400).json({ error: `Minimum top-up is $${MIN_TOPUP_USD} USD. A ${DEPOSIT_COMMISSION_RATE * 100}% commission applies to all deposits.` });
+    // First-ever top-up has a $10 minimum (application fee); every later
+    // deposit must be at least $100. No commission is charged on deposits —
+    // the 2% commission applies when loading main-wallet balance into an ad
+    // account (see Telegram admin "Load Balance" action).
+    const { rows: priorRows } = await pool.query<{ n: string }>(
+      "SELECT COUNT(*)::int AS n FROM payments WHERE user_id=$1 AND status IN ('PENDING_VERIFICATION','PAID')",
+      [userId],
+    );
+    const isFirstDeposit = Number(priorRows[0]?.n || 0) === 0;
+    const minTopup = isFirstDeposit ? FIRST_DEPOSIT_MIN_USD : MIN_TOPUP_USD;
+    if (numericAmount < minTopup) {
+      return res
+        .status(400)
+        .json({
+          error: isFirstDeposit
+            ? `First-time top-up minimum is $${minTopup} USD — this covers the $${FIRST_DEPOSIT_MIN_USD} ad-account application fee.`
+            : `Minimum top-up is $${minTopup} USD.`,
+        });
     }
 
     // Check for duplicate TXID

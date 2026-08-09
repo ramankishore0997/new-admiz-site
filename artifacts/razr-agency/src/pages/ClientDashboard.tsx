@@ -140,11 +140,15 @@ export default function ClientDashboard() {
     e.preventDefault();
 
     const amt = Number(depositAmount);
-    if (!amt || amt < 100) {
+    const isFirstDeposit = !(user?.deposits && user.deposits.length > 0);
+    const minDeposit = isFirstDeposit ? 10 : 100;
+    if (!amt || amt < minDeposit) {
       toast({
         variant: "destructive",
         title: "Invalid Amount",
-        description: "Minimum top-up is $100 USDT. A 2% commission applies to all deposits.",
+        description: isFirstDeposit
+          ? "First-time top-up minimum is $10 USDT — this covers the $10 ad-account application fee."
+          : "Minimum top-up is $100 USDT.",
       });
       return;
     }
@@ -570,11 +574,11 @@ export default function ClientDashboard() {
                       <div className="relative flex-1">
                         <input
                           type="number"
-                          min="100"
+                          min={user?.deposits?.length ? "100" : "10"}
                           value={depositAmount}
                           onChange={(e) => setDepositAmount(e.target.value)}
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm outline-none focus:border-primary/50 font-bold"
-                          placeholder="100"
+                          placeholder={user?.deposits?.length ? "100" : "10"}
                         />
                         <span className="absolute right-4 top-3 text-xs font-black uppercase text-emerald-600">USDT</span>
                       </div>
@@ -586,7 +590,9 @@ export default function ClientDashboard() {
                       </button>
                     </div>
                     <p className="text-[9px] text-slate-400 mt-1.5">
-                      Minimum top-up is $100 USDT. A 2% commission applies — e.g. a $100 deposit credits $98 to your ledger after admin verification.
+                      {user?.deposits?.length
+                        ? "Minimum top-up is $100 USDT. No commission on deposits — the full amount is credited to your main wallet."
+                        : "First-time top-up minimum is $10 USDT (covers the $10 ad-account application fee). No commission on deposits."}
                     </p>
                   </div>
 
@@ -612,7 +618,7 @@ export default function ClientDashboard() {
                             {depositAmount || "0"} USDT
                           </div>
                           <div className="text-[9px] text-slate-400 mt-0.5">
-                            You'll be credited: ${((Number(depositAmount) || 0) * 0.98).toLocaleString(undefined, { minimumFractionDigits: 2 })} (2% commission)
+                            You'll be credited: ${(Number(depositAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} — full amount, no commission
                           </div>
                         </div>
 

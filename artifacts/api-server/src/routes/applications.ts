@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, applicationsTable, applicationTimelineTable, applicationMessagesTable, applicationFeesTable, paymentsTable, AD_ACCOUNT_APPLICATION_FEE_USD, MIN_TOPUP_USD, DEPOSIT_COMMISSION_RATE, type NewApplication, type NewTimelineEvent } from "@workspace/db";
+import { db, applicationsTable, applicationTimelineTable, applicationMessagesTable, applicationFeesTable, accountLoadsTable, paymentsTable, AD_ACCOUNT_APPLICATION_FEE_USD, FIRST_DEPOSIT_MIN_USD, MIN_TOPUP_USD, type NewApplication, type NewTimelineEvent } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
 import * as telegramNotify from "../lib/telegram/service";
@@ -188,12 +188,13 @@ router.post("/applications/:id/submit", authenticate, async (req: AuthenticatedR
       .limit(1);
 
     if (!existingFee) {
+      // Main wallet = full paid deposits (no commission on deposits).
       const paidRows = await db
         .select({ amount: paymentsTable.amount })
         .from(paymentsTable)
         .where(and(eq(paymentsTable.userId, userId || 0), eq(paymentsTable.status, "PAID")));
 
-      const credited = paidRows.reduce((sum, p) => sum + (Number(p.amount) || 0), 0) * (1 - DEPOSIT_COMMISSION_RATE);
+      const credited = paidRows.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
 
       const feeRows = await db
         .select({ amount: applicationFeesTable.amount })
@@ -202,9 +203,17 @@ router.post("/applications/:id/submit", authenticate, async (req: AuthenticatedR
 
       const feesPaid = feeRows.reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
 
-      if (credited - feesPaid < AD_ACCOUNT_APPLICATION_FEE_USD) {
+      // Balance loads (main wallet → ad account wallet) incl. commission
+      const loadRows = await db
+        .select({ total: accountLoadsTable.total })
+        .from(accountLoadsTable)
+        .where(eq(accountLoadsTable.userId, userId || 0));
+
+      const loadsPaid = loadRows.reduce((sum, l) => sum + (Number(l.total) || 0), 0);
+
+      if (credited - feesPaid - loadsPaid < AD_ACCOUNT_APPLICATION_FEE_USD) {
         return res.status(402).json({
-          error: `Insufficient ledger balance. The application fee is $${AD_ACCOUNT_APPLICATION_FEE_USD} per ad account (includes unlimited replacement). Minimum top-up is $${MIN_TOPUP_USD} and a ${DEPOSIT_COMMISSION_RATE * 100}% commission applies.`,
+          error: `Insufficient main-wallet balance. The application fee is $${AD_ACCOUNT_APPLICATION_FEE_USD} per ad account (includes unlimited replacement). First-time top-up minimum is $${FIRST_DEPOSIT_MIN_USD}; later top-ups are $${MIN_TOPUP_USD} minimum.`,
         });
       }
 

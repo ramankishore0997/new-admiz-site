@@ -7,10 +7,13 @@ import {
   documentsTable,
   paymentsTable,
   accountsTable,
+  accountLoadsTable,
   notificationsTable,
   auditLogsTable,
   telegramAdminActionsTable,
   telegramNotificationEventsTable,
+  DEPOSIT_COMMISSION_RATE,
+  MIN_LOAD_USD,
   type Application,
   type Payment,
 } from "@workspace/db";
@@ -35,7 +38,7 @@ function isAdminChat(chatId: number): boolean {
 }
 
 interface FlowState {
-  flow: "pay_rej" | "req_rej" | "req_info" | "req_docs";
+  flow: "pay_rej" | "req_rej" | "req_info" | "req_docs" | "acc_load";
   entityId: number;
   reason?: string;
 }
@@ -378,7 +381,7 @@ async function servicesOverview(): Promise<{ text: string; markup: ReplyMarkup }
     .limit(PAGE_SIZE);
   lines.push("", "Latest accounts:");
   for (const { a, email } of recent) {
-    lines.push(`#${a.id} ${a.platform} ${a.status} · ${email}`);
+    lines.push(`#${a.id} ${a.platform} ${a.status} · $${Number(a.balance) || 0} · ${email}`);
   }
   const buttons: Btn[] = [];
   for (const { a } of recent) buttons.push(btn(`#${a.id}`, `acc:${a.id}`));
@@ -608,6 +611,49 @@ async function setAccountStatus(chatId: number, accId: number, next: string): Pr
   return `✅ Account #${accId} (${a.platform}) → ${next}.`;
 }
 
+/** Main wallet = full paid deposits − application fees − previous loads. */
+async function getLedgerBalance(userId: number): Promise<number> {
+  const { rows } = await pool.query<{ paid: string; fees: string; loads: string }>(
+    `SELECT
+      (SELECT COALESCE(SUM(amount::numeric), 0) FROM payments WHERE user_id=$1 AND status='PAID')::numeric AS paid,
+      (SELECT COALESCE(SUM(amount::numeric), 0) FROM application_fees WHERE user_id=$1)::numeric AS fees,
+      (SELECT COALESCE(SUM(total::numeric), 0) FROM account_loads WHERE user_id=$1)::numeric AS loads`,
+    [userId],
+  );
+  const r = rows[0] || { paid: "0", fees: "0", loads: "0" };
+  return Math.round((Number(r.paid) - Number(r.fees) - Number(r.loads)) * 100) / 100;
+}
+
+/** Load main-wallet balance into an ad-account wallet. 2% commission is added
+ *  on top: loading $100 deducts $102 from the user's main wallet. */
+async function loadAccountBalance(chatId: number, accId: number, amount: number): Promise<string> {
+  const row = await getAccountDetail(accId);
+  if (!row) return "❌ Account not found.";
+  const { a, email } = row;
+  const commission = Math.round(amount * DEPOSIT_COMMISSION_RATE * 100) / 100;
+  const total = Math.round((amount + commission) * 100) / 100;
+  const ledger = await getLedgerBalance(a.userId);
+  if (ledger < total) {
+    return `❌ Insufficient main-wallet balance.\n\nUser: ${email}\nAvailable: $${ledger}\nNeeded for $${amount} load (incl. $${commission} commission): $${total}`;
+  }
+  await db
+    .update(accountsTable)
+    .set({ balance: String(Math.round((Number(a.balance) + amount) * 100) / 100), updatedAt: new Date() })
+    .where(eq(accountsTable.id, accId));
+  await db.insert(accountLoadsTable).values({
+    userId: a.userId,
+    accountId: accId,
+    amount: String(amount),
+    commission: String(commission),
+    total: String(total),
+    description: `$${amount} loaded into ${a.platform} ad account #${accId} (2% commission incl.)`,
+    loadedBy: null,
+  });
+  await notifySiteUser(a.userId, "Balance Loaded 💰", `$${amount} was loaded into your ${a.platform} ad account (${a.accountId || "Pending"}). $${commission} commission charged (2%) — $${total} deducted from your main wallet.`);
+  await logAdminAction(chatId, "ACCOUNT_BALANCE_LOADED", "account", accId, "SUCCESS", `$${amount} loaded, $${commission} commission`);
+  return `💰 $${amount} loaded into account #${accId} (${a.platform}).\nCommission: $${commission} (2%)\nDeducted from main wallet: $${total}`;
+}
+
 // ---------------------------------------------------------------------------
 // Payment / request views with action keyboards
 // ---------------------------------------------------------------------------
@@ -672,11 +718,13 @@ async function showAccount(chatId: number, accId: number, editMessageId?: number
     `Account ID: ${a.accountId || "-"}`,
     `BM ID: ${a.businessPortfolioId || "-"}`,
     `Spend limit: ${a.spendLimit || "-"}`,
+    `Balance: $${Number(a.balance) || 0}`,
     `Status: ${statusEmoji(a.status)} ${a.status}`,
     `User: ${row.email}`,
     `Created: ${formatDate(a.createdAt)}`,
   ].join("\n");
   const rows: Btn[][] = [];
+  rows.push([btn("💰 Load Balance", `acc_load:${accId}`)]);
   if (a.status !== "ACTIVE") rows.push([btn("✅ Enable", `acc_set:${accId}:onc`)]);
   if (a.status !== "SUSPENDED") rows.push([btn("❌ Disable", `acc_set:${accId}:offc`)]);
   rows.push(mainRow());
@@ -717,6 +765,26 @@ async function handleMessage(msg: NonNullable<TelegramUpdate["message"]>) {
         `❌ REJECT PAYMENT #${flow.entityId}\n\nReason:\n"${reason}"\n\nAre you sure?`,
         kb([
           [btn("✅ Confirm Rejection", `pay_rejc:${flow.entityId}`)],
+          [btn("❌ Cancel", "cancel")],
+        ]),
+      );
+    } else if (flow.flow === "acc_load") {
+      const amount = Number(reason);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        await tgClient.sendMessage(chatId, "❌ Invalid amount. Enter a number (e.g. 100).", kb([[btn("❌ Cancel", "cancel")]]));
+        return;
+      }
+      if (amount < MIN_LOAD_USD) {
+        await tgClient.sendMessage(chatId, `❌ Minimum balance load is $${MIN_LOAD_USD}.`, kb([[btn("❌ Cancel", "cancel")]]));
+        return;
+      }
+      const commission = Math.round(amount * DEPOSIT_COMMISSION_RATE * 100) / 100;
+      const total = Math.round((amount + commission) * 100) / 100;
+      await tgClient.sendMessage(
+        chatId,
+        `💰 LOAD BALANCE INTO ACCOUNT #${flow.entityId}\n\nAmount: $${amount}\nCommission (2%): $${commission}\nTotal deducted from main wallet: $${total}\n\nAre you sure?`,
+        kb([
+          [btn("✅ Confirm Load", `acc_loadc:${flow.entityId}`)],
           [btn("❌ Cancel", "cancel")],
         ]),
       );
@@ -1191,6 +1259,30 @@ async function handleCallback(cb: NonNullable<TelegramUpdate["callback_query"]>)
         const id = Number(rest[0]);
         const action = rest[1];
         const result = await setAccountStatus(chatId, id, action === "onc" ? "ACTIVE" : "SUSPENDED");
+        await tgClient.editMessageText(chatId, msgId!, result, kb([[btn("👁 View Account", `acc:${id}`)], mainRow()]));
+        break;
+      }
+      case "acc_load": {
+        const id = Number(rest[0]);
+        flows.set(chatId, { flow: "acc_load", entityId: id });
+        await tgClient.editMessageText(
+          chatId,
+          msgId!,
+          `💰 LOAD BALANCE INTO ACCOUNT #${id}\n\nEnter the amount to load (minimum $${MIN_LOAD_USD}):`,
+          kb([[btn("❌ Cancel", "cancel")]]),
+        );
+        break;
+      }
+      case "acc_loadc": {
+        const id = Number(rest[0]);
+        const flow = flows.get(chatId);
+        if (!flow || flow.entityId !== id || flow.flow !== "acc_load") {
+          await tgClient.editMessageText(chatId, msgId!, "⏳ Session expired — start the load again.", kb([mainRow()]));
+          break;
+        }
+        flows.delete(chatId);
+        const amount = Number(flow.reason);
+        const result = await loadAccountBalance(chatId, id, amount);
         await tgClient.editMessageText(chatId, msgId!, result, kb([[btn("👁 View Account", `acc:${id}`)], mainRow()]));
         break;
       }

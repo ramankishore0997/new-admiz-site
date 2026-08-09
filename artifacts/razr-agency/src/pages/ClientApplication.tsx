@@ -574,9 +574,9 @@ export default function ClientApplication() {
                     <Wallet className="w-4 h-4 shrink-0 mt-0.5" />
                     <p>
                       <strong>Application fee: $10 per ad account</strong> — includes unlimited free replacements.
-                      The fee is deducted from your ledger balance when you submit. Current balance:{" "}
+                      The fee is deducted from your main-wallet balance when you submit. Current balance:{" "}
                       <strong>${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
-                      {" "}(minimum top-up is $100, 2% commission applies to deposits).
+                      {" "}(first-time top-up minimum is $10; later top-ups are $100 minimum — no commission on deposits).
                     </p>
                   </div>
 
@@ -584,8 +584,8 @@ export default function ClientApplication() {
                     <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs flex items-start gap-2.5 text-red-600">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <p>
-                        Insufficient balance for the $10 application fee. Please top up at least $100 (2% commission applies)
-                        before submitting.
+                        Insufficient balance for the $10 application fee. Please top up first (first-time minimum $10, no commission
+                        on deposits) before submitting.
                       </p>
                     </div>
                   )}

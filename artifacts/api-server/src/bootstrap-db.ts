@@ -77,10 +77,12 @@ const TABLES: string[] = [
     business_portfolio_id text,
     spend_limit text,
     status text NOT NULL DEFAULT 'PENDING_PROVISIONING',
+    balance text NOT NULL DEFAULT '0',
     notes text,
     created_at timestamp NOT NULL DEFAULT now(),
     updated_at timestamp NOT NULL DEFAULT now()
   )`,
+  `ALTER TABLE accounts ADD COLUMN IF NOT EXISTS balance text NOT NULL DEFAULT '0'`,
   `CREATE TABLE IF NOT EXISTS notifications (
     id serial PRIMARY KEY,
     user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -141,6 +143,17 @@ const TABLES: string[] = [
     application_id integer NOT NULL REFERENCES applications(id) ON DELETE CASCADE,
     amount text NOT NULL,
     description text,
+    created_at timestamp NOT NULL DEFAULT now()
+  )`,
+  `CREATE TABLE IF NOT EXISTS account_loads (
+    id serial PRIMARY KEY,
+    user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    account_id integer NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    amount text NOT NULL,
+    commission text NOT NULL,
+    total text NOT NULL,
+    description text,
+    loaded_by integer REFERENCES users(id) ON DELETE SET NULL,
     created_at timestamp NOT NULL DEFAULT now()
   )`,
   `CREATE TABLE IF NOT EXISTS telegram_admin_actions (

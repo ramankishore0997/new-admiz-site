@@ -123,6 +123,7 @@ export const accountsTable = pgTable("accounts", {
   businessPortfolioId: text("business_portfolio_id"),
   spendLimit: text("spend_limit"),
   status: text("status").default("PENDING_PROVISIONING").notNull(), // PENDING_PROVISIONING, PROVISIONING, ACTIVE, SUSPENDED, CLOSED
+  balance: text("balance").default("0").notNull(), // Loaded ad-account balance (USD)
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -295,10 +296,27 @@ export const applicationFeesTable = pgTable("application_fees", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// 13. Ad Account Balance Loads (Main wallet → ad account wallet)
+// Commission is charged on the LOAD, not on the deposit: loading $100
+// deducts $102 from the user's main wallet (2% on top of the loaded amount).
+export const accountLoadsTable = pgTable("account_loads", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
+  accountId: integer("account_id").references(() => accountsTable.id, { onDelete: "cascade" }).notNull(),
+  amount: text("amount").notNull(), // amount loaded into the ad account wallet, e.g. "100"
+  commission: text("commission").notNull(), // e.g. "2" (2% of amount)
+  total: text("total").notNull(), // amount + commission deducted from main wallet, e.g. "102"
+  description: text("description"),
+  loadedBy: integer("loaded_by").references(() => usersTable.id, { onDelete: "set null" }), // admin who performed the load (null = system/bot)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Business Rules
 export const AD_ACCOUNT_APPLICATION_FEE_USD = 10; // per ad account, includes unlimited replacement
-export const MIN_TOPUP_USD = 100; // minimum deposit / top-up
-export const DEPOSIT_COMMISSION_RATE = 0.02; // 2% commission applied on deposits (credited net of fee)
+export const FIRST_DEPOSIT_MIN_USD = 10; // first-ever top-up (application fee), credited in full
+export const MIN_TOPUP_USD = 100; // minimum deposit / top-up after the first one
+export const MIN_LOAD_USD = 100; // minimum amount loaded from main wallet into an ad account
+export const DEPOSIT_COMMISSION_RATE = 0.02; // 2% commission charged when loading main-wallet balance into an ad account (NOT on deposits)
 
 export type User = typeof usersTable.$inferSelect;
 export type NewUser = typeof usersTable.$inferInsert;
@@ -335,5 +353,8 @@ export type NewPayment = typeof paymentsTable.$inferInsert;
 
 export type ApplicationFee = typeof applicationFeesTable.$inferSelect;
 export type NewApplicationFee = typeof applicationFeesTable.$inferInsert;
+
+export type AccountLoad = typeof accountLoadsTable.$inferSelect;
+export type NewAccountLoad = typeof accountLoadsTable.$inferInsert;
 
 export * from "./telegram";

@@ -489,20 +489,24 @@ export default function Dashboard() {
                       <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
                       <input
                         type="number"
-                        min="100"
+                        min={user?.deposits?.length ? "100" : "10"}
                         value={depositAmount}
                         onChange={(e) => setDepositAmount(e.target.value)}
-                        placeholder="Min 100"
+                        placeholder={user?.deposits?.length ? "Min 100" : "Min 10"}
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 text-slate-900 font-black outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
-                    <span className="text-[10px] text-slate-400">Note: Minimum top-up is $100. A 2% commission applies — e.g. a $100 deposit credits $98 to your ledger after admin verification.</span>
+                    <span className="text-[10px] text-slate-400">
+                      {user?.deposits?.length
+                        ? "Minimum top-up is $100. No commission on deposits — the full amount is credited to your main wallet."
+                        : "First-time top-up minimum is $10 (covers the $10 ad-account application fee). No commission on deposits."}
+                    </span>
                   </div>
 
                   <div className="flex justify-end pt-4 border-t border-slate-200">
                     <button
                       onClick={() => setDepositStep(2)}
-                      disabled={Number(depositAmount) < 100}
+                      disabled={Number(depositAmount) < (user?.deposits?.length ? 100 : 10)}
                       className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-all"
                     >
                       Next Step <ArrowRight className="w-3.5 h-3.5" />
@@ -783,8 +787,11 @@ export default function Dashboard() {
                     <Lock className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                     <p>
                       The application fee is <strong className="text-red-600">$10 per ad account</strong> (includes unlimited
-                      replacements) and is deducted from your ledger on submission. Your current balance is insufficient —
-                      please deposit funds first (minimum top-up <strong className="text-red-600">$100</strong>, 2% commission applies).
+                      replacements) and is deducted from your main wallet on submission. Your current balance is insufficient —
+                      please deposit funds first ({user?.deposits?.length
+                        ? "minimum top-up "
+                        : "first-time top-up minimum "}
+                      <strong className="text-red-600">{user?.deposits?.length ? "$100" : "$10"}</strong>, no commission on deposits).
                     </p>
                   </div>
                 ) : (

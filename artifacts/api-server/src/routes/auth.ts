@@ -1,5 +1,5 @@
 import { Router, type Response } from "express";
-import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, DEPOSIT_COMMISSION_RATE, type User } from "@workspace/db";
+import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, accountLoadsTable, type User } from "@workspace/db";
 import { eq, or, ilike } from "drizzle-orm";
 import { hashPassword, verifyPassword, signToken, verifyToken } from "../lib/crypto";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
@@ -116,7 +116,7 @@ async function buildProfile(user: User) {
     platform: a.platform,
     status: a.status as "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED",
     spendLimit: a.spendLimit || "Starter",
-    balance: 0,
+    balance: Number(a.balance) || 0,
     dateApplied: a.createdAt.toLocaleDateString(),
   }));
 
@@ -139,13 +139,8 @@ async function buildProfile(user: User) {
     rejectionReason: p.rejectionReason,
   }));
 
-  const balance = Math.round(
-    deposits
-      .filter((d) => d.status === "COMPLETED")
-      .reduce((sum, d) => sum + d.amount, 0) *
-      (1 - DEPOSIT_COMMISSION_RATE) *
-      100
-  ) / 100;
+  // Main wallet = full admin-verified deposits (no commission on deposits).
+  const balance = Math.round(deposits.filter((d) => d.status === "COMPLETED").reduce((sum, d) => sum + d.amount, 0) * 100) / 100;
 
   // Application fee ledger ($10 per ad account application)
   const feeRows = await db
@@ -162,10 +157,31 @@ async function buildProfile(user: User) {
     date: f.createdAt.toISOString(),
   }));
 
-  const netBalance = Math.round((balance - applicationFees.reduce((sum, f) => sum + f.amount, 0)) * 100) / 100;
+  // Balance loads (main wallet → ad account wallet), incl. 2% commission
+  const loadRows = await db
+    .select()
+    .from(accountLoadsTable)
+    .where(eq(accountLoadsTable.userId, user.id))
+    .orderBy(accountLoadsTable.createdAt);
+
+  const balanceLoads = loadRows.map((l) => ({
+    id: l.id,
+    accountId: l.accountId,
+    amount: Number(l.amount) || 0,
+    commission: Number(l.commission) || 0,
+    total: Number(l.total) || 0,
+    date: l.createdAt.toISOString(),
+  }));
+
+  const netBalance = Math.round(
+    (balance -
+      applicationFees.reduce((sum, f) => sum + f.amount, 0) -
+      balanceLoads.reduce((sum, l) => sum + l.total, 0)) *
+      100,
+  ) / 100;
 
   const { password, ...profile } = user;
-  return { ...profile, balance: netBalance, adAccounts, deposits, applicationFees };
+  return { ...profile, balance: netBalance, adAccounts, deposits, applicationFees, balanceLoads };
 }
 
 /**
