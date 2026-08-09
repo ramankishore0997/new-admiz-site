@@ -21,10 +21,11 @@ const WALLET_BY_NETWORK: Record<string, string> = {
 function receivingAddressFor(network: string): string {
   return WALLET_BY_NETWORK[String(network).toLowerCase()] ?? RECEIVING_WALLET;
 }
-const SUPPORTED_NETWORKS = ["bsc", "eth", "polygon", "arbitrum", "optimism"];
+const SUPPORTED_NETWORKS = ["bsc", "eth", "polygon", "arbitrum", "optimism", "tron"];
 
 // EVM Transaction Hash Regex (0x followed by 64 hex characters)
 const EVM_TX_REGEX = /^0x[a-fA-F0-9]{64}$/;
+const TRON_TX_REGEX = /^[a-fA-F0-9]{64}$/;
 
 /**
  * POST /api/payments/submit-proof
@@ -48,8 +49,13 @@ router.post("/payments/submit-proof", authenticate, async (req: AuthenticatedReq
     }
 
     const cleanTxHash = String(txHash || "").trim();
-    if (!cleanTxHash || !EVM_TX_REGEX.test(cleanTxHash)) {
-      return res.status(400).json({ error: "Invalid EVM Transaction Hash. Please provide a valid 66-character hex hash (starting with 0x)." });
+    const isTron = String(network).toLowerCase() === "tron";
+    if (!cleanTxHash || (isTron ? !TRON_TX_REGEX.test(cleanTxHash) : !EVM_TX_REGEX.test(cleanTxHash))) {
+      return res.status(400).json({
+        error: isTron
+          ? "Invalid Tron Transaction Hash. Please provide a valid 64-character hex hash."
+          : "Invalid EVM Transaction Hash. Please provide a valid 66-character hex hash (starting with 0x).",
+      });
     }
 
     const cleanScreenshot = String(screenshotUrl || "").trim();
