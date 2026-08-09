@@ -1,6 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { TrendingUp, Activity, Zap, Target } from "lucide-react";
+import SpotlightCard from "@/components/ui/SpotlightCard";
 
 const METRICS = [
   { Icon: TrendingUp, label: "Avg ROAS lift", from: 1.8, to: 4.6, suffix: "x", color: "from-primary to-teal-500" },
@@ -58,9 +59,10 @@ export default function GrowthMetrics() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="card-premium tap-spring relative group rounded-3xl border border-slate-200 bg-white shadow-lg shadow-slate-200/60 p-7 overflow-hidden"
+                className="h-full"
               >
-                <div className={`absolute -top-16 -right-16 w-44 h-44 bg-gradient-to-br ${m.color} rounded-full blur-3xl opacity-15 group-hover:opacity-40 transition-opacity duration-500`} />
+                <SpotlightCard tone="emerald" className="tap-spring h-full p-7">
+                  <div className={`absolute -top-16 -right-16 w-44 h-44 bg-gradient-to-br ${m.color} rounded-full blur-3xl opacity-15 group-hover:opacity-40 transition-opacity duration-500`} />
                 <div className="relative">
                   <div className="flex items-center justify-between mb-6">
                     <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${m.color} flex items-center justify-center`}>
@@ -91,6 +93,7 @@ export default function GrowthMetrics() {
                     </div>
                   </div>
                 </div>
+                </SpotlightCard>
               </motion.div>
             );
           })}

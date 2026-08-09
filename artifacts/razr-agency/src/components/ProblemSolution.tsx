@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { X, Check, AlertTriangle, ShieldCheck } from "lucide-react";
 import { buildWaLink } from "@/lib/whatsapp";
+import SpotlightCard from "@/components/ui/SpotlightCard";
 
 const PAINS = [
   {
@@ -74,8 +75,9 @@ export default function ProblemSolution() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.7 }}
-            className="relative p-6 md:p-8 rounded-2xl border border-red-200 bg-white shadow-lg shadow-red-100/60 overflow-hidden"
+            className="h-full"
           >
+            <SpotlightCard tone="red" className="h-full p-6 md:p-8">
             <div className="absolute -top-20 -right-20 w-60 h-60 bg-red-100/70 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative">
@@ -103,6 +105,7 @@ export default function ProblemSolution() {
                 ))}
               </div>
             </div>
+            </SpotlightCard>
           </motion.div>
 
           {/* WITH RAZR */}
@@ -111,8 +114,9 @@ export default function ProblemSolution() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="relative p-6 md:p-8 rounded-2xl border border-primary/30 bg-gradient-to-br from-emerald-50/80 via-white to-white overflow-hidden shadow-xl shadow-emerald-100/50"
+            className="h-full"
           >
+            <SpotlightCard tone="emerald" className="h-full p-6 md:p-8">
             <div className="absolute -top-20 -right-20 w-60 h-60 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative">
@@ -140,6 +144,7 @@ export default function ProblemSolution() {
                 ))}
               </div>
             </div>
+            </SpotlightCard>
           </motion.div>
         </div>
 

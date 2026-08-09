@@ -3,7 +3,7 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Link } from "wouter";
 import LightBeams from "@/components/LightBeams";
-import HeroRobot from "@/components/HeroRobot";
+import HeroDashboardMock from "@/components/HeroDashboardMock";
 import {
   AlertTriangle, Lock, Clock4, XCircle, Sparkles,
   Key, Zap, TrendingUp, MessageCircle, RefreshCw, ArrowRight,
@@ -126,7 +126,7 @@ export default function Solutions() {
             </motion.div>
 
             <div className="hidden lg:block lg:col-span-5 h-[480px]">
-              <HeroRobot />
+              <HeroDashboardMock />
             </div>
           </div>
         </div>

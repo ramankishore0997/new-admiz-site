@@ -10,7 +10,8 @@ import ProblemSolution from "@/components/ProblemSolution";
 import ROISimulator from "@/components/ROISimulator";
 import AccessFlowJourney from "@/components/AccessFlowJourney";
 import UrgencyBadge from "@/components/UrgencyBadge";
-import HeroRobot from "@/components/HeroRobot";
+import HeroDashboardMock from "@/components/HeroDashboardMock";
+import MeshBackground from "@/components/MeshBackground";
 import GrowthMetrics from "@/components/GrowthMetrics";
 import CaseStudyTimeline from "@/components/CaseStudyTimeline";
 import FaqPreview from "@/components/FaqPreview";
@@ -27,6 +28,7 @@ export default function Home() {
       {/* HERO SECTION - Asymmetric */}
       <section className="relative min-h-[78vh] pt-24 pb-10 flex items-center overflow-hidden z-10">
         <LightBeams />
+        <MeshBackground />
         <div className="container mx-auto px-4 h-full relative z-10">
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-8 items-center h-full">
             {/* Left Column - 60% */}
@@ -87,15 +89,15 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Right Column - 40% - Hero Robot */}
+            {/* Right Column - 40% - Product Dashboard Mock */}
             <div className="w-full lg:w-[40%] relative h-[420px] lg:h-[560px] hidden md:block z-10">
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.94 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1, delay: 0.3 }}
                 className="absolute inset-0 flex items-center justify-center z-20"
               >
-                <HeroRobot />
+                <HeroDashboardMock />
               </motion.div>
             </div>
           </div>
