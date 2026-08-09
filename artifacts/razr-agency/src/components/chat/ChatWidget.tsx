@@ -235,20 +235,23 @@ export default function ChatWidget() {
                   </div>
                 )}
                 {messages.map((m) => (
-                  <div key={m.id} className={`flex ${m.senderType === "USER" ? "justify-end" : "justify-start"}`}>
-                    <div
-                      className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed break-words ${
-                        m.senderType === "USER"
-                          ? "bg-emerald-600 text-white rounded-br-md"
-                          : "bg-white border border-slate-200 text-slate-800 rounded-bl-md"
-                      }`}
-                    >
-                      {m.message}
-                      <div className={`text-[8px] mt-1 ${m.senderType === "USER" ? "text-emerald-200" : "text-slate-400"}`}>
+                  m.senderType === "OPERATOR" ? (
+                    <div key={m.id} className="flex flex-col">
+                      <div className="text-xs leading-relaxed text-slate-800 whitespace-pre-wrap break-words">{m.message}</div>
+                      <div className="text-[8px] text-slate-400 mt-1">
                         {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div key={m.id} className="flex justify-end">
+                      <div className="max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed break-words bg-emerald-600 text-white rounded-br-md">
+                        {m.message}
+                        <div className="text-[8px] mt-1 text-emerald-200">
+                          {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </div>
+                      </div>
+                    </div>
+                  )
                 ))}
               </div>
 
