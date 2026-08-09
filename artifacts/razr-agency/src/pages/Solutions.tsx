@@ -3,7 +3,6 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Link } from "wouter";
 import LightBeams from "@/components/LightBeams";
-import HeroDashboardMock from "@/components/HeroDashboardMock";
 import {
   AlertTriangle, Lock, Clock4, XCircle, Sparkles,
   Key, Zap, TrendingUp, MessageCircle, RefreshCw, ArrowRight,
@@ -100,34 +99,30 @@ export default function Solutions() {
       {/* ─────────────── HERO ─────────────── */}
       <section className="relative min-h-[68vh] md:min-h-[78vh] pt-24 md:pt-28 pb-10 flex items-center overflow-hidden">
         <LightBeams />
-        <div className="container mx-auto px-4 max-w-7xl relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="lg:col-span-7">
+        <div className="container mx-auto px-4 max-w-6xl relative z-10">
+          <div className="flex items-center justify-center">
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="w-full text-center">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 backdrop-blur mb-6 md:mb-8">
                 <Sparkles className="w-3 h-3 text-primary" />
                 <span className="text-[10px] font-black tracking-[0.2em] text-primary uppercase">Built For Scaling</span>
               </div>
-              <h1 className="text-[2.5rem] sm:text-5xl md:text-7xl lg:text-[5.5rem] font-black uppercase tracking-tighter leading-[0.95] mb-6 md:mb-8 break-words">
+              <h1 className="text-[2.5rem] sm:text-5xl md:text-7xl lg:text-[6rem] font-black uppercase tracking-tighter leading-[0.95] mb-6 md:mb-8 break-words">
                 Advertising <br />
-                <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">infrastructure</span><br />
-                <span className="font-light italic text-slate-500">built for scaling.</span>
+                <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">infrastructure</span>
+                <span className="font-light italic text-slate-500">, built for scaling.</span>
               </h1>
-              <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-xl font-medium leading-relaxed mb-6 md:mb-8">
-                Stop fighting the platform. Start running campaigns on infrastructure designed for advertisers — not local bakeries.
+              <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed mb-8 md:mb-10">
+                Stop fighting the platform. Run campaigns on infrastructure designed for high-volume advertisers — pre-vetted accounts, zero warm-up, and support that answers in minutes.
               </p>
-              <div className="grid grid-cols-3 gap-2.5 sm:flex sm:flex-wrap sm:gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 max-w-xl mx-auto">
                 {[{v:"$2.4B+",l:"Processed"},{v:"1,200+",l:"Advertisers"},{v:"99.2%",l:"Uptime"}].map((s,i)=>(
-                  <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 + i*0.1 }} className="rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-200/60 px-3 sm:px-4 py-3">
-                    <div className="text-base sm:text-xl font-black text-slate-900 truncate">{s.v}</div>
+                  <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 + i*0.1 }} className="rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-200/60 px-4 sm:px-5 py-3 min-w-[130px]">
+                    <div className="text-lg sm:text-xl font-black text-slate-900 truncate">{s.v}</div>
                     <div className="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-500 font-bold mt-0.5 truncate">{s.l}</div>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
-
-            <div className="hidden lg:block lg:col-span-5 h-[480px]">
-              <HeroDashboardMock />
-            </div>
           </div>
         </div>
       </section>
