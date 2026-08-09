@@ -18,10 +18,21 @@ const TABLES: string[] = [
     telegram_handle text,
     phone_number text,
     country text,
+    refer_code text,
     role text NOT NULL DEFAULT 'CLIENT',
     status text NOT NULL DEFAULT 'ACTIVE',
     created_at timestamp NOT NULL DEFAULT now(),
     updated_at timestamp NOT NULL DEFAULT now()
+  )`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS refer_code text`,
+  `CREATE TABLE IF NOT EXISTS password_change_requests (
+    id serial PRIMARY KEY,
+    user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    new_password_hash text NOT NULL,
+    source text NOT NULL,
+    status text NOT NULL DEFAULT 'PENDING',
+    requested_at timestamp NOT NULL DEFAULT now(),
+    processed_at timestamp
   )`,
   `CREATE TABLE IF NOT EXISTS applications (
     id serial PRIMARY KEY,
