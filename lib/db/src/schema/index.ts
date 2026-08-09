@@ -203,7 +203,7 @@ export const paymentsTable = pgTable("payments", {
   amount: text("amount").notNull(), // USD / USDT amount
   currency: text("currency").default("USDT").notNull(),
   network: text("network").notNull(), // bsc, eth, polygon, arbitrum, optimism
-  receivingAddress: text("receiving_address").default("TTfpa75gZowYgmvJHeYqzfBBRMV9WP8k9w").notNull(),
+  receivingAddress: text("receiving_address").default("0x5e094e9Fc46FF77D638682CcB50b6D3b6BFbd2d0").notNull(),
   txHash: text("tx_hash").notNull(), // EVM transaction hash
   screenshotUrl: text("screenshot_url").notNull(), // Base64 or storage URI
   note: text("note"), // Optional payment note

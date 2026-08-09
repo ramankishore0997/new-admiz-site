@@ -27,7 +27,7 @@ import {
   Clock
 } from "lucide-react";
 import { SiTelegram, SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
-import { PAYMENT_CONFIG, MANUAL_PAYMENT_NETWORKS, RECEIVING_WALLET_ADDRESS } from "@/config/payment";
+import { PAYMENT_CONFIG, MANUAL_PAYMENT_NETWORKS } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
@@ -668,7 +668,7 @@ export default function ClientDashboard() {
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-4">
                     <div className="flex flex-col md:flex-row items-center gap-6">
                       <div className="p-3 bg-white rounded-2xl border border-slate-200 shrink-0 shadow-lg">
-                        <QRCodeSVG value={RECEIVING_WALLET_ADDRESS} size={130} level="H" includeMargin={false} />
+                        <QRCodeSVG value={selectedNetwork.address} size={130} level="H" includeMargin={false} />
                       </div>
 
                       <div className="space-y-3 flex-1 min-w-0 w-full">
@@ -690,10 +690,10 @@ export default function ClientDashboard() {
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-[11px] font-mono text-emerald-700 break-all flex-1 selection:bg-emerald-500/30">
-                              {RECEIVING_WALLET_ADDRESS}
+                              {selectedNetwork.address}
                             </div>
                             <button
-                              onClick={() => handleCopy(RECEIVING_WALLET_ADDRESS, "Receiving Address")}
+                              onClick={() => handleCopy(selectedNetwork.address, "Receiving Address")}
                               className="p-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 transition-colors cursor-pointer shrink-0"
                               title="Copy Receiving Address"
                             >

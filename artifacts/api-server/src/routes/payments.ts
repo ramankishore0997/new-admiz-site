@@ -6,7 +6,21 @@ import { logger } from "../lib/logger";
 import * as telegramNotify from "../lib/telegram/service";
 
 const router = Router();
-const RECEIVING_WALLET = "TTfpa75gZowYgmvJHeYqzfBBRMV9WP8k9w";
+const RECEIVING_WALLET = "0x5e094e9Fc46FF77D638682CcB50b6D3b6BFbd2d0";
+const TRON_WALLET = "TTfpa75gZowYgmvJHeYqzfBBRMV9WP8k9w";
+
+const WALLET_BY_NETWORK: Record<string, string> = {
+  tron: TRON_WALLET,
+  bsc: RECEIVING_WALLET,
+  eth: RECEIVING_WALLET,
+  polygon: RECEIVING_WALLET,
+  arbitrum: RECEIVING_WALLET,
+  optimism: RECEIVING_WALLET,
+};
+
+function receivingAddressFor(network: string): string {
+  return WALLET_BY_NETWORK[String(network).toLowerCase()] ?? RECEIVING_WALLET;
+}
 const SUPPORTED_NETWORKS = ["bsc", "eth", "polygon", "arbitrum", "optimism"];
 
 // EVM Transaction Hash Regex (0x followed by 64 hex characters)
@@ -99,7 +113,7 @@ router.post("/payments/submit-proof", authenticate, async (req: AuthenticatedReq
         amount: String(numericAmount),
         currency: "USDT",
         network: String(network).toLowerCase(),
-        receivingAddress: RECEIVING_WALLET,
+        receivingAddress: receivingAddressFor(String(network)),
         txHash: cleanTxHash,
         screenshotUrl: cleanScreenshot,
         note: note ? String(note).slice(0, 500) : null,
