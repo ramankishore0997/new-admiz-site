@@ -46,21 +46,26 @@ const allowedOrigins = new Set(
     .concat(DEFAULT_ALLOWED_ORIGINS),
 );
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Non-browser clients (curl, server-to-server) send no Origin header
-      if (!origin || allowedOrigins.has(origin)) return callback(null, true);
-      return callback(new Error("Origin not allowed by CORS"));
-    },
-    credentials: true,
-  })
-);
+// CORS is applied ONLY to API routes — static assets/SPA must never be CORS-checked.
+// Same-origin browser requests (Origin === Host) are always allowed, so any
+// deployment URL works without extra config; other origins need the whitelist.
+function corsMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const origin = req.headers.origin;
+  const host = req.get("host");
+  const sameOrigin = !!origin && !!host && (origin === `https://${host}` || origin === `http://${host}`);
+  if (!origin || sameOrigin || allowedOrigins.has(origin)) {
+    return cors({ origin: true, credentials: true })(req, res, next);
+  }
+  const err: any = new Error("Origin not allowed by CORS");
+  err.status = 403;
+  return next(err);
+}
 
 app.use(cookieParser());
 app.use(express.json({ limit: "15mb" })); // Support large base64 uploads
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 
+app.use("/api", corsMiddleware);
 app.use("/api", router);
 app.use(router);
 
