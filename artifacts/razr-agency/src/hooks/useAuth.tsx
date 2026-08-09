@@ -78,6 +78,7 @@ interface AuthContextType {
       hatType?: "BLACK" | "GREY" | "WHITE";
       businessManagerId?: string;
       gmail?: string;
+      accountName?: string;
     }
   ) => Promise<{ success: boolean; error?: string }>;
 }
@@ -228,6 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hatType?: "BLACK" | "GREY" | "WHITE";
       businessManagerId?: string; // Meta BM ID
       gmail?: string; // Google Gmail
+      accountName?: string; // Client-chosen ad account name
     }
   ): Promise<{ success: boolean; error?: string }> => {
     try {
@@ -247,6 +249,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             hatType: requirements?.hatType,
             businessManagerId: requirements?.businessManagerId,
             gmail: requirements?.gmail,
+            accountName: requirements?.accountName?.trim() || undefined,
           },
         }),
       });

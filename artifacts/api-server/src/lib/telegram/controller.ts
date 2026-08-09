@@ -21,6 +21,7 @@ import { eq, desc, sql } from "drizzle-orm";
 import { tgClient, type TelegramUpdate, type ReplyMarkup, logTelegramError } from "./client";
 import { explorerLink, truncateMiddle, truncate, formatDate, statusEmoji } from "./format";
 import { sendTelegramPhoto, notifyPaymentApproved, notifyPaymentRejected, notifyRequestStatusChange } from "./service";
+import { provisionAdAccount, hasProvisionedAccount } from "../provision";
 import { logger } from "../logger";
 
 const PAGE_SIZE = 8;
@@ -154,6 +155,7 @@ function formatApp(a: Application, email: string): string {
     `Platform: ${a.advertisingInfo?.platform || "-"}`,
     `Hat type: ${a.accountRequirements?.hatType || "-"}`,
   ];
+  if (a.accountRequirements?.accountName) lines.push(`Account name: ${a.accountRequirements.accountName}`);
   if (a.accountRequirements?.businessManagerId) lines.push(`BM ID: ${a.accountRequirements.businessManagerId}`);
   if (a.accountRequirements?.gmail) lines.push(`Gmail: ${a.accountRequirements.gmail}`);
   lines.push(
@@ -585,6 +587,24 @@ async function setRequestStatus(chatId: number, appId: number, next: string, rea
     description: reason || `Status changed to ${next} via Telegram admin.`,
     actorId: null,
   });
+
+  // Auto-provision the ad account (ACTIVE) when approved via Telegram
+  if (next === "APPROVED") {
+    try {
+      if (!(await hasProvisionedAccount(appId))) {
+        const acc = await provisionAdAccount(a as any);
+        await db.insert(applicationTimelineTable).values({
+          applicationId: appId,
+          event: "Ad Account Provisioned",
+          description: `Account ${acc.accountId} activated for ${acc.platform} (${acc.name || "no custom name"}).`,
+          actorId: null,
+        });
+        await notifySiteUser(a.userId, "Ad Account Provisioned 🚀", `Your ${acc.platform} ad account (${acc.accountId}) is ACTIVE. Load funds from your main wallet to start spending.`);
+      }
+    } catch (err) {
+      console.error("Auto-provision failed for application", appId, err);
+    }
+  }
   const title =
     next === "APPROVED"
       ? "Application Approved 🎉"

@@ -48,6 +48,12 @@ export default function ClientDashboard() {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositStep, setDepositStep] = useState(1); // 1: Pay & Instructions, 2: Submit Proof Form, 3: Submitted Confirmation
 
+  // Load Fund Modal State
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [loadTarget, setLoadTarget] = useState<any | null>(null);
+  const [loadAmount, setLoadAmount] = useState("100");
+  const [isLoadingLoad, setIsLoadingLoad] = useState(false);
+
   // Payment Form State
   const [selectedNetwork, setSelectedNetwork] = useState(MANUAL_PAYMENT_NETWORKS[0]);
   const [depositAmount, setDepositAmount] = useState("500");
@@ -207,6 +213,45 @@ export default function ClientDashboard() {
     setPaymentNote("");
     setPaymentError("");
     setSubmittedPayment(null);
+  };
+
+  const openLoadModal = (acc: any) => {
+    setLoadTarget(acc);
+    setLoadAmount("100");
+    setShowLoadModal(true);
+  };
+
+  const handleLoadFunds = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loadTarget) return;
+
+    const amt = Number(loadAmount);
+    if (!amt || amt <= 0) {
+      toast({ variant: "destructive", title: "Invalid Amount", description: "Please enter a valid load amount." });
+      return;
+    }
+
+    setIsLoadingLoad(true);
+    try {
+      const res = await apiFetch<any>(`/api/accounts/${loadTarget.dbId}/load`, {
+        method: "POST",
+        body: JSON.stringify({ amount: amt }),
+      });
+      toast({
+        title: "Balance Loaded",
+        description: `$${res.amount} loaded into ${loadTarget.name || loadTarget.platform}. $${res.commission} service fee (2%) — total $${res.total} deducted from main wallet.`,
+      });
+      setShowLoadModal(false);
+      await refreshUser();
+    } catch (e: any) {
+      toast({
+        variant: "destructive",
+        title: "Load Failed",
+        description: e.message || "Could not load balance into this account.",
+      });
+    } finally {
+      setIsLoadingLoad(false);
+    }
   };
 
   const activeApp = applications.find(
@@ -381,7 +426,7 @@ export default function ClientDashboard() {
                   };
 
                   return (
-                    <div key={acc.id} className="rounded-xl border border-slate-200 bg-slate-50 p-5 hover:border-slate-300 transition-colors">
+                    <div key={acc.id} className="rounded-xl border border-slate-200 bg-slate-50 p-5 hover:border-slate-300 transition-colors flex flex-col">
                       <div className="flex items-center justify-between mb-4">
                         <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center">
                           {getPlatformIcon(acc.platform)}
@@ -394,13 +439,32 @@ export default function ClientDashboard() {
                           {acc.status}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-500 uppercase font-bold tracking-wider">{acc.platform}</div>
+                      <div className="text-xs text-slate-500 uppercase font-bold tracking-wider">
+                        {acc.name ? (
+                          <span className="text-slate-900">{acc.name}</span>
+                        ) : (
+                          acc.platform
+                        )}
+                      </div>
                       <div className="text-sm font-mono font-bold text-slate-900 mt-1 selection:bg-primary/30">
-                        {acc.id || "Provisioning ID..."}
+                        {acc.accountId || "Provisioning ID..."}
                       </div>
-                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200 text-[10px] text-slate-500 font-bold">
+
+                      <div className="flex items-center justify-between mt-3 text-[10px] text-slate-500 font-bold">
                         <span>Daily Limit: {acc.spendLimit || "$5,000"}</span>
+                        <span className="text-emerald-700">
+                          Balance: <strong className="text-emerald-700">${(Number(acc.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
+                        </span>
                       </div>
+
+                      {acc.status === "ACTIVE" && (
+                        <button
+                          onClick={() => openLoadModal(acc)}
+                          className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest transition-colors cursor-pointer shadow-[0_4px_15px_rgba(5,150,105,0.2)]"
+                        >
+                          <Wallet className="w-3.5 h-3.5" /> Load Fund
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -798,6 +862,99 @@ export default function ClientDashboard() {
               )}
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Load Fund Modal */}
+      <AnimatePresence>
+        {showLoadModal && loadTarget && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+          >
+            <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowLoadModal(false)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl shadow-slate-200/60 z-10"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-500" />
+              <div className="flex items-start justify-between mb-5">
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
+                    <Wallet className="w-5 h-5 text-emerald-600" /> Load Fund
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-1">
+                    {loadTarget.name || loadTarget.platform} · <span className="font-mono">{loadTarget.accountId}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowLoadModal(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleLoadFunds} className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                    Amount to Load (USD)
+                  </label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                    <input
+                      type="number"
+                      min={1}
+                      value={loadAmount}
+                      onChange={(e) => setLoadAmount(e.target.value)}
+                      placeholder="Enter amount"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 text-slate-900 text-sm font-black outline-none focus:border-primary/50 transition-colors"
+                    />
+                  </div>
+                  <p className="text-[9px] text-slate-400 mt-1.5">
+                    Loaded from your main wallet. Includes a 2% service fee added on top.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500 font-bold">Amount loaded</span>
+                    <span className="text-slate-900 font-black">${Number(loadAmount) || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500 font-bold">Service fee (2%)</span>
+                    <span className="text-slate-900 font-black">${(Number(loadAmount) * 0.02).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-slate-200">
+                    <span className="text-slate-500 font-bold">Deducted from main wallet</span>
+                    <span className="text-emerald-700 font-black">${(Number(loadAmount) * 1.02).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-slate-200">
+                    <span className="text-slate-500 font-bold">Main wallet available</span>
+                    <span className="text-slate-900 font-black">
+                      ${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoadingLoad}
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all shadow-[0_4px_20px_rgba(5,150,105,0.25)] cursor-pointer disabled:opacity-50"
+                >
+                  {isLoadingLoad ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Loading Funds...</>
+                  ) : (
+                    <><ShieldCheck className="w-4 h-4" /> Confirm Load</>
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </ClientLayout>

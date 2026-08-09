@@ -113,6 +113,9 @@ async function buildProfile(user: User) {
 
   const adAccounts = adAccs.map((a) => ({
     id: a.accountId || String(a.id),
+    dbId: a.id,
+    accountId: a.accountId,
+    name: a.name,
     platform: a.platform,
     status: a.status as "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED",
     spendLimit: a.spendLimit || "Starter",

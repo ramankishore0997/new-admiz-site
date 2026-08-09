@@ -16,6 +16,7 @@ import {
 import { eq, and, sql, desc } from "drizzle-orm";
 import { authenticate, requireAdmin, requireSuperAdmin, type AuthenticatedRequest } from "../middlewares/auth";
 import { hashPassword } from "../lib/crypto";
+import { provisionAdAccount, hasProvisionedAccount } from "../lib/provision";
 import * as telegramNotify from "../lib/telegram/service";
 
 const router = Router();
@@ -341,6 +342,26 @@ router.post("/admin/applications/:id/approve", async (req: AuthenticatedRequest,
       description: note || "Application verified and approved. Pending ad account provisioning.",
       actorId: adminId,
     });
+
+    // Auto-provision the ad account (ACTIVE) with the client-chosen name
+    try {
+      if (!(await hasProvisionedAccount(appId))) {
+        const acc = await provisionAdAccount(app as any);
+        await db.insert(applicationTimelineTable).values({
+          applicationId: appId,
+          event: "Ad Account Provisioned",
+          description: `Account ${acc.accountId} activated for ${acc.platform} (${acc.name || "no custom name"}).`,
+          actorId: adminId,
+        });
+        await db.insert(notificationsTable).values({
+          userId: app.userId,
+          title: "Ad Account Provisioned 🚀",
+          message: `Your ${acc.platform} ad account (${acc.accountId}) is ACTIVE. Load funds from your main wallet to start spending.`,
+        });
+      }
+    } catch (err) {
+      console.error("Auto-provision failed for application", appId, err);
+    }
 
     // Client notification
     await db.insert(notificationsTable).values({

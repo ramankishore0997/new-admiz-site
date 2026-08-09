@@ -51,6 +51,7 @@ export default function ClientApplication() {
   const [applyPlatform, setApplyPlatform] = useState("meta");
   const [applyBmId, setApplyBmId] = useState("");
   const [applyGmail, setApplyGmail] = useState("");
+  const [applyAccountName, setApplyAccountName] = useState("");
   const [applyHatType, setApplyHatType] = useState<"" | "BLACK" | "GREY" | "WHITE">("");
 
   const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; badge: string; features: string[]; styles: string }> = {
@@ -148,6 +149,7 @@ export default function ClientApplication() {
       setApplyPlatform(platRaw.includes("Google") ? "google" : platRaw.includes("TikTok") ? "tiktok" : "meta");
       setApplyBmId(reqs.businessManagerId || "");
       setApplyGmail(reqs.gmail || "");
+      setApplyAccountName(reqs.accountName || "");
       setApplyHatType((reqs.hatType as "" | "BLACK" | "GREY" | "WHITE") || "");
     } catch (e: any) {
       setLoadError(e.message || "Failed to load this application.");
@@ -239,6 +241,7 @@ export default function ClientApplication() {
             hatType: applyHatType || undefined,
             businessManagerId: applyPlatform === "meta" ? applyBmId.trim() || undefined : undefined,
             gmail: applyPlatform === "google" ? applyGmail.trim() || undefined : undefined,
+            accountName: applyAccountName.trim() || undefined,
           },
         }),
       });
@@ -442,6 +445,18 @@ export default function ClientApplication() {
                   <span className="text-[9px] text-slate-400">Your Google Ads account will be created on this Gmail.</span>
                 </div>
               )}
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Account Name (Optional)</label>
+                <input
+                  type="text"
+                  value={applyAccountName}
+                  onChange={(e) => setApplyAccountName(e.target.value)}
+                  placeholder="e.g. Scale Account 1"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-primary/50 transition-colors"
+                />
+                <span className="text-[9px] text-slate-400">Give your ad account your own name — it will appear in your dashboard.</span>
+              </div>
 
               {/* Hat type */}
               <div className="flex flex-col gap-2">

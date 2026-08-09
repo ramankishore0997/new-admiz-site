@@ -67,6 +67,7 @@ export const applicationsTable = pgTable("applications", {
     existingAccountId?: string;
     gmail?: string; // Google: Gmail used for the ad account
     hatType?: "BLACK" | "GREY" | "WHITE"; // account risk profile
+    accountName?: string; // client-chosen ad account name
   }>(),
   rejectionReason: text("rejection_reason"),
   assignedAdminId: integer("assigned_admin_id").references(() => usersTable.id),
@@ -123,6 +124,7 @@ export const accountsTable = pgTable("accounts", {
   platform: text("platform").notNull(), // Meta, Google, TikTok, Other
   accountId: text("account_id"), // Externally generated ID
   businessPortfolioId: text("business_portfolio_id"),
+  name: text("name"), // Client-chosen ad account name
   spendLimit: text("spend_limit"),
   status: text("status").default("PENDING_PROVISIONING").notNull(), // PENDING_PROVISIONING, PROVISIONING, ACTIVE, SUSPENDED, CLOSED
   balance: text("balance").default("0").notNull(), // Loaded ad-account balance (USD)

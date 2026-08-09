@@ -62,6 +62,7 @@ export default function Dashboard() {
   const [applyPlatform, setApplyPlatform] = useState("meta");
   const [applyBmId, setApplyBmId] = useState("");
   const [applyGmail, setApplyGmail] = useState("");
+  const [applyAccountName, setApplyAccountName] = useState("");
   const [applyHatType, setApplyHatType] = useState<"" | "BLACK" | "GREY" | "WHITE">("");
 
   const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; badge: string; features: string[]; styles: string }> = {
@@ -145,6 +146,7 @@ export default function Dashboard() {
       hatType: applyHatType,
       businessManagerId: applyPlatform === "meta" ? applyBmId.trim() : undefined,
       gmail: applyPlatform === "google" ? applyGmail.trim() : undefined,
+      accountName: applyAccountName.trim() || undefined,
     });
 
     if (!result.success) {
@@ -845,6 +847,18 @@ export default function Dashboard() {
                     <span className="text-[10px] text-slate-400">Your Google Ads account will be created on this Gmail.</span>
                   </div>
                 )}
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Account Name (Optional)</label>
+                  <input
+                    type="text"
+                    value={applyAccountName}
+                    onChange={(e) => setApplyAccountName(e.target.value)}
+                    placeholder="e.g. Scale Account 1"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm outline-none focus:border-primary/50 transition-colors"
+                  />
+                  <span className="text-[10px] text-slate-400">Give your ad account your own name — it will appear in your dashboard.</span>
+                </div>
 
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Choose Hat Type *</label>
