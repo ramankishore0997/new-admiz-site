@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import ClientLayout from "@/components/layout/ClientLayout";
 import { useToast } from "@/hooks/use-toast";
+import { apiFetch } from "@/lib/api";
 import {
   FileText,
   UploadCloud,
@@ -17,18 +18,19 @@ export default function ClientDocuments() {
   const { toast } = useToast();
   const [documents, setDocuments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [docsError, setDocsError] = useState("");
   const [uploadCategory, setUploadCategory] = useState("Business Registration");
   const [isUploading, setIsUploading] = useState(false);
 
   const loadDocs = async () => {
+    setIsLoading(true);
+    setDocsError("");
     try {
-      const res = await fetch("/api/documents");
-      if (res.ok) {
-        const data = await res.json();
-        setDocuments(data);
-      }
-      setIsLoading(false);
-    } catch {
+      const data = await apiFetch<any[]>("/api/documents");
+      setDocuments(data || []);
+    } catch (e: any) {
+      setDocsError(e.message || "Failed to load documents.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -54,8 +56,7 @@ export default function ClientDocuments() {
     // Verify if they have an application first to link to
     setIsUploading(true);
     try {
-      const appRes = await fetch("/api/applications");
-      const appList = await appRes.json();
+      const appList = await apiFetch<any[]>("/api/applications");
       if (appList.length === 0) {
         toast({
           variant: "destructive",
@@ -71,9 +72,8 @@ export default function ClientDocuments() {
       reader.onload = async () => {
         const base64Data = reader.result as string;
         try {
-          const res = await fetch("/api/documents", {
+          await apiFetch("/api/documents", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               applicationId: appList[0].id,
               category: uploadCategory,
@@ -82,25 +82,20 @@ export default function ClientDocuments() {
               base64Data,
             }),
           });
-
-          if (res.ok) {
-            toast({
-              title: "Upload Success",
-              description: "Document file added to security vault.",
-            });
-            await loadDocs();
-          } else {
-            const err = await res.json();
-            toast({ variant: "destructive", title: "Upload Failed", description: err.error });
-          }
-        } catch {
-          toast({ variant: "destructive", title: "Upload Error" });
+          toast({
+            title: "Upload Success",
+            description: "Document file added to security vault.",
+          });
+          await loadDocs();
+        } catch (e: any) {
+          toast({ variant: "destructive", title: "Upload Failed", description: e.message || "Document upload failed." });
         } finally {
           setIsUploading(false);
         }
       };
-    } catch {
+    } catch (e: any) {
       setIsUploading(false);
+      toast({ variant: "destructive", title: "Upload Error", description: e.message || "Could not verify your application." });
     }
   };
 
@@ -175,7 +170,19 @@ export default function ClientDocuments() {
           <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-6">
             <h2 className="text-sm font-black uppercase tracking-tight text-slate-900 mb-6">Uploaded Files Vault</h2>
 
-            {isLoading ? (
+            {docsError ? (
+              <div>
+                <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">
+                  {docsError}
+                </div>
+                <button
+                  onClick={loadDocs}
+                  className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : isLoading ? (
               <div className="flex items-center justify-center py-10">
                 <Loader2 className="w-6 h-6 text-primary animate-spin" />
               </div>

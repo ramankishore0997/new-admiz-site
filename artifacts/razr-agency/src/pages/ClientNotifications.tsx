@@ -1,22 +1,24 @@
 import { useState, useEffect } from "react";
 import ClientLayout from "@/components/layout/ClientLayout";
 import { useToast } from "@/hooks/use-toast";
+import { apiFetch } from "@/lib/api";
 import { Bell, Check, Trash2, Calendar, Loader2 } from "lucide-react";
 
 export default function ClientNotifications() {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [notifError, setNotifError] = useState("");
 
   const loadNotifs = async () => {
+    setIsLoading(true);
+    setNotifError("");
     try {
-      const res = await fetch("/api/notifications");
-      if (res.ok) {
-        const data = await res.json();
-        setNotifications(data);
-      }
-      setIsLoading(false);
-    } catch {
+      const data = await apiFetch<any[]>("/api/notifications");
+      setNotifications(data || []);
+    } catch (e: any) {
+      setNotifError(e.message || "Failed to load notifications.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -27,25 +29,21 @@ export default function ClientNotifications() {
 
   const handleMarkAsRead = async (id: number) => {
     try {
-      const res = await fetch(`/api/notifications/${id}/read`, {
-        method: "PATCH",
-      });
-      if (res.ok) {
-        await loadNotifs();
-      }
-    } catch {}
+      await apiFetch(`/api/notifications/${id}/read`, { method: "PATCH" });
+      await loadNotifs();
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Update Failed", description: e.message || "Could not mark notification as read." });
+    }
   };
 
   const handleMarkAllRead = async () => {
     try {
-      const res = await fetch("/api/notifications/read-all", {
-        method: "POST",
-      });
-      if (res.ok) {
-        toast({ title: "All Read", description: "Marked all notifications as read." });
-        await loadNotifs();
-      }
-    } catch {}
+      await apiFetch("/api/notifications/read-all", { method: "POST" });
+      toast({ title: "All Read", description: "Marked all notifications as read." });
+      await loadNotifs();
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Update Failed", description: e.message || "Could not update notifications." });
+    }
   };
 
   return (
@@ -71,7 +69,19 @@ export default function ClientNotifications() {
 
       <div className="max-w-2xl mx-auto relative z-10">
         <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-6">
-          {isLoading ? (
+          {notifError ? (
+            <div>
+              <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">
+                {notifError}
+              </div>
+              <button
+                onClick={loadNotifs}
+                className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          ) : isLoading ? (
             <div className="flex items-center justify-center py-10">
               <Loader2 className="w-6 h-6 text-primary animate-spin" />
             </div>

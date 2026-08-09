@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PAYMENT_CONFIG } from "@/config/payment";
+import { apiFetch } from "@/lib/api";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
 
@@ -48,6 +49,7 @@ export default function ClientApplication() {
   const [timeline, setTimeline] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   // Stepper state
   const [step, setStep] = useState(1); // 1: Personal, 2: Business, 3: Advertising, 4: Review
@@ -75,49 +77,47 @@ export default function ClientApplication() {
 
   // Load active application and details
   const loadData = async () => {
+    setLoadError("");
     try {
-      const res = await fetch("/api/applications");
-      if (!res.ok) throw new Error();
-      const list = await res.json();
+      const list = await apiFetch<any[]>("/api/applications");
       if (list.length > 0) {
         // Load detailed application (API returns the flat application row)
-        const appRes = await fetch(`/api/applications/${list[0].id}`);
-        if (appRes.ok) {
-          const detail = await appRes.json();
-          setApplication(detail);
+        const detail = await apiFetch<any>(`/api/applications/${list[0].id}`);
 
-          // Timeline and messages are separate endpoints
-          const [tlRes, msgRes] = await Promise.all([
-            fetch(`/api/applications/${detail.id}/timeline`),
-            fetch(`/api/applications/${detail.id}/messages`),
-          ]);
-          setTimeline(tlRes.ok ? await tlRes.json() : []);
-          setMessages(msgRes.ok ? await msgRes.json() : []);
+        setApplication(detail);
 
-          // Prepopulate draft fields
-          const personal = detail.personalInfo || {};
-          const business = detail.businessInfo || {};
-          const advertising = detail.advertisingInfo || {};
+        // Timeline and messages are separate endpoints
+        const [tlData, msgData] = await Promise.all([
+          apiFetch<any[]>(`/api/applications/${detail.id}/timeline`).catch(() => []),
+          apiFetch<any[]>(`/api/applications/${detail.id}/messages`).catch(() => []),
+        ]);
+        setTimeline(tlData || []);
+        setMessages(msgData || []);
 
-          setFullName(personal.fullName || user?.username || "");
-          setJobTitle(personal.jobTitle || "");
-          setBusinessEmail(personal.businessEmail || user?.email || "");
-          setPhoneNumber(personal.phoneNumber || "");
-          setCountry(personal.country || "");
+        // Prepopulate draft fields
+        const personal = detail.personalInfo || {};
+        const business = detail.businessInfo || {};
+        const advertising = detail.advertisingInfo || {};
 
-          setBusinessName(business.businessName || user?.companyName || "");
-          setRegCountry(business.regCountry || "");
-          setBusinessWebsite(business.businessWebsite || "");
-          setBusinessModel(business.businessModel || "E-commerce");
-          setVertical(business.vertical || "");
+        setFullName(personal.fullName || user?.username || "");
+        setJobTitle(personal.jobTitle || "");
+        setBusinessEmail(personal.businessEmail || user?.email || "");
+        setPhoneNumber(personal.phoneNumber || "");
+        setCountry(personal.country || "");
 
-          setPlatform(advertising.platform || "Meta Ads (Facebook/IG)");
-          setExpectedSpend(advertising.expectedSpend || "$1,000 - $5,000 / day");
-          setExistingAccountId(advertising.existingAccountId || "");
-        }
+        setBusinessName(business.businessName || user?.companyName || "");
+        setRegCountry(business.regCountry || "");
+        setBusinessWebsite(business.businessWebsite || "");
+        setBusinessModel(business.businessModel || "E-commerce");
+        setVertical(business.vertical || "");
+
+        setPlatform(advertising.platform || "Meta Ads (Facebook/IG)");
+        setExpectedSpend(advertising.expectedSpend || "$1,000 - $5,000 / day");
+        setExistingAccountId(advertising.existingAccountId || "");
       }
-      setIsLoading(false);
-    } catch {
+    } catch (e: any) {
+      setLoadError(e.message || "Failed to load your application.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -129,24 +129,23 @@ export default function ClientApplication() {
   const handleStartApplication = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/applications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (res.ok) {
-        await loadData();
-      }
-    } catch {
+      await apiFetch("/api/applications", { method: "POST" });
+      await loadData();
+    } catch (e: any) {
       setIsLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Failed to Start Application",
+        description: e.message || "Could not initialize your onboarding application.",
+      });
     }
   };
 
   const handleSaveDraft = async () => {
     if (!application) return;
     try {
-      await fetch(`/api/applications/${application.id}`, {
+      await apiFetch(`/api/applications/${application.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           personalInfo: { fullName, jobTitle, businessEmail, phoneNumber, country },
           businessInfo: { businessName, regCountry, businessWebsite, businessModel, vertical },
@@ -157,11 +156,11 @@ export default function ClientApplication() {
         title: "Draft Saved",
         description: "Your application revisions were saved successfully.",
       });
-    } catch {
+    } catch (e: any) {
       toast({
         variant: "destructive",
         title: "Autosave Failed",
-        description: "Could not save draft changes.",
+        description: e.message || "Could not save draft changes.",
       });
     }
   };
@@ -182,22 +181,15 @@ export default function ClientApplication() {
       // First save draft
       await handleSaveDraft();
       // Then submit (backend charges the $10 application fee)
-      const res = await fetch(`/api/applications/${application.id}/submit`, {
-        method: "POST",
-      });
+      await apiFetch(`/api/applications/${application.id}/submit`, { method: "POST" });
 
-      if (res.ok) {
-        toast({
-          title: "Application Submitted",
-          description: "Our team is reviewing your request. The $10 application fee was deducted from your ledger.",
-        });
-        await loadData();
-      } else {
-        const err = await res.json();
-        toast({ variant: "destructive", title: "Submission Failed", description: err.error || "Could not submit application." });
-      }
-    } catch {
-      toast({ variant: "destructive", title: "Submission Failed" });
+      toast({
+        title: "Application Submitted",
+        description: "Our team is reviewing your request. The $10 application fee was deducted from your ledger.",
+      });
+      await loadData();
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Submission Failed", description: e.message || "Could not submit application." });
     }
   };
 
@@ -207,17 +199,14 @@ export default function ClientApplication() {
 
     setIsSendingMsg(true);
     try {
-      const res = await fetch(`/api/applications/${application.id}/messages`, {
+      await apiFetch(`/api/applications/${application.id}/messages`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: chatMessage }),
       });
-      if (res.ok) {
-        setChatMessage("");
-        await loadData();
-      }
-    } catch {
-      toast({ variant: "destructive", title: "Message not sent" });
+      setChatMessage("");
+      await loadData();
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Message Not Sent", description: e.message || "Could not send your message." });
     } finally {
       setIsSendingMsg(false);
     }
@@ -250,11 +239,31 @@ export default function ClientApplication() {
           <p className="text-sm text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
             Gain premium agency meta, google and tiktok ad account provisions with priority scaling pipelines. Start your compliance onboarding checklist.
           </p>
+
+          {loadError && (
+            <div className="max-w-md mx-auto mb-6 text-left">
+              <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">
+                {loadError}
+              </div>
+              <button
+                onClick={loadData}
+                className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
           <button
             onClick={handleStartApplication}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer"
+            disabled={isLoading}
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer disabled:opacity-50"
           >
-            Start Compliance Onboarding
+            {isLoading ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Initializing...</>
+            ) : (
+              <>Start Compliance Onboarding</>
+            )}
           </button>
         </div>
       </ClientLayout>

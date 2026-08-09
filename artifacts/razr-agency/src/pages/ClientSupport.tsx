@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { SiTelegram } from "react-icons/si";
 import { PAYMENT_CONFIG } from "@/config/payment";
+import { apiFetch } from "@/lib/api";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
 
@@ -24,6 +25,7 @@ export default function ClientSupport() {
   const [activeTicket, setActiveTicket] = useState<any | null>(null);
   const [ticketMessages, setTicketMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [ticketsError, setTicketsError] = useState("");
 
   // Form State: New Ticket
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -38,26 +40,25 @@ export default function ClientSupport() {
   const [isReplying, setIsReplying] = useState(false);
 
   const loadTickets = async () => {
+    setIsLoading(true);
+    setTicketsError("");
     try {
-      const res = await fetch("/api/support/tickets");
-      if (res.ok) {
-        const data = await res.json();
-        setTickets(data);
-      }
-      setIsLoading(false);
-    } catch {
+      const data = await apiFetch<any[]>("/api/support/tickets");
+      setTickets(data || []);
+    } catch (e: any) {
+      setTicketsError(e.message || "Failed to load support tickets.");
+    } finally {
       setIsLoading(false);
     }
   };
 
   const loadTicketMessages = async (ticketId: number) => {
     try {
-      const res = await fetch(`/api/support/tickets/${ticketId}/messages`);
-      if (res.ok) {
-        const data = await res.json();
-        setTicketMessages(data);
-      }
-    } catch {}
+      const data = await apiFetch<any[]>(`/api/support/tickets/${ticketId}/messages`);
+      setTicketMessages(data || []);
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Load Failed", description: e.message || "Could not load ticket messages." });
+    }
   };
 
   useEffect(() => {
@@ -75,21 +76,18 @@ export default function ClientSupport() {
 
     setIsCreating(true);
     try {
-      const res = await fetch("/api/support/tickets", {
+      await apiFetch("/api/support/tickets", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject, category, priority, message }),
       });
 
-      if (res.ok) {
-        toast({ title: "Ticket Opened", description: "Your support request was logged successfully." });
-        setSubject("");
-        setMessage("");
-        setShowCreateForm(false);
-        await loadTickets();
-      }
-    } catch {
-      toast({ variant: "destructive", title: "Error", description: "Failed to open support ticket." });
+      toast({ title: "Ticket Opened", description: "Your support request was logged successfully." });
+      setSubject("");
+      setMessage("");
+      setShowCreateForm(false);
+      await loadTickets();
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Error", description: e.message || "Failed to open support ticket." });
     } finally {
       setIsCreating(false);
     }
@@ -101,19 +99,16 @@ export default function ClientSupport() {
 
     setIsReplying(true);
     try {
-      const res = await fetch(`/api/support/tickets/${activeTicket.id}/messages`, {
+      await apiFetch(`/api/support/tickets/${activeTicket.id}/messages`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: replyMessage }),
       });
 
-      if (res.ok) {
-        setReplyMessage("");
-        await loadTicketMessages(activeTicket.id);
-        await loadTickets(); // reload ticket statuses
-      }
-    } catch {
-      toast({ variant: "destructive", title: "Error", description: "Failed to send message." });
+      setReplyMessage("");
+      await loadTicketMessages(activeTicket.id);
+      await loadTickets(); // reload ticket statuses
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Error", description: e.message || "Failed to send message." });
     } finally {
       setIsReplying(false);
     }
@@ -316,7 +311,19 @@ export default function ClientSupport() {
             <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-6">
               <h2 className="text-sm font-black uppercase tracking-tight text-slate-900 mb-6">Open Support Requests</h2>
 
-              {isLoading ? (
+              {ticketsError ? (
+                <div>
+                  <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">
+                    {ticketsError}
+                  </div>
+                  <button
+                    onClick={loadTickets}
+                    className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : isLoading ? (
                 <div className="flex items-center justify-center py-10">
                   <Loader2 className="w-6 h-6 text-primary animate-spin" />
                 </div>

@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { SiTelegram, SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
 import { PAYMENT_CONFIG, MANUAL_PAYMENT_NETWORKS, RECEIVING_WALLET_ADDRESS } from "@/config/payment";
+import { apiFetch } from "@/lib/api";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
 const EVM_TX_REGEX = /^0x[a-fA-F0-9]{64}$/;
@@ -40,6 +41,8 @@ export default function ClientDashboard() {
   const [applications, setApplications] = useState<any[]>([]);
   const [myPayments, setMyPayments] = useState<any[]>([]);
   const [isLoadingApps, setIsLoadingApps] = useState(true);
+  const [appsError, setAppsError] = useState("");
+  const [paymentsError, setPaymentsError] = useState("");
 
   // Deposit Modal State
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -55,25 +58,37 @@ export default function ClientDashboard() {
   const [isSubmittingProof, setIsSubmittingProof] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   const [submittedPayment, setSubmittedPayment] = useState<any>(null);
+  const [isLoadingPayments, setIsLoadingPayments] = useState(true);
 
   const fetchMyPayments = async () => {
+    setIsLoadingPayments(true);
+    setPaymentsError("");
     try {
-      const res = await fetch("/api/payments/my-payments");
-      if (res.ok) {
-        setMyPayments(await res.json());
-      }
-    } catch {}
+      const data = await apiFetch<any[]>("/api/payments/my-payments");
+      setMyPayments(data || []);
+    } catch (e: any) {
+      setPaymentsError(e.message || "Failed to load payment history.");
+    } finally {
+      setIsLoadingPayments(false);
+    }
+  };
+
+  const fetchApplications = async () => {
+    setIsLoadingApps(true);
+    setAppsError("");
+    try {
+      const data = await apiFetch<any[]>("/api/applications");
+      setApplications(data || []);
+    } catch (e: any) {
+      setAppsError(e.message || "Failed to load applications.");
+    } finally {
+      setIsLoadingApps(false);
+    }
   };
 
   useEffect(() => {
     // Load applications
-    fetch("/api/applications")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => {
-        setApplications(data);
-        setIsLoadingApps(false);
-      })
-      .catch(() => setIsLoadingApps(false));
+    fetchApplications();
 
     // Provisioned ad accounts come from the authenticated profile (/api/me)
     // Load user manual payment verification history
@@ -157,9 +172,8 @@ export default function ClientDashboard() {
     setPaymentError("");
 
     try {
-      const res = await fetch("/api/payments/submit-proof", {
+      const data = await apiFetch<{ orderId: string; status: string; createdAt: string }>("/api/payments/submit-proof", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: amt,
           network: selectedNetwork.id,
@@ -169,20 +183,6 @@ export default function ClientDashboard() {
         }),
       });
 
-      const text = await res.text();
-      let data: any = {};
-      try {
-        data = JSON.parse(text);
-      } catch {
-        data = { error: "Server response error" };
-      }
-
-      if (!res.ok) {
-        setPaymentError(data.error || "Failed to submit payment proof.");
-        setIsSubmittingProof(false);
-        return;
-      }
-
       setSubmittedPayment(data);
       setDepositStep(3);
       fetchMyPayments();
@@ -190,7 +190,8 @@ export default function ClientDashboard() {
       toast({
         title: "Proof Submitted!",
         description: "Payment proof submitted successfully. Your payment is pending verification.",
-      });    } catch (err: any) {
+      });
+    } catch (err: any) {
       setPaymentError(err.message || "Network error.");
     } finally {
       setIsSubmittingProof(false);
@@ -307,7 +308,19 @@ export default function ClientDashboard() {
         {/* Live Application Tracker card */}
         <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg shadow-slate-200/60 p-6">
           <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Live Application Status</div>
-          {isLoadingApps ? (
+          {appsError ? (
+            <div>
+              <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5">
+                {appsError}
+              </div>
+              <button
+                onClick={fetchApplications}
+                className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          ) : isLoadingApps ? (
             <div className="flex items-center justify-center h-12">
               <Loader2 className="w-6 h-6 text-primary animate-spin" />
             </div>
@@ -434,7 +447,23 @@ export default function ClientDashboard() {
               <History className="w-4 h-4" />
               <span className="text-xs font-black uppercase tracking-wider">Manual Payment Verification Requests</span>
             </div>
-            {myPayments.length > 0 ? (
+            {paymentsError ? (
+              <div>
+                <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5">
+                  {paymentsError}
+                </div>
+                <button
+                  onClick={fetchMyPayments}
+                  className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : isLoadingPayments ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+              </div>
+            ) : myPayments.length > 0 ? (
               <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
                 {myPayments.map((p: any) => (
                   <div key={p.id} className="p-3 rounded-xl border border-slate-200 bg-slate-50 space-y-2">

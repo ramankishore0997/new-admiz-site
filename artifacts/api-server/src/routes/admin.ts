@@ -777,4 +777,31 @@ router.get("/admin/audit-log", async (req: AuthenticatedRequest, res, next) => {
   }
 });
 
+/**
+ * List all client notifications (admin operations center view)
+ */
+router.get("/admin/notifications", async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const list = await db
+      .select({
+        id: notificationsTable.id,
+        userId: notificationsTable.userId,
+        title: notificationsTable.title,
+        message: notificationsTable.message,
+        isRead: notificationsTable.isRead,
+        createdAt: notificationsTable.createdAt,
+        userEmail: usersTable.email,
+        companyName: usersTable.companyName,
+      })
+      .from(notificationsTable)
+      .innerJoin(usersTable, eq(notificationsTable.userId, usersTable.id))
+      .orderBy(desc(notificationsTable.id))
+      .limit(200);
+
+    return res.json(list);
+  } catch (err) {
+    return next(err);
+  }
+});
+
 export default router;

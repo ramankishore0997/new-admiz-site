@@ -6,7 +6,7 @@ import { Shield, Mail, Lock, ArrowRight } from "lucide-react";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const { toast } = useToast();
 
   const [email, setEmail] = useState("");
@@ -22,9 +22,12 @@ export default function AdminLogin() {
     setIsSubmitting(false);
 
     if (result.success) {
-      // Fetch user profile again and verify role is admin/reviewer
-      const meRes = await fetch("/api/me");
-      if (meRes.ok) {
+      try {
+        // Fetch user profile again and verify role is admin/reviewer
+        const meRes = await fetch("/api/me", { credentials: "include" });
+        if (!meRes.ok) {
+          throw new Error("Session check failed.");
+        }
         const userData = await meRes.json();
         const isAdmin = ["SUPER_ADMIN", "ADMIN", "REVIEWER", "SUPPORT"].includes(userData.role);
         if (isAdmin) {
@@ -34,14 +37,21 @@ export default function AdminLogin() {
           });
           setLocation("/admin/dashboard");
         } else {
-          // Log out client immediately if trying to access admin
-          await fetch("/api/auth/logout", { method: "POST" });
+          // Log out client immediately if trying to access admin (also clears context state)
+          await logout();
           toast({
             variant: "destructive",
             title: "Access Denied",
             description: "You do not have administrative privileges.",
           });
         }
+      } catch (e: any) {
+        await logout();
+        toast({
+          variant: "destructive",
+          title: "Verification Failed",
+          description: e.message || "Could not verify your session. Please try again.",
+        });
       }
     } else {
       toast({

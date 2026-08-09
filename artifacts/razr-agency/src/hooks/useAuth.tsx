@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { apiFetch } from "@/lib/api";
 
 export interface AdAccount {
   id: string;
@@ -111,6 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => {
         setIsLoading(false);
       });
+
+    // Any 401 from a page request (expired/invalid session) clears the session
+    const onUnauthorized = () => setUser(null);
+    window.addEventListener("razr:unauthorized", onUnauthorized);
+    return () => window.removeEventListener("razr:unauthorized", onUnauthorized);
   }, []);
 
   const login = async (email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
@@ -201,17 +207,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     note?: string;
   }): Promise<SubmitDepositResult> => {
     try {
-      const res = await fetch("/api/payments/submit-proof", {
+      const data = await apiFetch<{ orderId: string; status: string }>("/api/payments/submit-proof", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (res.ok) {
-        const data = await res.json();
-        return { success: true, orderId: data.orderId };
-      }
-      const data = await res.json();
-      return { success: false, error: data.error || "Failed to submit payment proof." };
+      return { success: true, orderId: data.orderId };
     } catch (e: any) {
       console.error("Payment proof submission failed", e);
       return { success: false, error: e.message || "Network connection error." };
@@ -226,40 +226,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       // 1. Create Application Draft
-      const res = await fetch("/api/applications", {
+      const app = await apiFetch<{ id: number }>("/api/applications", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
       });
-      if (!res.ok) {
-        const data = await res.json();
-        return { success: false, error: data.error || "Failed to create application." };
-      }
-      const app = await res.json();
       const appId = app?.id;
 
       // 2. Patch Draft details
-      const patchRes = await fetch(`/api/applications/${appId}`, {
+      await apiFetch(`/api/applications/${appId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           personalInfo: { fullName: user?.username || "", email: user?.email || "" },
           advertisingInfo: { platform },
           accountRequirements: { spendLimit, existingAccountId: notes },
         }),
       });
-      if (!patchRes.ok) {
-        const data = await patchRes.json();
-        return { success: false, error: data.error || "Failed to update application." };
-      }
 
       // 3. Submit
-      const submitRes = await fetch(`/api/applications/${appId}/submit`, {
+      await apiFetch(`/api/applications/${appId}/submit`, {
         method: "POST",
       });
-      if (!submitRes.ok) {
-        const data = await submitRes.json();
-        return { success: false, error: data.error || "Failed to submit application." };
-      }
 
       await refreshUser();
       return { success: true };
