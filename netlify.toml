@@ -4,3 +4,9 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  NETLIFY_FLAGS = "--no-frozen-lockfile"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
