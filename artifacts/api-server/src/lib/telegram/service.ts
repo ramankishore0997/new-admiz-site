@@ -149,6 +149,30 @@ export async function notifyPasswordChangeRequest(req: { id: number; source: str
   await recordEvent("PASSWORD_CHANGE_REQUEST", ok, { requestId: req.id, userId: user.id, source: req.source });
 }
 
+export type TgChatConvRef = {
+  id: number;
+  currentPage: string | null;
+  telegramHandle: string | null;
+  telegramId: string | null;
+};
+
+/**
+ * Live-chat notifications. Telegram is used ONLY to alert the operator —
+ * replies always happen in the website operator interface, never on Telegram.
+ */
+export async function notifyNewChatMessage(conv: TgChatConvRef, user: TgUserRef, message: string, isFirst: boolean): Promise<void> {
+  const header = isFirst ? "💬 NEW LIVE CHAT" : "💬 NEW MESSAGE";
+  const ok = await sendTelegramMessage(
+    `${header}\n\n` +
+      `User: ${user.email}\n` +
+      `User ID: #${user.id}\n` +
+      `Telegram: ${conv.telegramId ? `ID ${conv.telegramId}` : conv.telegramHandle ? `@${conv.telegramHandle.replace(/^@/, "")}` : "-"}\n` +
+      `Current page: ${conv.currentPage || "-"}\n\n` +
+      `Message:\n${truncate(message, 400)}`,
+  );
+  await recordEvent(isFirst ? "NEW_LIVE_CHAT" : "NEW_CHAT_MESSAGE", ok, { conversationId: conv.id, userId: user.id, isFirst });
+}
+
 /**
  * Report a critical backend error to the admin chat. Never includes secrets or
  * full stack traces — only service/endpoint/error message/timestamp.

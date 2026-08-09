@@ -9,6 +9,7 @@ export const usersTable = pgTable("users", {
   username: text("username"),
   companyName: text("company_name"),
   telegramHandle: text("telegram_handle"),
+  telegramId: text("telegram_id"), // numeric Telegram chat/user id captured via bot interactions (nullable)
   phoneNumber: text("phone_number"),
   country: text("country"),
   referCode: text("refer_code"), // referral code entered at signup
@@ -329,6 +330,64 @@ export const accountLoadsTable = pgTable("account_loads", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// 14. Live Chat — Conversations
+export const conversationsTable = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => usersTable.id, { onDelete: "cascade" }).notNull().unique(),
+  status: text("status").default("OPEN").notNull(), // OPEN, CLOSED
+  currentPage: text("current_page"),
+  telegramHandle: text("telegram_handle"), // snapshot from the authenticated user record
+  telegramId: text("telegram_id"), // snapshot from the authenticated user record (numeric chat id, nullable)
+  unreadOperator: integer("unread_operator").default(0).notNull(), // user messages not yet seen by the operator
+  unreadUser: integer("unread_user").default(0).notNull(), // operator messages not yet seen by the user
+  lastMessageAt: timestamp("last_message_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// 15. Live Chat — Messages
+export const chatMessagesTable = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").references(() => conversationsTable.id, { onDelete: "cascade" }).notNull(),
+  senderType: text("sender_type").notNull(), // USER, OPERATOR
+  message: text("message").notNull(),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// 16. Live Chat — Visitor Sessions (presence tracking)
+export const visitorSessionsTable = pgTable("visitor_sessions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => usersTable.id, { onDelete: "cascade" }).notNull().unique(),
+  currentPage: text("current_page"),
+  online: boolean("online").default(false).notNull(),
+  lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const conversationsRelations = relations(conversationsTable, ({ one, many }) => ({
+  user: one(usersTable, {
+    fields: [conversationsTable.userId],
+    references: [usersTable.id],
+  }),
+  messages: many(chatMessagesTable),
+}));
+
+export const chatMessagesRelations = relations(chatMessagesTable, ({ one }) => ({
+  conversation: one(conversationsTable, {
+    fields: [chatMessagesTable.conversationId],
+    references: [conversationsTable.id],
+  }),
+}));
+
+export const visitorSessionsRelations = relations(visitorSessionsTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [visitorSessionsTable.userId],
+    references: [usersTable.id],
+  }),
+}));
+
 // Business Rules
 export const AD_ACCOUNT_APPLICATION_FEE_USD = 10; // per ad account, includes unlimited replacement
 export const FIRST_DEPOSIT_MIN_USD = 10; // first-ever top-up (application fee), credited in full
@@ -377,5 +436,14 @@ export type NewAccountLoad = typeof accountLoadsTable.$inferInsert;
 
 export type PasswordChangeRequest = typeof passwordChangeRequestsTable.$inferSelect;
 export type NewPasswordChangeRequest = typeof passwordChangeRequestsTable.$inferInsert;
+
+export type Conversation = typeof conversationsTable.$inferSelect;
+export type NewConversation = typeof conversationsTable.$inferInsert;
+
+export type ChatMessage = typeof chatMessagesTable.$inferSelect;
+export type NewChatMessage = typeof chatMessagesTable.$inferInsert;
+
+export type VisitorSession = typeof visitorSessionsTable.$inferSelect;
+export type NewVisitorSession = typeof visitorSessionsTable.$inferInsert;
 
 export * from "./telegram";

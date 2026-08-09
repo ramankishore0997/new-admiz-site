@@ -16,6 +16,7 @@ const TABLES: string[] = [
     username text,
     company_name text,
     telegram_handle text,
+    telegram_id text,
     phone_number text,
     country text,
     refer_code text,
@@ -25,6 +26,37 @@ const TABLES: string[] = [
     updated_at timestamp NOT NULL DEFAULT now()
   )`,
   `ALTER TABLE users ADD COLUMN IF NOT EXISTS refer_code text`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_id text`,
+  `CREATE TABLE IF NOT EXISTS conversations (
+    id serial PRIMARY KEY,
+    user_id integer NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    status text NOT NULL DEFAULT 'OPEN',
+    current_page text,
+    telegram_handle text,
+    telegram_id text,
+    unread_operator integer NOT NULL DEFAULT 0,
+    unread_user integer NOT NULL DEFAULT 0,
+    last_message_at timestamp NOT NULL DEFAULT now(),
+    created_at timestamp NOT NULL DEFAULT now(),
+    updated_at timestamp NOT NULL DEFAULT now()
+  )`,
+  `CREATE TABLE IF NOT EXISTS chat_messages (
+    id serial PRIMARY KEY,
+    conversation_id integer NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    sender_type text NOT NULL,
+    message text NOT NULL,
+    read_at timestamp,
+    created_at timestamp NOT NULL DEFAULT now()
+  )`,
+  `CREATE TABLE IF NOT EXISTS visitor_sessions (
+    id serial PRIMARY KEY,
+    user_id integer NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    current_page text,
+    online boolean NOT NULL DEFAULT false,
+    last_seen_at timestamp NOT NULL DEFAULT now(),
+    created_at timestamp NOT NULL DEFAULT now(),
+    updated_at timestamp NOT NULL DEFAULT now()
+  )`,
   `CREATE TABLE IF NOT EXISTS password_change_requests (
     id serial PRIMARY KEY,
     user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,

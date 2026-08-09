@@ -49,8 +49,10 @@ import AdminNotifications from "@/pages/AdminNotifications";
 import AdminSettings from "@/pages/AdminSettings";
 import AdminAuditLog from "@/pages/AdminAuditLog";
 import AdminPayments from "@/pages/AdminPayments";
+import AdminLiveChat from "@/pages/AdminLiveChat";
 
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import ChatWidget from "@/components/chat/ChatWidget";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -180,6 +182,9 @@ function Router() {
           <Route path="/admin/audit-log">
             {() => <ProtectedRoute path="/admin/audit-log" component={AdminAuditLog} role="ADMIN" />}
           </Route>
+          <Route path="/admin/live-chat">
+            {() => <ProtectedRoute path="/admin/live-chat" component={AdminLiveChat} role="ADMIN" />}
+          </Route>
 
           <Route component={NotFound} />
         </Switch>
@@ -239,6 +244,9 @@ function App() {
             <Router />
           </WouterRouter>
           <WhatsAppFloat />
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <ChatWidget />
+          </WouterRouter>
           <ExitIntentPopup />
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <GlassDock />
