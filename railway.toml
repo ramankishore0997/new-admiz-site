@@ -1,0 +1,3 @@
+[deploy]
+healthcheck-path = "/api/healthz"
+healthcheck-timeout-seconds = 600

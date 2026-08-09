@@ -10,5 +10,9 @@ attached_assets
 .DS_Store
 .replit
 .replit-artifact
-artifacts/api-server
 artifacts/mockup-sandbox
+.env
+.env.*
+!*.example
+screenshots
+netlify

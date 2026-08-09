@@ -64,6 +64,21 @@ app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 app.use("/api", router);
 app.use(router);
 
+// Serve the built frontend (single-container production mode, e.g. Railway/Docker).
+// The SPA is served from <cwd>/dist/public; if it isn't present, the API-only
+// mode stays intact (local dev runs the Vite dev server separately).
+const frontendDist = path.resolve(process.cwd(), "dist/public");
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const isApi = req.path.startsWith("/api");
+    const lastSegment = req.path.split("/").filter(Boolean).pop() || "";
+    const hasFileExtension = /\.[a-zA-Z0-9]+$/.test(lastSegment);
+    if (req.method !== "GET" || isApi || hasFileExtension) return next();
+    res.sendFile(path.join(frontendDist, "index.html"));
+  });
+}
+
 // Global JSON error handler middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error(err);
