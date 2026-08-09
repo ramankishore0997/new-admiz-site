@@ -12,9 +12,13 @@ export function hashPassword(password: string): string {
 }
 
 /**
- * Verify a password against a stored PBKDF2 hash
+ * Verify a password against a stored PBKDF2 hash (or plain text fallback)
  */
 export function verifyPassword(password: string, stored: string): boolean {
+  if (!stored || !password) return false;
+  if (!stored.includes(":")) {
+    return password === stored;
+  }
   const [salt, originalHash] = stored.split(":");
   if (!salt || !originalHash) return false;
   const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, "sha512").toString("hex");

@@ -1,6 +1,6 @@
 import { Router, type Response } from "express";
 import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, DEPOSIT_COMMISSION_RATE, type User } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, or, ilike } from "drizzle-orm";
 import { hashPassword, verifyPassword, signToken, verifyToken } from "../lib/crypto";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
 
@@ -169,14 +169,30 @@ const handleLogin = async (req: any, res: Response, next: any) => {
       return res.status(400).json({ error: "Email and password are required." });
     }
 
+    const inputClean = (email || "").toLowerCase().trim();
     const [user] = await db
       .select()
       .from(usersTable)
-      .where(eq(usersTable.email, email.toLowerCase().trim()))
+      .where(
+        or(
+          eq(usersTable.email, inputClean),
+          ilike(usersTable.username, inputClean),
+          eq(usersTable.email, (email || "").trim())
+        )
+      )
       .limit(1);
 
     if (!user || !verifyPassword(password, user.password)) {
-      return res.status(401).json({ error: "Invalid email address or password." });
+      return res.status(401).json({ error: "Invalid email address/username or password." });
+    }
+
+    // Auto-migrate legacy plain text password to hashed format if needed
+    if (!user.password.includes(":")) {
+      const hashedPassword = hashPassword(password);
+      await db
+        .update(usersTable)
+        .set({ password: hashedPassword, updatedAt: new Date() })
+        .where(eq(usersTable.id, user.id));
     }
 
     if (user.status !== "ACTIVE") {
