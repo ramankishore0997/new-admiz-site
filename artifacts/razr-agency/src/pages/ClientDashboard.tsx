@@ -31,7 +31,6 @@ import { PAYMENT_CONFIG, MANUAL_PAYMENT_NETWORKS } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
-const EVM_TX_REGEX = /^0x[a-fA-F0-9]{64}$/;
 
 export default function ClientDashboard() {
   const [, setLocation] = useLocation();
@@ -156,11 +155,15 @@ export default function ClientDashboard() {
     }
 
     const cleanHash = txHash.trim();
-    if (!cleanHash || !EVM_TX_REGEX.test(cleanHash)) {
+    const isTron = selectedNetwork.id === "tron";
+    const TX_REGEX = isTron ? /^[a-fA-F0-9]{64}$/ : /^0x[a-fA-F0-9]{64}$/;
+    if (!cleanHash || !TX_REGEX.test(cleanHash)) {
       toast({
         variant: "destructive",
         title: "Invalid TXID Format",
-        description: "Please enter a valid EVM 66-character hex Transaction Hash starting with 0x.",
+        description: isTron
+          ? "Please enter a valid 64-character hex Transaction Hash (Tron format, no 0x prefix)."
+          : "Please enter a valid EVM 66-character hex Transaction Hash starting with 0x.",
       });
       return;
     }
@@ -745,7 +748,9 @@ export default function ClientDashboard() {
                       required
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs font-mono outline-none focus:border-primary/50"
                     />
-                    <p className="text-[10px] text-slate-500 mt-1">EVM hex format starting with 0x (66 characters)</p>
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      {selectedNetwork.id === "tron" ? "Tron hex format, 64 characters (no 0x prefix)" : "EVM hex format starting with 0x (66 characters)"}
+                    </p>
                   </div>
 
                   {/* Payment Screenshot File Upload */}

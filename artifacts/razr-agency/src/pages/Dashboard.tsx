@@ -195,7 +195,8 @@ export default function Dashboard() {
 
   const submitDepositVerification = async (e: React.FormEvent) => {
     e.preventDefault();
-    const EVM_TX_REGEX = /^0x[a-fA-F0-9]{64}$/;
+    const isTron = selectedCrypto.id === "tron";
+    const TX_REGEX = isTron ? /^[a-fA-F0-9]{64}$/ : /^0x[a-fA-F0-9]{64}$/;
 
     if (!txHash.trim()) {
       toast({
@@ -205,11 +206,13 @@ export default function Dashboard() {
       });
       return;
     }
-    if (!EVM_TX_REGEX.test(txHash.trim())) {
+    if (!TX_REGEX.test(txHash.trim())) {
       toast({
         variant: "destructive",
         title: "Invalid TxID",
-        description: "The transaction hash must be a valid 66-character hex hash starting with 0x.",
+        description: isTron
+          ? "The transaction hash must be a valid 64-character hex hash (Tron format, no 0x prefix)."
+          : "The transaction hash must be a valid 66-character hex hash starting with 0x.",
       });
       return;
     }
