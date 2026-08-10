@@ -56,7 +56,20 @@ export default function ClientApplication() {
   const [applyBmId, setApplyBmId] = useState("");
   const [applyGmail, setApplyGmail] = useState("");
   const [applyAccountName, setApplyAccountName] = useState("");
+  const [applyCountry, setApplyCountry] = useState("United States");
+  const [applyCurrency, setApplyCurrency] = useState("USD");
   const [applyHatType, setApplyHatType] = useState<"" | "BLACK" | "GREY" | "WHITE">("");
+
+  const ACCOUNT_COUNTRIES = [
+    "United States", "United Kingdom", "Canada", "Australia", "Germany", "France",
+    "Netherlands", "Spain", "Italy", "Poland", "Sweden", "Norway", "Denmark",
+    "Switzerland", "Singapore", "United Arab Emirates", "India", "Pakistan",
+    "Philippines", "Indonesia", "Brazil", "Mexico", "South Africa", "Nigeria", "Turkey", "Other",
+  ];
+
+  const ACCOUNT_CURRENCIES = [
+    "USD", "EUR", "GBP", "AUD", "CAD", "CHF", "SEK", "NOK", "AED", "SGD", "INR", "PKR", "PHP", "IDR", "BRL", "MXN", "NGN", "ZAR", "TRY", "PLN", "Other",
+  ];
 
   const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; badge: string; features: string[]; styles: string }> = {
     BLACK: {
@@ -154,6 +167,8 @@ export default function ClientApplication() {
       setApplyBmId(reqs.businessManagerId || "");
       setApplyGmail(reqs.gmail || "");
       setApplyAccountName(reqs.accountName || "");
+      setApplyCountry(reqs.country || "United States");
+      setApplyCurrency(reqs.currency || "USD");
       setApplyHatType((reqs.hatType as "" | "BLACK" | "GREY" | "WHITE") || "");
     } catch (e: any) {
       setLoadError(e.message || "Failed to load this application.");
@@ -274,6 +289,8 @@ export default function ClientApplication() {
             businessManagerId: applyPlatform === "meta" ? applyBmId.trim() || undefined : undefined,
             gmail: applyPlatform === "google" ? applyGmail.trim() || undefined : undefined,
             accountName: applyAccountName.trim() || undefined,
+            country: applyCountry,
+            currency: applyCurrency,
           },
         }),
       });
@@ -562,6 +579,36 @@ export default function ClientApplication() {
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-primary/50 transition-colors"
                 />
                 <span className="text-[9px] text-slate-400">Give your ad account your own name — it will appear in your dashboard.</span>
+              </div>
+
+              {/* Account country + currency */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Account Country *</label>
+                  <select
+                    value={applyCountry}
+                    onChange={(e) => setApplyCountry(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-primary/50 transition-colors cursor-pointer"
+                  >
+                    {ACCOUNT_COUNTRIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  <span className="text-[9px] text-slate-400">The country your ad account will be registered in.</span>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Account Currency *</label>
+                  <select
+                    value={applyCurrency}
+                    onChange={(e) => setApplyCurrency(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-primary/50 transition-colors cursor-pointer"
+                  >
+                    {ACCOUNT_CURRENCIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  <span className="text-[9px] text-slate-400">Billing currency for your ad account.</span>
+                </div>
               </div>
 
               {/* Hat type */}

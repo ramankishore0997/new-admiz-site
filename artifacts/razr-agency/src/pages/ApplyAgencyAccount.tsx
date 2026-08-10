@@ -66,11 +66,24 @@ export default function ApplyAgencyAccount() {
   const [company, setCompany] = useState("");
   const [telegram, setTelegram] = useState("");
   const [website, setWebsite] = useState("");
+  const [country, setCountry] = useState("United States");
+  const [currency, setCurrency] = useState("USD");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [budget, setBudget] = useState("");
   const [niche, setNiche] = useState("");
   const [selectedBottlenecks, setSelectedBottlenecks] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
+
+  const ACCOUNT_COUNTRIES = [
+    "United States", "United Kingdom", "Canada", "Australia", "Germany", "France",
+    "Netherlands", "Spain", "Italy", "Poland", "Sweden", "Norway", "Denmark",
+    "Switzerland", "Singapore", "United Arab Emirates", "India", "Pakistan",
+    "Philippines", "Indonesia", "Brazil", "Mexico", "South Africa", "Nigeria", "Turkey", "Other",
+  ];
+
+  const ACCOUNT_CURRENCIES = [
+    "USD", "EUR", "GBP", "AUD", "CAD", "CHF", "SEK", "NOK", "AED", "SGD", "INR", "PKR", "PHP", "IDR", "BRL", "MXN", "NGN", "ZAR", "TRY", "PLN", "Other",
+  ];
 
   const togglePlatform = (id: string) => {
     setSelectedPlatforms((prev) =>
@@ -137,6 +150,8 @@ export default function ApplyAgencyAccount() {
 🏢 Name / Company: ${company}
 📱 Telegram Handle: ${formatTelegramHandle(telegram)}
 🌐 Website: ${website || "Not provided"}
+🌍 Ad Account Country: ${country}
+💱 Ad Account Currency: ${currency}
 
 📊 ADVERTISING PARAMETERS:
 🔌 Platforms: ${platformsLabel}
@@ -404,6 +419,33 @@ ${attribution ? `\n[ad source: ${attribution}]` : ""}`;
                         placeholder="e.g. www.myscalebrand.com"
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors"
                       />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Ad Account Country *</label>
+                      <select
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors cursor-pointer"
+                      >
+                        {ACCOUNT_COUNTRIES.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Ad Account Currency *</label>
+                      <select
+                        value={currency}
+                        onChange={(e) => setCurrency(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors cursor-pointer"
+                      >
+                        {ACCOUNT_CURRENCIES.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 

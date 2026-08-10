@@ -361,6 +361,14 @@ export default function AdminApplications() {
                       <span className="text-slate-500 block">Platform</span>
                       <span className="font-bold text-slate-900">{appDetail.application.advertisingInfo?.platform || "Pending"}</span>
                     </div>
+                    <div>
+                      <span className="text-slate-500 block">Account Country</span>
+                      <span className="font-bold text-slate-900">{appDetail.application.accountRequirements?.country || "Pending"}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">Account Currency</span>
+                      <span className="font-bold text-slate-900">{appDetail.application.accountRequirements?.currency || "Pending"}</span>
+                    </div>
                   </div>
                 </div>
 

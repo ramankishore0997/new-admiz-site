@@ -76,7 +76,8 @@ export const applicationsTable = pgTable("applications", {
   accountRequirements: jsonb("account_requirements").$type<{
     accountType?: string;
     accountCount?: string;
-    currency?: string;
+    country?: string; // ad account country
+    currency?: string; // ad account currency
     timezone?: string;
     businessManagerId?: string; // Meta: BM ID
     existingAccountId?: string;
