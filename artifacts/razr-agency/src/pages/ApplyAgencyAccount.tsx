@@ -21,6 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 import { SiTelegram, SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
+import { ACCOUNT_COUNTRIES, ACCOUNT_CURRENCIES } from "@/lib/countries-currencies";
 
 const TELEGRAM_URL = "https://t.me/RazrMarketing";
 
@@ -73,17 +74,6 @@ export default function ApplyAgencyAccount() {
   const [niche, setNiche] = useState("");
   const [selectedBottlenecks, setSelectedBottlenecks] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
-
-  const ACCOUNT_COUNTRIES = [
-    "United States", "United Kingdom", "Canada", "Australia", "Germany", "France",
-    "Netherlands", "Spain", "Italy", "Poland", "Sweden", "Norway", "Denmark",
-    "Switzerland", "Singapore", "United Arab Emirates", "India", "Pakistan",
-    "Philippines", "Indonesia", "Brazil", "Mexico", "South Africa", "Nigeria", "Turkey", "Other",
-  ];
-
-  const ACCOUNT_CURRENCIES = [
-    "USD", "EUR", "GBP", "AUD", "CAD", "CHF", "SEK", "NOK", "AED", "SGD", "INR", "PKR", "PHP", "IDR", "BRL", "MXN", "NGN", "ZAR", "TRY", "PLN", "Other",
-  ];
 
   const togglePlatform = (id: string) => {
     setSelectedPlatforms((prev) =>
@@ -443,7 +433,7 @@ ${attribution ? `\n[ad source: ${attribution}]` : ""}`;
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors cursor-pointer"
                       >
                         {ACCOUNT_CURRENCIES.map((c) => (
-                          <option key={c} value={c}>{c}</option>
+                          <option key={c} value={c.split(" — ")[0]}>{c}</option>
                         ))}
                       </select>
                     </div>

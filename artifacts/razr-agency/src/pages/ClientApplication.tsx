@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { PAYMENT_CONFIG } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
+import { ACCOUNT_COUNTRIES, ACCOUNT_CURRENCIES } from "@/lib/countries-currencies";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
 
@@ -59,17 +60,6 @@ export default function ClientApplication() {
   const [applyCountry, setApplyCountry] = useState("United States");
   const [applyCurrency, setApplyCurrency] = useState("USD");
   const [applyHatType, setApplyHatType] = useState<"" | "BLACK" | "GREY" | "WHITE">("");
-
-  const ACCOUNT_COUNTRIES = [
-    "United States", "United Kingdom", "Canada", "Australia", "Germany", "France",
-    "Netherlands", "Spain", "Italy", "Poland", "Sweden", "Norway", "Denmark",
-    "Switzerland", "Singapore", "United Arab Emirates", "India", "Pakistan",
-    "Philippines", "Indonesia", "Brazil", "Mexico", "South Africa", "Nigeria", "Turkey", "Other",
-  ];
-
-  const ACCOUNT_CURRENCIES = [
-    "USD", "EUR", "GBP", "AUD", "CAD", "CHF", "SEK", "NOK", "AED", "SGD", "INR", "PKR", "PHP", "IDR", "BRL", "MXN", "NGN", "ZAR", "TRY", "PLN", "Other",
-  ];
 
   const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; badge: string; features: string[]; styles: string }> = {
     BLACK: {
@@ -604,7 +594,7 @@ export default function ClientApplication() {
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-primary/50 transition-colors cursor-pointer"
                   >
                     {ACCOUNT_CURRENCIES.map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c.split(" — ")[0]}>{c}</option>
                     ))}
                   </select>
                   <span className="text-[9px] text-slate-400">Billing currency for your ad account.</span>
