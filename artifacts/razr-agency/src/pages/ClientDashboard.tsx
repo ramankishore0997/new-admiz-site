@@ -568,13 +568,9 @@ export default function ClientDashboard() {
                         </span>
                       </div>
 
-                      {acc.status === "APPROVED" && (
+                      {acc.status === "APPROVED" && Number(acc.balance || 0) < 100 && (
                         <div className="mt-2 text-[9px] text-slate-500 font-semibold">
-                          {Number(acc.balance || 0) >= 100 ? (
-                            <span className="text-amber-600">Topup done — administrator will now assign your Business Manager access.</span>
-                          ) : (
-                            <span>Topup a minimum of <strong>$100</strong> to get Business Manager access assigned.</span>
-                          )}
+                          Topup a minimum of <strong>$100</strong> to get Business Manager access assigned.
                         </div>
                       )}
 
