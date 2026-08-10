@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { SiTelegram, SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
 import { ACCOUNT_COUNTRIES, ACCOUNT_CURRENCIES } from "@/lib/countries-currencies";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 
 const TELEGRAM_URL = "https://t.me/RazrMarketing";
 
@@ -415,27 +416,21 @@ ${attribution ? `\n[ad source: ${attribution}]` : ""}`;
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-2">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Ad Account Country *</label>
-                      <select
+                      <SearchableSelect
                         value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors cursor-pointer"
-                      >
-                        {ACCOUNT_COUNTRIES.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
+                        onChange={setCountry}
+                        options={ACCOUNT_COUNTRIES.map((c) => ({ value: c, label: c }))}
+                        placeholder="Search country..."
+                      />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Ad Account Currency *</label>
-                      <select
+                      <SearchableSelect
                         value={currency}
-                        onChange={(e) => setCurrency(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors cursor-pointer"
-                      >
-                        {ACCOUNT_CURRENCIES.map((c) => (
-                          <option key={c} value={c.split(" — ")[0]}>{c}</option>
-                        ))}
-                      </select>
+                        onChange={setCurrency}
+                        options={ACCOUNT_CURRENCIES.map((c) => ({ value: c.split(" — ")[0], label: c }))}
+                        placeholder="Search currency..."
+                      />
                     </div>
                   </div>
 

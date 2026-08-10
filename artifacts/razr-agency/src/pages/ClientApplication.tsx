@@ -20,6 +20,7 @@ import {
 import { PAYMENT_CONFIG } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
 import { ACCOUNT_COUNTRIES, ACCOUNT_CURRENCIES } from "@/lib/countries-currencies";
+import SearchableSelect from "@/components/ui/SearchableSelect";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
 
@@ -575,28 +576,24 @@ export default function ClientApplication() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Account Country *</label>
-                  <select
+                  <SearchableSelect
                     value={applyCountry}
-                    onChange={(e) => setApplyCountry(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-primary/50 transition-colors cursor-pointer"
-                  >
-                    {ACCOUNT_COUNTRIES.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
+                    onChange={setApplyCountry}
+                    options={ACCOUNT_COUNTRIES.map((c) => ({ value: c, label: c }))}
+                    placeholder="Search country..."
+                    buttonClassName="text-xs"
+                  />
                   <span className="text-[9px] text-slate-400">The country your ad account will be registered in.</span>
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Account Currency *</label>
-                  <select
+                  <SearchableSelect
                     value={applyCurrency}
-                    onChange={(e) => setApplyCurrency(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-primary/50 transition-colors cursor-pointer"
-                  >
-                    {ACCOUNT_CURRENCIES.map((c) => (
-                      <option key={c} value={c.split(" — ")[0]}>{c}</option>
-                    ))}
-                  </select>
+                    onChange={setApplyCurrency}
+                    options={ACCOUNT_CURRENCIES.map((c) => ({ value: c.split(" — ")[0], label: c }))}
+                    placeholder="Search currency..."
+                    buttonClassName="text-xs"
+                  />
                   <span className="text-[9px] text-slate-400">Billing currency for your ad account.</span>
                 </div>
               </div>
