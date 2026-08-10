@@ -555,12 +555,6 @@ export default function ClientDashboard() {
                         </div>
                       )}
 
-                      {acc.status === "APPROVED" && (
-                        <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[9px] font-bold text-emerald-800 uppercase tracking-wider">
-                          ✓ Ad Account Now Approved
-                        </div>
-                      )}
-
                       <div className="flex items-center justify-between mt-3 text-[10px] text-slate-500 font-bold">
                         <span>Daily Limit: {acc.spendLimit || "$5,000"}</span>
                         <span className="text-emerald-700">
