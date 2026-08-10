@@ -300,7 +300,7 @@ export default function AdminAccounts() {
                           </td>
                           <td className="py-4">
                             <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border ${
-                              Number(acc.balance || 0) >= 100
+                              Number(acc.balance || 0) >= 50
                                 ? "text-emerald-700 border-emerald-200 bg-emerald-50"
                                 : "text-slate-500 border-slate-200 bg-slate-50"
                             }`}>
@@ -323,7 +323,7 @@ export default function AdminAccounts() {
                           </td>
                           <td className="py-4 text-right space-x-1.5">
                             {acc.status === "APPROVED" ? (
-                              Number(acc.balance || 0) >= 100 ? (
+                              Number(acc.balance || 0) >= 50 ? (
                                 <button
                                   onClick={() => { setAssignBmAccount(acc); setAssignBmId(acc.businessPortfolioId || ""); }}
                                   className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"

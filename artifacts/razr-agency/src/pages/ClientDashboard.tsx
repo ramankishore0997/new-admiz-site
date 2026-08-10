@@ -78,6 +78,14 @@ export default function ClientDashboard() {
 
   const MIN_WITHDRAWAL = 200;
 
+  const MIN_DEPOSIT_FIRST = 10;
+  const MIN_DEPOSIT_NEXT = 50;
+  const MIN_LOAD = 50;
+
+  // Tiered service fee for ad-account topups: <$100 → 3%, $100–$1,000 → 2%, >$1,000 → 1.5%
+  const getLoadFeeRate = (amount: number) => (amount < 100 ? 0.03 : amount <= 1000 ? 0.02 : 0.015);
+  const getLoadFeePct = (amount: number) => Math.round(getLoadFeeRate(amount) * 1000) / 10;
+
   const fetchMyWithdrawals = async () => {
     setIsLoadingWithdrawals(true);
     try {
@@ -330,6 +338,10 @@ export default function ClientDashboard() {
       toast({ variant: "destructive", title: "Invalid Amount", description: "Please enter a valid load amount." });
       return;
     }
+    if (amt < MIN_LOAD) {
+      toast({ variant: "destructive", title: "Minimum $50", description: `Ad account topup minimum is $${MIN_LOAD}.` });
+      return;
+    }
 
     setIsLoadingLoad(true);
     try {
@@ -337,9 +349,10 @@ export default function ClientDashboard() {
         method: "POST",
         body: JSON.stringify({ amount: amt }),
       });
+      const feePct = getLoadFeePct(amt);
       toast({
         title: "Balance Loaded",
-        description: `$${res.amount} loaded into ${loadTarget.name || loadTarget.platform}. $${res.commission} service fee (2%) — total $${res.total} deducted from main wallet.`,
+        description: `$${res.amount} loaded into ${loadTarget.name || loadTarget.platform}. $${res.commission} service fee (${feePct}%) — total $${res.total} deducted from main wallet.`,
       });
       setShowLoadModal(false);
       await refreshUser();
@@ -357,6 +370,9 @@ export default function ClientDashboard() {
   const activeApp = applications.find(
     (a) => !["APPROVED", "REJECTED", "CANCELLED"].includes(a.status)
   ) || applications[0];
+
+  const isFirstDeposit = myPayments.length === 0;
+  const minDeposit = isFirstDeposit ? MIN_DEPOSIT_FIRST : MIN_DEPOSIT_NEXT;
 
   const adAccounts = user?.adAccounts ?? [];
 
@@ -619,9 +635,9 @@ export default function ClientDashboard() {
                         </span>
                       </div>
 
-                      {acc.status === "APPROVED" && Number(acc.balance || 0) < 100 && (
+                      {acc.status === "APPROVED" && Number(acc.balance || 0) < 50 && (
                         <div className="mt-2 text-[9px] text-slate-500 font-semibold">
-                          Topup a minimum of <strong>$100</strong> to get Business Manager access assigned.
+                          Topup a minimum of <strong>$50</strong> to get Business Manager access assigned.
                         </div>
                       )}
 
@@ -637,7 +653,7 @@ export default function ClientDashboard() {
                           onClick={() => openLoadModal(acc)}
                           className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest transition-colors cursor-pointer shadow-[0_4px_15px_rgba(5,150,105,0.2)]"
                         >
-                          <Wallet className="w-3.5 h-3.5" /> {acc.status === "APPROVED" && Number(acc.balance || 0) < 100 ? "Topup & Get BM Access" : "Load Fund"}
+                          <Wallet className="w-3.5 h-3.5" /> {acc.status === "APPROVED" && Number(acc.balance || 0) < 50 ? "Topup & Get BM Access" : "Load Fund"}
                         </button>
                       )}
                     </div>
@@ -813,7 +829,7 @@ export default function ClientDashboard() {
                       <div className="relative flex-1">
                         <input
                           type="number"
-                          min={1}
+                          min={minDeposit}
                           value={depositAmount}
                           onChange={(e) => setDepositAmount(e.target.value)}
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm outline-none focus:border-primary/50 font-bold"
@@ -829,7 +845,9 @@ export default function ClientDashboard() {
                       </button>
                     </div>
                     <p className="text-[9px] text-slate-400 mt-1.5">
-                      Zero commission on deposits — the full amount is credited to your main wallet. No fees, no deductions.
+                      {isFirstDeposit
+                        ? `First topup: minimum $${MIN_DEPOSIT_FIRST}. Zero commission — the full amount is credited to your main wallet.`
+                        : `Minimum topup: $${MIN_DEPOSIT_NEXT}. Zero commission — the full amount is credited to your main wallet.`}
                     </p>
                   </div>
 
@@ -1085,7 +1103,7 @@ export default function ClientDashboard() {
                     <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
                     <input
                       type="number"
-                      min={1}
+                      min={MIN_LOAD}
                       value={loadAmount}
                       onChange={(e) => setLoadAmount(e.target.value)}
                       placeholder="Enter amount"
@@ -1094,9 +1112,23 @@ export default function ClientDashboard() {
                   </div>
                   <p className="text-[9px] text-slate-400 mt-1.5">
                     {loadTarget.status === "APPROVED"
-                      ? `Minimum topup $100 required. Once topped up, an administrator will assign Business Manager access and activate the account.`
-                      : `Loaded from your main wallet. Includes a 2% service fee added on top.`}
+                      ? `Minimum topup $${MIN_LOAD} required. Once topped up, an administrator will assign Business Manager access and activate the account.`
+                      : `Loaded from your main wallet. Minimum $${MIN_LOAD} — tiered service fee added on top.`}
                   </p>
+                  <div className="mt-3 grid grid-cols-3 gap-1.5">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-center">
+                      <div className="text-[9px] font-black text-slate-900">$50–$99</div>
+                      <div className="text-[8px] font-black text-emerald-600">3% fee</div>
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-center">
+                      <div className="text-[9px] font-black text-slate-900">$100–$1,000</div>
+                      <div className="text-[8px] font-black text-emerald-600">2% fee</div>
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-center">
+                      <div className="text-[9px] font-black text-slate-900">$1,000+</div>
+                      <div className="text-[8px] font-black text-emerald-600">1.5% fee</div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 text-xs">
@@ -1105,12 +1137,12 @@ export default function ClientDashboard() {
                     <span className="text-slate-900 font-black">${Number(loadAmount) || 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-bold">Service fee (2%)</span>
-                    <span className="text-slate-900 font-black">${(Number(loadAmount) * 0.02).toFixed(2)}</span>
+                    <span className="text-slate-500 font-bold">Service fee ({getLoadFeePct(Number(loadAmount) || 0)}%)</span>
+                    <span className="text-slate-900 font-black">${((Number(loadAmount) || 0) * getLoadFeeRate(Number(loadAmount) || 0)).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-slate-200">
                     <span className="text-slate-500 font-bold">Deducted from main wallet</span>
-                    <span className="text-emerald-700 font-black">${(Number(loadAmount) * 1.02).toFixed(2)}</span>
+                    <span className="text-emerald-700 font-black">${((Number(loadAmount) || 0) * (1 + getLoadFeeRate(Number(loadAmount) || 0))).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-slate-200">
                     <span className="text-slate-500 font-bold">Main wallet available</span>

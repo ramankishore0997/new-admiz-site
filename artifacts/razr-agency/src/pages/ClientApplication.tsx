@@ -658,7 +658,7 @@ export default function ClientApplication() {
               {application.status === "ACTIVE"
                 ? "Your account is fully active. Happy campaigning!"
                 : application.status === "APPROVED"
-                ? "Approved! Top up your ad account (min $100) to get Business Manager access assigned."
+                ? "Approved! Top up your ad account (min $50) to get Business Manager access assigned."
                 : application.status === "INFORMATION_REQUIRED" || application.status === "DOCUMENTS_REQUIRED"
                 ? "Our reviewer needs more details — check the note below and reply in the message thread."
                 : "Our team is working on your application. Updates appear here automatically."}

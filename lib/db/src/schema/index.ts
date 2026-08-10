@@ -342,13 +342,14 @@ export const applicationFeesTable = pgTable("application_fees", {
 
 // 13. Ad Account Balance Loads (Main wallet → ad account wallet)
 // Commission is charged on the LOAD, not on the deposit: loading $100
-// deducts $102 from the user's main wallet (2% on top of the loaded amount).
+// deducts $103 from the user's main wallet (3% on top of amounts under $100;
+// 2% for $100–$1,000, 1.5% above $1,000).
 export const accountLoadsTable = pgTable("account_loads", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
   accountId: integer("account_id").references(() => accountsTable.id, { onDelete: "cascade" }).notNull(),
   amount: text("amount").notNull(), // amount loaded into the ad account wallet, e.g. "100"
-  commission: text("commission").notNull(), // e.g. "2" (2% of amount)
+  commission: text("commission").notNull(), // e.g. "3" (tiered % of amount)
   total: text("total").notNull(), // amount + commission deducted from main wallet, e.g. "102"
   description: text("description"),
   loadedBy: integer("loaded_by").references(() => usersTable.id, { onDelete: "set null" }), // admin who performed the load (null = system/bot)
@@ -415,10 +416,22 @@ export const visitorSessionsRelations = relations(visitorSessionsTable, ({ one }
 // Business Rules
 export const AD_ACCOUNT_APPLICATION_FEE_USD = 10; // per ad account, includes unlimited replacement
 export const FIRST_DEPOSIT_MIN_USD = 10; // first-ever top-up (application fee), credited in full
-export const MIN_TOPUP_USD = 100; // minimum deposit / top-up after the first one
-export const MIN_LOAD_USD = 100; // minimum amount loaded from main wallet into an ad account
+export const MIN_TOPUP_USD = 50; // minimum deposit / top-up after the first one
+export const MIN_LOAD_USD = 50; // minimum amount loaded from main wallet into an ad account
 export const MIN_WITHDRAWAL_USD = 200; // minimum USDT payout a client can request
-export const DEPOSIT_COMMISSION_RATE = 0.02; // 2% commission charged when loading main-wallet balance into an ad account (NOT on deposits)
+
+/**
+ * Tiered service fee charged when loading main-wallet balance into an ad
+ * account (NOT on deposits):
+ *   < $100        -> 3%
+ *   $100–$1,000   -> 2%
+ *   > $1,000      -> 1.5%
+ */
+export function loadCommissionRate(amount: number): number {
+  if (amount < 100) return 0.03;
+  if (amount <= 1000) return 0.02;
+  return 0.015;
+}
 
 export type User = typeof usersTable.$inferSelect;
 export type NewUser = typeof usersTable.$inferInsert;

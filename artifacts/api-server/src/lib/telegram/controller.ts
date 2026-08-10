@@ -13,7 +13,7 @@ import {
   auditLogsTable,
   telegramAdminActionsTable,
   telegramNotificationEventsTable,
-  DEPOSIT_COMMISSION_RATE,
+  loadCommissionRate,
   MIN_LOAD_USD,
   type Application,
   type Payment,
@@ -650,17 +650,19 @@ async function getLedgerBalance(userId: number): Promise<number> {
   return Math.round((Number(r.paid) - Number(r.fees) - Number(r.loads)) * 100) / 100;
 }
 
-/** Load main-wallet balance into an ad-account wallet. 2% commission is added
- *  on top: loading $100 deducts $102 from the user's main wallet. */
+/** Load main-wallet balance into an ad-account wallet. A tiered service fee
+ *  is added on top (3% under $100, 2% $100–$1,000, 1.5% above $1,000). */
 async function loadAccountBalance(chatId: number, accId: number, amount: number): Promise<string> {
   const row = await getAccountDetail(accId);
   if (!row) return "❌ Account not found.";
   const { a, email } = row;
-  const commission = Math.round(amount * DEPOSIT_COMMISSION_RATE * 100) / 100;
+  const rate = loadCommissionRate(amount);
+  const ratePct = Math.round(rate * 1000) / 10;
+  const commission = Math.round(amount * rate * 100) / 100;
   const total = Math.round((amount + commission) * 100) / 100;
   const ledger = await getLedgerBalance(a.userId);
   if (ledger < total) {
-    return `❌ Insufficient main-wallet balance.\n\nUser: ${email}\nAvailable: $${ledger}\nNeeded for $${amount} load (incl. $${commission} commission): $${total}`;
+    return `❌ Insufficient main-wallet balance.\n\nUser: ${email}\nAvailable: $${ledger}\nNeeded for $${amount} load (incl. $${commission} fee): $${total}`;
   }
   await db
     .update(accountsTable)
@@ -672,12 +674,12 @@ async function loadAccountBalance(chatId: number, accId: number, amount: number)
     amount: String(amount),
     commission: String(commission),
     total: String(total),
-    description: `$${amount} loaded into ${a.platform} ad account #${accId} (2% commission incl.)`,
+    description: `$${amount} loaded into ${a.platform} ad account #${accId} (${ratePct}% fee incl.)`,
     loadedBy: null,
   });
-  await notifySiteUser(a.userId, "Balance Loaded 💰", `$${amount} was loaded into your ${a.platform} ad account (${a.accountId || "Pending"}). $${commission} commission charged (2%) — $${total} deducted from your main wallet.`);
-  await logAdminAction(chatId, "ACCOUNT_BALANCE_LOADED", "account", accId, "SUCCESS", `$${amount} loaded, $${commission} commission`);
-  return `💰 $${amount} loaded into account #${accId} (${a.platform}).\nCommission: $${commission} (2%)\nDeducted from main wallet: $${total}`;
+  await notifySiteUser(a.userId, "Balance Loaded 💰", `$${amount} was loaded into your ${a.platform} ad account (${a.accountId || "Pending"}). $${commission} service fee (${ratePct}%) — $${total} deducted from your main wallet.`);
+  await logAdminAction(chatId, "ACCOUNT_BALANCE_LOADED", "account", accId, "SUCCESS", `$${amount} loaded, $${commission} fee`);
+  return `💰 $${amount} loaded into account #${accId} (${a.platform}).\nFee: $${commission} (${ratePct}%)\nDeducted from main wallet: $${total}`;
 }
 
 /** Apply or reject a password change request created via the website. */
@@ -839,11 +841,13 @@ async function handleMessage(msg: NonNullable<TelegramUpdate["message"]>) {
         await tgClient.sendMessage(chatId, `❌ Minimum balance load is $${MIN_LOAD_USD}.`, kb([[btn("❌ Cancel", "cancel")]]));
         return;
       }
-      const commission = Math.round(amount * DEPOSIT_COMMISSION_RATE * 100) / 100;
+      const rate = loadCommissionRate(amount);
+      const ratePct = Math.round(rate * 1000) / 10;
+      const commission = Math.round(amount * rate * 100) / 100;
       const total = Math.round((amount + commission) * 100) / 100;
       await tgClient.sendMessage(
         chatId,
-        `💰 LOAD BALANCE INTO ACCOUNT #${flow.entityId}\n\nAmount: $${amount}\nCommission (2%): $${commission}\nTotal deducted from main wallet: $${total}\n\nAre you sure?`,
+        `💰 LOAD BALANCE INTO ACCOUNT #${flow.entityId}\n\nAmount: $${amount}\nFee (${ratePct}%): $${commission}\nTotal deducted from main wallet: $${total}\n\nAre you sure?`,
         kb([
           [btn("✅ Confirm Load", `acc_loadc:${flow.entityId}`)],
           [btn("❌ Cancel", "cancel")],

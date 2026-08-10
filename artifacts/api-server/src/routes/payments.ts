@@ -81,9 +81,10 @@ router.post("/payments/submit-proof", authenticate, async (req: AuthenticatedReq
       return res.status(400).json({ error: "Payment amount must be a positive number within limits." });
     }
     // First-ever top-up has a $10 minimum (application fee); every later
-    // deposit must be at least $100. No commission is charged on deposits —
-    // the 2% commission applies when loading main-wallet balance into an ad
-    // account (see Telegram admin "Load Balance" action).
+    // deposit must be at least $50. No commission is charged on deposits —
+    // the tiered service fee (3% / 2% / 1.5%) applies when loading
+    // main-wallet balance into an ad account (see Telegram admin "Load
+    // Balance" action).
     const { rows: priorRows } = await pool.query<{ n: string }>(
       "SELECT COUNT(*)::int AS n FROM payments WHERE user_id=$1 AND status IN ('PENDING_VERIFICATION','PAID')",
       [userId],

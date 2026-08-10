@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, pool, accountsTable, accountLoadsTable, notificationsTable, MIN_LOAD_USD, DEPOSIT_COMMISSION_RATE } from "@workspace/db";
+import { db, pool, accountsTable, accountLoadsTable, notificationsTable, MIN_LOAD_USD, loadCommissionRate } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
 
@@ -51,7 +51,8 @@ router.get("/accounts/:id", authenticate, async (req: AuthenticatedRequest, res,
 
 /**
  * POST /api/accounts/:id/load — load funds from the main wallet into an ad
- * account wallet. A 2% commission is added on top (loading $100 deducts $102).
+ * account wallet. A tiered service fee is added on top (3% under $100,
+ * 2% from $100–$1,000, 1.5% above $1,000).
  */
 router.post("/accounts/:id/load", authenticate, async (req: AuthenticatedRequest, res, next) => {
   try {
@@ -66,7 +67,7 @@ router.post("/accounts/:id/load", authenticate, async (req: AuthenticatedRequest
       return res.status(400).json({ error: "Enter a valid load amount." });
     }
     if (amount < MIN_LOAD_USD) {
-      return res.status(400).json({ error: "Load amount is below the minimum allowed." });
+      return res.status(400).json({ error: `Load amount is below the minimum allowed ($${MIN_LOAD_USD}).` });
     }
 
     const [acc] = await db
@@ -80,8 +81,10 @@ router.post("/accounts/:id/load", authenticate, async (req: AuthenticatedRequest
       return res.status(400).json({ error: "This ad account is not active yet." });
     }
 
-    const commission = Math.round(amount * DEPOSIT_COMMISSION_RATE * 100) / 100;
+    const rate = loadCommissionRate(amount);
+    const commission = Math.round(amount * rate * 100) / 100;
     const total = Math.round((amount + commission) * 100) / 100;
+    const ratePct = Math.round(rate * 1000) / 10;
 
     const ledger = await getLedgerBalance(userId);
     if (ledger < total) {
@@ -114,8 +117,8 @@ router.post("/accounts/:id/load", authenticate, async (req: AuthenticatedRequest
         title: "Balance Loaded 💰",
         message:
           acc.status === "APPROVED"
-            ? `$${amount} loaded into your ${acc.platform} ad account (${acc.name || acc.accountId}). Topup complete — an administrator will now assign your Business Manager access. $${commission} service fee (2%) — $${total} deducted from your main wallet.`
-            : `$${amount} loaded into your ${acc.platform} ad account (${acc.name || acc.accountId}). $${commission} service fee (2%) — $${total} deducted from your main wallet.`,
+            ? `$${amount} loaded into your ${acc.platform} ad account (${acc.name || acc.accountId}). Topup complete — an administrator will now assign your Business Manager access. $${commission} service fee (${ratePct}%) — $${total} deducted from your main wallet.`
+            : `$${amount} loaded into your ${acc.platform} ad account (${acc.name || acc.accountId}). $${commission} service fee (${ratePct}%) — $${total} deducted from your main wallet.`,
       });
     } catch (err) {
       console.error("Failed to insert load notification", err);
