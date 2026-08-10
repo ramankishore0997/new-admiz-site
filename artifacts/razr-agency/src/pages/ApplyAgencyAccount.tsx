@@ -235,6 +235,91 @@ ${attribution ? `\n[ad source: ${attribution}]` : ""}`;
             </p>
           </div>
 
+          {/* Pricing & Benefits — clear before applying */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.2)]"
+            >
+              <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-3">
+                <DollarSign className="w-3.5 h-3.5" /> Minimum Deposit
+              </div>
+              <ul className="space-y-2 text-xs text-slate-600">
+                <li className="flex items-start gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                  <span><strong className="text-slate-900">$10</strong> first topup — full credit, 0% fee</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                  <span><strong className="text-slate-900">$50</strong> every topup after that — 0% fee</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                  <span><strong className="text-slate-900">$50</strong> ad-account topup — unlocks BM access + activation</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.2)]"
+            >
+              <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-3">
+                <Zap className="w-3.5 h-3.5" /> Topup Fees
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                  <span className="text-xs font-bold text-slate-700">Below $100</span>
+                  <span className="text-xs font-black text-emerald-700">3%</span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                  <span className="text-xs font-bold text-slate-700">$100 – $1,000</span>
+                  <span className="text-xs font-black text-emerald-700">2%</span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                  <span className="text-xs font-bold text-slate-700">Above $1,000</span>
+                  <span className="text-xs font-black text-emerald-700">1.5%</span>
+                </div>
+              </div>
+              <p className="text-[10px] text-slate-400 mt-2.5 font-semibold">
+                Wallet deposits are always commission-free — credited in full.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.35 }}
+              className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.2)]"
+            >
+              <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-3">
+                <ShieldCheck className="w-3.5 h-3.5" /> Included Benefits
+              </div>
+              <ul className="space-y-2 text-xs text-slate-600">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                  <span>Unlimited free replacements — lifetime</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                  <span>BM access assigned on topup — 24 hrs</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                  <span>100% refund if BM isn't assigned in 48 hrs</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                  <span>Live status tracking + 24/7 Telegram support</span>
+                </li>
+              </ul>
+            </motion.div>
+          </div>
+
           {/* Form Box */}
           <div className="relative group rounded-3xl overflow-hidden border border-slate-200 bg-white p-6 md:p-10 shadow-[0_30px_90px_-20px_rgba(15,23,42,0.15)]">
             {/* Top decorative progress line */}

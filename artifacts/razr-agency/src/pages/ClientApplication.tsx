@@ -11,7 +11,11 @@ import {
   AlertCircle,
   Send,
   Loader2,
-  Wallet
+  Wallet,
+  ShieldCheck,
+  CircleDollarSign,
+  TrendingUp,
+  BadgeCheck
 } from "lucide-react";
 import { PAYMENT_CONFIG } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
@@ -412,6 +416,80 @@ export default function ClientApplication() {
           </div>
 
           {renderAccountBar()}
+
+          {/* Pricing & Benefits — shown before applying */}
+          <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50/70 via-white to-white shadow-xl shadow-emerald-100/40 p-6 mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+              <h3 className="text-base font-black uppercase tracking-wider text-slate-900">Before You Apply — What's Included</h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Benefits */}
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-2.5">Benefits</div>
+                <ul className="space-y-1.5">
+                  {[
+                    "Unlimited free replacements — lifetime, every account",
+                    "Business Manager access assigned on your topup",
+                    "Live status tracking from submit to activation",
+                    "100% refund if BM isn't assigned within 48 hrs",
+                    "Dedicated Telegram support 24/7",
+                  ].map((b) => (
+                    <li key={b} className="text-[10px] text-slate-600 flex items-start gap-1.5">
+                      <CheckCircle className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" /> {b}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Minimum deposits */}
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-2.5">Minimum Deposits</div>
+                <ul className="space-y-1.5">
+                  <li className="text-[10px] text-slate-600 flex items-start gap-1.5">
+                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
+                    <span><strong>$10</strong> first topup — full credit, 0% fee</span>
+                  </li>
+                  <li className="text-[10px] text-slate-600 flex items-start gap-1.5">
+                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
+                    <span><strong>$50</strong> every topup after that — 0% fee</span>
+                  </li>
+                  <li className="text-[10px] text-slate-600 flex items-start gap-1.5">
+                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
+                    <span><strong>$50</strong> ad-account topup — unlocks BM access + activation</span>
+                  </li>
+                  <li className="text-[10px] text-slate-600 flex items-start gap-1.5">
+                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
+                    <span><strong>$10</strong> application fee per ad account (from wallet)</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Fee tiers */}
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-2.5">Ad-Account Topup Fees</div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                    <span className="text-[10px] font-bold text-slate-700">Below $100</span>
+                    <span className="text-[10px] font-black text-emerald-700">3%</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                    <span className="text-[10px] font-bold text-slate-700">$100 – $1,000</span>
+                    <span className="text-[10px] font-black text-emerald-700">2%</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                    <span className="text-[10px] font-bold text-slate-700">Above $1,000</span>
+                    <span className="text-[10px] font-black text-emerald-700">1.5%</span>
+                  </div>
+                </div>
+                <div className="mt-2.5 text-[9px] text-slate-400 font-semibold flex items-start gap-1">
+                  <BadgeCheck className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
+                  Wallet deposits are always commission-free — credited in full.
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Simple apply form */}
           <div className="rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-8 mb-6 relative overflow-hidden">
