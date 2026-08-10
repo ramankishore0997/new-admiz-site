@@ -7,6 +7,32 @@ import * as telegramNotify from "../lib/telegram/service";
 const router = Router();
 
 /**
+ * Auto-advance SUBMITTED applications to UNDER_REVIEW once enough time has
+ * passed since submission — gives the client a live sense of progress while
+ * the admin team catches up. Logs a timeline event the client can see.
+ */
+const REVIEW_START_DELAY_MS = 30 * 60 * 1000;
+
+async function maybeAdvanceReview(app: { id: number; status: string; submittedAt: Date | string | null }) {
+  if (app.status !== "SUBMITTED" || !app.submittedAt) return app.status;
+  const elapsed = Date.now() - new Date(app.submittedAt).getTime();
+  if (elapsed < REVIEW_START_DELAY_MS) return app.status;
+
+  await db
+    .update(applicationsTable)
+    .set({ status: "UNDER_REVIEW", updatedAt: new Date() })
+    .where(eq(applicationsTable.id, app.id));
+
+  await db.insert(applicationTimelineTable).values({
+    applicationId: app.id,
+    event: "Application Under Review",
+    description: "Compliance verification started — our review team is now checking your application details.",
+  });
+
+  return "UNDER_REVIEW";
+}
+
+/**
  * List active client's applications
  */
 router.get("/applications", authenticate, async (req: AuthenticatedRequest, res, next) => {
@@ -20,7 +46,14 @@ router.get("/applications", authenticate, async (req: AuthenticatedRequest, res,
       .where(eq(applicationsTable.userId, userId))
       .orderBy(applicationsTable.id);
 
-    return res.json(list);
+    const advanced = await Promise.all(
+      list.map(async (app) => {
+        const status = await maybeAdvanceReview(app);
+        return status !== app.status ? { ...app, status } : app;
+      }),
+    );
+
+    return res.json(advanced);
   } catch (err) {
     return next(err);
   }
@@ -92,7 +125,9 @@ router.get("/applications/:id", authenticate, async (req: AuthenticatedRequest, 
       return res.status(404).json({ error: "Application not found or access denied." });
     }
 
-    return res.json(app);
+    const status = await maybeAdvanceReview(app);
+
+    return res.json(status !== app.status ? { ...app, status } : app);
   } catch (err) {
     return next(err);
   }
@@ -269,7 +304,7 @@ router.get("/applications/:id/timeline", authenticate, async (req: Authenticated
 
     // Verify ownership
     const [app] = await db
-      .select({ id: applicationsTable.id })
+      .select({ id: applicationsTable.id, status: applicationsTable.status, submittedAt: applicationsTable.submittedAt })
       .from(applicationsTable)
       .where(and(eq(applicationsTable.id, appId), eq(applicationsTable.userId, userId || 0)))
       .limit(1);
@@ -277,6 +312,8 @@ router.get("/applications/:id/timeline", authenticate, async (req: Authenticated
     if (!app) {
       return res.status(404).json({ error: "Application not found." });
     }
+
+    await maybeAdvanceReview(app);
 
     const timeline = await db
       .select()

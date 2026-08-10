@@ -160,6 +160,34 @@ export default function ClientApplication() {
     loadData();
   }, []);
 
+  // Poll for live updates (timeline + messages) so admin actions appear in real time
+  useEffect(() => {
+    if (!application?.id) return;
+    const id = setInterval(() => {
+      apiFetch<any[]>(`/api/applications/${application.id}/timeline`)
+        .then((data) => setTimeline(data || []))
+        .catch(() => {});
+      apiFetch<any[]>(`/api/applications/${application.id}/messages`)
+        .then((data) => setMessages(data || []))
+        .catch(() => {});
+    }, 30000);
+    return () => clearInterval(id);
+  }, [application?.id]);
+
+  const JOURNEY_STEPS = ["Submitted", "Under Review", "Approved", "Topup & Activate"];
+
+  const getJourneyIndex = (status: string) => {
+    switch (status) {
+      case "SUBMITTED": return 0;
+      case "UNDER_REVIEW":
+      case "INFORMATION_REQUIRED":
+      case "DOCUMENTS_REQUIRED": return 1;
+      case "APPROVED": return 2;
+      case "ACTIVE": return 3;
+      default: return -1;
+    }
+  };
+
   const handleStartApplication = async () => {
     setIsLoading(true);
     try {
@@ -586,6 +614,59 @@ export default function ClientApplication() {
 
       {renderAccountBar()}
 
+      {getJourneyIndex(application.status) >= 0 && (
+        <div className="relative z-10 mb-8 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-black uppercase tracking-widest text-slate-900">Application Journey</h2>
+            <span className="text-[9px] text-slate-400">
+              Step {getJourneyIndex(application.status) + 1} of {JOURNEY_STEPS.length}
+            </span>
+          </div>
+          <div className="flex items-center">
+            {JOURNEY_STEPS.map((step, i) => {
+              const current = getJourneyIndex(application.status);
+              const done = i < current;
+              const active = i === current;
+              return (
+                <div key={step} className="flex items-center flex-1 last:flex-none">
+                  <div className="flex flex-col items-center gap-1.5 min-w-0">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-colors ${
+                      done
+                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        : active
+                        ? "bg-white border-emerald-600 text-emerald-600"
+                        : "bg-slate-100 border-slate-200 text-slate-400"
+                    }`}>
+                      {done ? <CheckCircle className="w-4 h-4" /> : <span className="text-[10px] font-black">{i + 1}</span>}
+                    </div>
+                    <span className={`text-[8px] font-black uppercase tracking-wider text-center ${
+                      active ? "text-emerald-700" : done ? "text-slate-600" : "text-slate-400"
+                    }`}>
+                      {step}
+                    </span>
+                  </div>
+                  {i < JOURNEY_STEPS.length - 1 && (
+                    <div className={`flex-1 h-0.5 mx-2 mb-4 rounded-full ${i < current ? "bg-emerald-600" : "bg-slate-200"}`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-4 text-[10px] text-slate-500 font-semibold flex items-start gap-1.5">
+            <AlertCircle className="w-3 h-3 mt-0.5 text-primary shrink-0" />
+            <span>
+              {application.status === "ACTIVE"
+                ? "Your account is fully active. Happy campaigning!"
+                : application.status === "APPROVED"
+                ? "Approved! Top up your ad account (min $100) to get Business Manager access assigned."
+                : application.status === "INFORMATION_REQUIRED" || application.status === "DOCUMENTS_REQUIRED"
+                ? "Our reviewer needs more details — check the note below and reply in the message thread."
+                : "Our team is working on your application. Updates appear here automatically."}
+            </span>
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         {/* LEFT: Documents & Timeline status */}
         <div className="lg:col-span-8 space-y-6">
@@ -603,22 +684,35 @@ export default function ClientApplication() {
           {/* Interactive timeline logs */}
           <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-6">
             <h2 className="text-base font-black uppercase tracking-tight text-slate-900 mb-4">Application History Log</h2>
-            <div className="space-y-4">
-              {timeline.map((event) => (
-                <div key={event.id} className="flex gap-4 items-start">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                  <div>
-                    <div className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                      <span>{event.event}</span>
-                      <span className="text-[8px] text-slate-400 normal-case font-normal">
-                        {new Date(event.createdAt).toLocaleString()}
-                      </span>
+            {timeline.length > 0 ? (
+              <div className="space-y-4">
+                {timeline.map((event) => (
+                  <div key={event.id} className="flex gap-4 items-start">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                    <div>
+                      <div className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <span>{event.event}</span>
+                        <span className="text-[8px] text-slate-400 normal-case font-normal">
+                          {new Date(event.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">{event.description}</p>
                     </div>
-                    <p className="text-xs text-slate-500 mt-0.5">{event.description}</p>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center">
+                <p className="text-xs text-slate-500 font-semibold">
+                  No activity yet.
+                </p>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  {application.status === "DRAFT"
+                    ? "Complete and submit your application to start the review process."
+                    : "Updates will appear here automatically as your application progresses."}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

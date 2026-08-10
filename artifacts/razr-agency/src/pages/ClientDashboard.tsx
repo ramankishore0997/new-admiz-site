@@ -116,6 +116,16 @@ export default function ClientDashboard() {
     }
   };
 
+  // Silent auto-refresh so status updates appear live without reloading
+  useEffect(() => {
+    const id = setInterval(() => {
+      apiFetch<any[]>("/api/applications")
+        .then((data) => setApplications(data || []))
+        .catch(() => {});
+    }, 30000);
+    return () => clearInterval(id);
+  }, []);
+
   useEffect(() => {
     // Load applications
     fetchApplications();
@@ -377,6 +387,37 @@ export default function ClientDashboard() {
     }
   };
 
+  const getNextStep = (status: string) => {
+    switch (status) {
+      case "DRAFT":
+        return "Complete the form and submit — review starts right after submission.";
+      case "SUBMITTED":
+        return "Application received. Admin review starts within 24 hrs — live updates appear here.";
+      case "UNDER_REVIEW":
+        return "Compliance checks in progress. Approval typically takes 24–48 hrs.";
+      case "INFORMATION_REQUIRED":
+      case "DOCUMENTS_REQUIRED":
+        return "Action required — check the reviewer note and message thread.";
+      case "APPROVED":
+        return "Approved! Top up your ad account to activate it and get BM access.";
+      case "REJECTED":
+        return "Declined — check the reviewer note or contact support.";
+      default:
+        return "Status update pending.";
+    }
+  };
+
+  const timeAgo = (iso?: string) => {
+    if (!iso) return "just now";
+    const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins} min${mins > 1 ? "s" : ""} ago`;
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return `${hrs} hr${hrs > 1 ? "s" : ""} ago`;
+    const days = Math.round(hrs / 24);
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  };
+
   return (
     <ClientLayout>
       {/* Top Banner / Welcome Header */}
@@ -449,10 +490,19 @@ export default function ClientDashboard() {
 
         {/* Live Application Tracker card */}
         <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg shadow-slate-200/60 p-6">
-          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
-            Live Application Status {applications.length > 0 && (
-              <span className="ml-1 text-primary">· {applications.length} account{applications.length > 1 ? "s" : ""}</span>
-            )}
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+              Live Application Status {applications.length > 0 && (
+                <span className="ml-1 text-primary">· {applications.length} account{applications.length > 1 ? "s" : ""}</span>
+              )}
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-emerald-600">
+              <span className="relative flex w-1.5 h-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-emerald-500" />
+              </span>
+              LIVE
+            </span>
           </div>
           {appsError ? (
             <div>
@@ -491,6 +541,13 @@ export default function ClientDashboard() {
                   <span>Progress</span>
                   <span>{getStatusPercentage(activeApp.status)}%</span>
                 </div>
+              </div>
+              <div className="text-[9px] text-slate-500 font-semibold flex items-start gap-1.5">
+                <Activity className="w-3 h-3 mt-0.5 text-primary shrink-0" />
+                <span>{getNextStep(activeApp.status)}</span>
+              </div>
+              <div className="text-[9px] text-slate-400">
+                Last update: {timeAgo(activeApp.updatedAt)}
               </div>
             </div>
           ) : (
@@ -565,6 +622,13 @@ export default function ClientDashboard() {
                       {acc.status === "APPROVED" && Number(acc.balance || 0) < 100 && (
                         <div className="mt-2 text-[9px] text-slate-500 font-semibold">
                           Topup a minimum of <strong>$100</strong> to get Business Manager access assigned.
+                        </div>
+                      )}
+
+                      {acc.status === "APPROVED" && (
+                        <div className="mt-2 text-[9px] text-slate-500 font-semibold flex items-start gap-1.5">
+                          <ShieldCheck className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
+                          <span>Topup unlocks BM access + account activation. 100% refund if BM isn't assigned within 48 hrs.</span>
                         </div>
                       )}
 
@@ -1055,6 +1119,22 @@ export default function ClientDashboard() {
                     </span>
                   </div>
                 </div>
+
+                {loadTarget.status === "APPROVED" && (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-emerald-700">
+                      <ShieldCheck className="w-4 h-4" /> What happens after topup
+                    </div>
+                    <ul className="text-[10px] text-slate-600 space-y-1.5">
+                      <li><span className="font-black">1.</span> Funds credited instantly to your ad account</li>
+                      <li><span className="font-black">2.</span> Admin assigns your Business Manager access (within 24 hrs)</li>
+                      <li><span className="font-black">3.</span> Account fully activated for ad campaigns</li>
+                    </ul>
+                    <div className="text-[9px] font-black text-emerald-700">
+                      Full refund if BM access is not assigned within 48 hrs.
+                    </div>
+                  </div>
+                )}
 
                 <button
                   type="submit"
