@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   FileText,
-  FileDown,
   Bell,
   HelpCircle,
   User,
@@ -27,7 +26,6 @@ interface MenuItem {
 const CLIENT_MENU: MenuItem[] = [
   { name: "Overview", href: "/app/dashboard", icon: LayoutDashboard },
   { name: "My Application", href: "/app/application", icon: FileText },
-  { name: "Documents", href: "/app/documents", icon: FileDown },
   { name: "Notifications", href: "/app/notifications", icon: Bell },
   { name: "Support Center", href: "/app/support", icon: HelpCircle },
   { name: "Account Profile", href: "/app/account", icon: User },

@@ -31,7 +31,6 @@ import ForgotPassword from "@/pages/ForgotPassword";
 
 import ClientDashboard from "@/pages/ClientDashboard";
 import ClientApplication from "@/pages/ClientApplication";
-import ClientDocuments from "@/pages/ClientDocuments";
 import ClientNotifications from "@/pages/ClientNotifications";
 import ClientSupport from "@/pages/ClientSupport";
 import ClientSettings from "@/pages/ClientSettings";
@@ -145,9 +144,6 @@ function Router() {
           </Route>
           <Route path="/app/application">
             {() => <ProtectedRoute path="/app/application" component={ClientApplication} />}
-          </Route>
-          <Route path="/app/documents">
-            {() => <ProtectedRoute path="/app/documents" component={ClientDocuments} />}
           </Route>
           <Route path="/app/notifications">
             {() => <ProtectedRoute path="/app/notifications" component={ClientNotifications} />}
