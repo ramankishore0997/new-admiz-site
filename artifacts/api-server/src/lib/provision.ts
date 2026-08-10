@@ -2,7 +2,9 @@ import { db, accountsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
 /**
- * Provision an ACTIVE ad account for an approved application.
+ * Provision an APPROVED ad account for an approved application.
+ * The account is not ACTIVE yet: the client must top up the minimum amount
+ * first, after which an admin assigns Business Manager access (ACTIVE).
  * The client-chosen name, BM ID / Gmail are carried over from the application.
  */
 export async function provisionAdAccount(app: {
@@ -26,7 +28,7 @@ export async function provisionAdAccount(app: {
       businessPortfolioId: String(reqs.businessManagerId || reqs.gmail || "").trim() || null,
       name: String(reqs.accountName || "").trim() || null,
       spendLimit: "Starter",
-      status: "ACTIVE",
+      status: "APPROVED",
     })
     .returning();
 

@@ -24,7 +24,8 @@ import {
   FileImage,
   Trash2,
   X,
-  Clock
+  Clock,
+  ArrowDownToLine
 } from "lucide-react";
 import { SiTelegram, SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
 import { PAYMENT_CONFIG, MANUAL_PAYMENT_NETWORKS } from "@/config/payment";
@@ -65,6 +66,30 @@ export default function ClientDashboard() {
   const [submittedPayment, setSubmittedPayment] = useState<any>(null);
   const [isLoadingPayments, setIsLoadingPayments] = useState(true);
 
+  // Withdraw Modal State
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState("200");
+  const [usdtAddress, setUsdtAddress] = useState("");
+  const [isSubmittingWithdraw, setIsSubmittingWithdraw] = useState(false);
+  const [withdrawError, setWithdrawError] = useState("");
+  const [submittedWithdrawal, setSubmittedWithdrawal] = useState<any>(null);
+  const [myWithdrawals, setMyWithdrawals] = useState<any[]>([]);
+  const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(true);
+
+  const MIN_WITHDRAWAL = 200;
+
+  const fetchMyWithdrawals = async () => {
+    setIsLoadingWithdrawals(true);
+    try {
+      const data = await apiFetch<any[]>("/api/withdrawals/my");
+      setMyWithdrawals(data || []);
+    } catch {
+      setMyWithdrawals([]);
+    } finally {
+      setIsLoadingWithdrawals(false);
+    }
+  };
+
   const fetchMyPayments = async () => {
     setIsLoadingPayments(true);
     setPaymentsError("");
@@ -98,6 +123,7 @@ export default function ClientDashboard() {
     // Provisioned ad accounts come from the authenticated profile (/api/me)
     // Load user manual payment verification history
     fetchMyPayments();
+    fetchMyWithdrawals();
   }, []);
 
   const handleCopy = (text: string, label: string) => {
@@ -224,6 +250,67 @@ export default function ClientDashboard() {
     setShowLoadModal(true);
   };
 
+  const openWithdrawModal = () => {
+    setWithdrawAmount("200");
+    setUsdtAddress("");
+    setWithdrawError("");
+    setSubmittedWithdrawal(null);
+    setShowWithdrawModal(true);
+  };
+
+  const handleWithdraw = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const amt = Number(withdrawAmount);
+    if (!amt || amt <= 0) {
+      setWithdrawError("Please enter a valid withdrawal amount.");
+      return;
+    }
+
+    const availableBalance = user?.balance ?? 0;
+    if (availableBalance < MIN_WITHDRAWAL) {
+      setWithdrawError("Your available balance is below the $200 minimum withdrawal. You can add more funds, then apply for a refund.");
+      return;
+    }
+    if (amt < MIN_WITHDRAWAL) {
+      setWithdrawError(`Minimum withdrawal amount is $${MIN_WITHDRAWAL}. You can add more funds, then apply for a refund.`);
+      return;
+    }
+    if (amt > availableBalance) {
+      setWithdrawError(`Insufficient available balance. Your available balance is $${availableBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}.`);
+      return;
+    }
+
+    const cleanAddress = usdtAddress.trim();
+    const TRON_REGEX = /^T[1-9A-HJ-NP-Za-km-z]{33}$/;
+    const EVM_REGEX = /^0x[a-fA-F0-9]{40}$/;
+    if (!cleanAddress || (!TRON_REGEX.test(cleanAddress) && !EVM_REGEX.test(cleanAddress))) {
+      setWithdrawError("Please enter a valid USDT address (TRON T... or EVM 0x...).");
+      return;
+    }
+
+    setIsSubmittingWithdraw(true);
+    setWithdrawError("");
+    try {
+      const data = await apiFetch<any>("/api/withdrawals/request", {
+        method: "POST",
+        body: JSON.stringify({ amount: amt, usdtAddress: cleanAddress }),
+      });
+      setSubmittedWithdrawal(data);
+      setUsdtAddress("");
+      fetchMyWithdrawals();
+      await refreshUser();
+      toast({
+        title: "Withdrawal Requested!",
+        description: `$${amt} USDT withdrawal submitted for approval.`,
+      });
+    } catch (err: any) {
+      setWithdrawError(err.message || "Could not submit withdrawal request.");
+    } finally {
+      setIsSubmittingWithdraw(false);
+    }
+  };
+
   const handleLoadFunds = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loadTarget) return;
@@ -314,6 +401,13 @@ export default function ClientDashboard() {
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-[0_4px_20px_rgba(5,150,105,0.25)] cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" /> Add Funds (USDT)
+            </button>
+
+            <button
+              onClick={openWithdrawModal}
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-900 text-xs font-black uppercase tracking-widest transition-all border border-slate-200 cursor-pointer"
+            >
+              <ArrowDownToLine className="w-4 h-4" /> Withdraw
             </button>
 
             <Link href="/app/application">
@@ -437,9 +531,11 @@ export default function ClientDashboard() {
                         <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
                           acc.status === "ACTIVE"
                             ? "text-emerald-600 border-emerald-200 bg-emerald-50"
+                            : acc.status === "APPROVED"
+                            ? "text-emerald-700 border-emerald-200 bg-emerald-50"
                             : "text-amber-600 border-amber-200 bg-amber-50"
                         }`}>
-                          {acc.status}
+                          {acc.status === "APPROVED" ? "APPROVED" : acc.status}
                         </span>
                       </div>
                       <div className="text-xs text-slate-500 uppercase font-bold tracking-wider">
@@ -453,6 +549,18 @@ export default function ClientDashboard() {
                         {acc.accountId || "Provisioning ID..."}
                       </div>
 
+                      {acc.status === "ACTIVE" && acc.businessPortfolioId && (
+                        <div className="mt-1.5 inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-700 w-fit">
+                          <ShieldCheck className="w-3 h-3" /> BM: {acc.businessPortfolioId}
+                        </div>
+                      )}
+
+                      {acc.status === "APPROVED" && (
+                        <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[9px] font-bold text-emerald-800 uppercase tracking-wider">
+                          ✓ Ad Account Now Approved
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between mt-3 text-[10px] text-slate-500 font-bold">
                         <span>Daily Limit: {acc.spendLimit || "$5,000"}</span>
                         <span className="text-emerald-700">
@@ -460,12 +568,22 @@ export default function ClientDashboard() {
                         </span>
                       </div>
 
-                      {acc.status === "ACTIVE" && (
+                      {acc.status === "APPROVED" && (
+                        <div className="mt-2 text-[9px] text-slate-500 font-semibold">
+                          {Number(acc.balance || 0) >= 100 ? (
+                            <span className="text-amber-600">Topup done — administrator will now assign your Business Manager access.</span>
+                          ) : (
+                            <span>Topup a minimum of <strong>$100</strong> to get Business Manager access assigned.</span>
+                          )}
+                        </div>
+                      )}
+
+                      {(acc.status === "ACTIVE" || acc.status === "APPROVED") && (
                         <button
                           onClick={() => openLoadModal(acc)}
                           className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest transition-colors cursor-pointer shadow-[0_4px_15px_rgba(5,150,105,0.2)]"
                         >
-                          <Wallet className="w-3.5 h-3.5" /> Load Fund
+                          <Wallet className="w-3.5 h-3.5" /> {acc.status === "APPROVED" ? "Topup & Get BM Access" : "Load Fund"}
                         </button>
                       )}
                     </div>
@@ -921,7 +1039,9 @@ export default function ClientDashboard() {
                     />
                   </div>
                   <p className="text-[9px] text-slate-400 mt-1.5">
-                    Loaded from your main wallet. Includes a 2% service fee added on top.
+                    {loadTarget.status === "APPROVED"
+                      ? `Minimum topup $100 required. Once topped up, an administrator will assign Business Manager access and activate the account.`
+                      : `Loaded from your main wallet. Includes a 2% service fee added on top.`}
                   </p>
                 </div>
 
@@ -960,6 +1080,193 @@ export default function ClientDashboard() {
               </form>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Withdraw Modal */}
+      <AnimatePresence>
+        {showWithdrawModal && (
+          <div className="fixed inset-0 z-[75] flex items-center justify-center px-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowWithdrawModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl shadow-slate-200/60 z-10 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 via-primary to-teal-500" />
+
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
+                    <ArrowDownToLine className="w-5 h-5 text-emerald-600" /> Withdraw USDT
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-1">Withdraw your available balance to your USDT wallet</p>
+                </div>
+                <button
+                  onClick={() => setShowWithdrawModal(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Available balance summary */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 flex items-center justify-between mb-5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Available Balance</span>
+                <span className="text-xl font-black text-slate-900 tabular-nums">
+                  ${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+
+              {(user?.balance ?? 0) < MIN_WITHDRAWAL ? (
+                <div className="flex items-start gap-2.5 text-xs text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-200 font-semibold">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                  <p>
+                    Your available balance is below the <strong>${MIN_WITHDRAWAL} minimum withdrawal</strong>. You can add
+                    more funds, then apply for a refund.
+                  </p>
+                </div>
+              ) : submittedWithdrawal ? (
+                <div className="text-center py-6 space-y-6">
+                  <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600 shadow-[0_0_20px_rgba(217,119,6,0.15)]">
+                    <Clock className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-black uppercase tracking-tight text-slate-900">Withdrawal Request Submitted</h4>
+                    <p className="text-xs text-slate-600 mt-2 leading-relaxed max-w-md mx-auto">
+                      Your withdrawal is pending administrator approval. You'll receive ${Number(submittedWithdrawal.amount || withdrawAmount).toLocaleString()} USDT at your address once approved.
+                    </p>
+                  </div>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left text-xs space-y-2 font-mono">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Request ID:</span>
+                      <span className="text-slate-900 font-bold">{submittedWithdrawal.requestId}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Status:</span>
+                      <span className="text-amber-600 font-bold uppercase">{submittedWithdrawal.status}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowWithdrawModal(false)}
+                    className="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    Done & Close
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleWithdraw} className="space-y-5">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
+                      Withdrawal Amount (USDT)
+                    </label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                      <input
+                        type="number"
+                        min={MIN_WITHDRAWAL}
+                        step="0.01"
+                        value={withdrawAmount}
+                        onChange={(e) => setWithdrawAmount(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-16 py-3.5 text-slate-900 text-sm font-black outline-none focus:border-primary/50 transition-colors"
+                        placeholder={`Minimum $${MIN_WITHDRAWAL}`}
+                      />
+                      <span className="absolute right-4 top-3 text-xs font-black uppercase text-emerald-600">USDT</span>
+                    </div>
+                    <p className="text-[9px] text-slate-400 mt-1.5">
+                      Minimum withdrawal: ${MIN_WITHDRAWAL} USDT.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
+                      Your USDT Payout Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={usdtAddress}
+                      onChange={(e) => setUsdtAddress(e.target.value)}
+                      placeholder="T... (TRON) or 0x... (EVM)"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 text-xs font-mono outline-none focus:border-primary/50 transition-colors"
+                    />
+                    <p className="text-[9px] text-slate-400 mt-1.5">
+                      Funds will be sent to this address once the withdrawal is approved.
+                    </p>
+                  </div>
+
+                  {withdrawError && (
+                    <div className="flex items-start gap-2.5 text-xs text-red-600 bg-red-50 p-3.5 rounded-xl border border-red-200 font-semibold">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+                      <p>{withdrawError}</p>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isSubmittingWithdraw}
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all shadow-[0_4px_20px_rgba(5,150,105,0.25)] cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmittingWithdraw ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Submitting Request...</>
+                    ) : (
+                      <><ShieldCheck className="w-4 h-4" /> Request Withdrawal</>
+                    )}
+                  </button>
+                </form>
+              )}
+
+              {/* Withdrawal history */}
+              <div className="mt-6 pt-5 border-t border-slate-200">
+                <div className="flex items-center gap-2 mb-3 text-slate-500">
+                  <History className="w-4 h-4" />
+                  <span className="text-xs font-black uppercase tracking-wider">Withdrawal History</span>
+                </div>
+                {isLoadingWithdrawals ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                  </div>
+                ) : myWithdrawals.length > 0 ? (
+                  <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
+                    {myWithdrawals.map((w: any) => (
+                      <div key={w.id} className="p-3 rounded-xl border border-slate-200 bg-slate-50 space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="font-bold text-slate-900">${Number(w.amount).toLocaleString()} USDT</div>
+                          <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${
+                            w.status === "APPROVED"
+                              ? "text-emerald-600 bg-emerald-50 border-emerald-200"
+                              : w.status === "REJECTED"
+                              ? "text-red-600 bg-red-50 border-red-200"
+                              : "text-amber-600 bg-amber-50 border-amber-200"
+                          }`}>
+                            {w.status}
+                          </span>
+                        </div>
+                        <div className="font-mono text-[9px] text-slate-600 truncate">
+                          {w.usdtAddress}
+                        </div>
+                        <div className="text-[9px] text-slate-500 flex justify-between">
+                          <span className="font-mono">{w.requestId}</span>
+                          <span>{new Date(w.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        {w.rejectionReason && (
+                          <div className="text-[9px] text-red-600 italic">Reason: {w.rejectionReason}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400 text-center py-4">No withdrawal requests yet.</p>
+                )}
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </ClientLayout>

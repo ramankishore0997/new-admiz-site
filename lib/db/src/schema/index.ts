@@ -216,12 +216,30 @@ export const paymentsTable = pgTable("payments", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// 14. Withdrawals (USDT payouts to client-provided addresses)
+// Requested by the client with their USDT address; approved or rejected by an
+// admin. Balance is only released from the main wallet once APPROVED.
+export const withdrawalsTable = pgTable("withdrawals", {
+  id: serial("id").primaryKey(),
+  requestId: text("request_id").notNull().unique(), // e.g., WDR-1723...
+  userId: integer("user_id").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
+  amount: text("amount").notNull(), // USD / USDT amount
+  usdtAddress: text("usdt_address").notNull(), // client-provided USDT payout address (TRON or EVM)
+  status: text("status").default("PENDING").notNull(), // PENDING, APPROVED, REJECTED
+  rejectionReason: text("rejection_reason"),
+  processedBy: integer("processed_by").references(() => usersTable.id, { onDelete: "set null" }),
+  processedAt: timestamp("processed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Drizzle Relations Configuration
 export const usersRelations = relations(usersTable, ({ many }) => ({
   applications: many(applicationsTable),
   notifications: many(notificationsTable),
   supportTickets: many(supportTicketsTable),
   payments: many(paymentsTable),
+  withdrawals: many(withdrawalsTable),
 }));
 
 export const applicationsRelations = relations(applicationsTable, ({ one, many }) => ({
@@ -305,6 +323,13 @@ export const paymentsRelations = relations(paymentsTable, ({ one }) => ({
   }),
 }));
 
+export const withdrawalsRelations = relations(withdrawalsTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [withdrawalsTable.userId],
+    references: [usersTable.id],
+  }),
+}));
+
 // 12. Application Fee Ledger (Per-account application fee deductions)
 export const applicationFeesTable = pgTable("application_fees", {
   id: serial("id").primaryKey(),
@@ -330,9 +355,8 @@ export const accountLoadsTable = pgTable("account_loads", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// 14. Live Chat — Conversations
-export const conversationsTable = pgTable("conversations", {
-  id: serial("id").primaryKey(),
+// 15. Live Chat — Conversations
+export const conversationsTable = pgTable("conversations", {  id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => usersTable.id, { onDelete: "cascade" }).notNull().unique(),
   status: text("status").default("OPEN").notNull(), // OPEN, CLOSED
   currentPage: text("current_page"),
@@ -393,6 +417,7 @@ export const AD_ACCOUNT_APPLICATION_FEE_USD = 10; // per ad account, includes un
 export const FIRST_DEPOSIT_MIN_USD = 10; // first-ever top-up (application fee), credited in full
 export const MIN_TOPUP_USD = 100; // minimum deposit / top-up after the first one
 export const MIN_LOAD_USD = 100; // minimum amount loaded from main wallet into an ad account
+export const MIN_WITHDRAWAL_USD = 200; // minimum USDT payout a client can request
 export const DEPOSIT_COMMISSION_RATE = 0.02; // 2% commission charged when loading main-wallet balance into an ad account (NOT on deposits)
 
 export type User = typeof usersTable.$inferSelect;
@@ -427,6 +452,9 @@ export type NewAuditLog = typeof auditLogsTable.$inferInsert;
 
 export type Payment = typeof paymentsTable.$inferSelect;
 export type NewPayment = typeof paymentsTable.$inferInsert;
+
+export type Withdrawal = typeof withdrawalsTable.$inferSelect;
+export type NewWithdrawal = typeof withdrawalsTable.$inferInsert;
 
 export type ApplicationFee = typeof applicationFeesTable.$inferSelect;
 export type NewApplicationFee = typeof applicationFeesTable.$inferInsert;

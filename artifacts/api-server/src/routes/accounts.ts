@@ -5,17 +5,18 @@ import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
 
 const router = Router();
 
-/** Main wallet = full paid deposits − application fees − previous loads. */
+/** Main wallet = full paid deposits − application fees − previous loads − frozen withdrawals. */
 async function getLedgerBalance(userId: number): Promise<number> {
-  const { rows } = await pool.query<{ paid: string; fees: string; loads: string }>(
+  const { rows } = await pool.query<{ paid: string; fees: string; loads: string; withdrawals: string }>(
     `SELECT
       (SELECT COALESCE(SUM(amount::numeric), 0) FROM payments WHERE user_id=$1 AND status='PAID')::numeric AS paid,
       (SELECT COALESCE(SUM(amount::numeric), 0) FROM application_fees WHERE user_id=$1)::numeric AS fees,
-      (SELECT COALESCE(SUM(total::numeric), 0) FROM account_loads WHERE user_id=$1)::numeric AS loads`,
+      (SELECT COALESCE(SUM(total::numeric), 0) FROM account_loads WHERE user_id=$1)::numeric AS loads,
+      (SELECT COALESCE(SUM(amount::numeric), 0) FROM withdrawals WHERE user_id=$1 AND status <> 'REJECTED')::numeric AS withdrawals`,
     [userId],
   );
-  const r = rows[0] || { paid: "0", fees: "0", loads: "0" };
-  return Math.round((Number(r.paid) - Number(r.fees) - Number(r.loads)) * 100) / 100;
+  const r = rows[0] || { paid: "0", fees: "0", loads: "0", withdrawals: "0" };
+  return Math.round((Number(r.paid) - Number(r.fees) - Number(r.loads) - Number(r.withdrawals)) * 100) / 100;
 }
 
 /**
@@ -75,7 +76,7 @@ router.post("/accounts/:id/load", authenticate, async (req: AuthenticatedRequest
       .limit(1);
 
     if (!acc) return res.status(404).json({ error: "Account not found." });
-    if (acc.status !== "ACTIVE") {
+    if (acc.status !== "ACTIVE" && acc.status !== "APPROVED") {
       return res.status(400).json({ error: "This ad account is not active yet." });
     }
 
@@ -111,7 +112,10 @@ router.post("/accounts/:id/load", authenticate, async (req: AuthenticatedRequest
       await db.insert(notificationsTable).values({
         userId,
         title: "Balance Loaded 💰",
-        message: `$${amount} loaded into your ${acc.platform} ad account (${acc.name || acc.accountId}). $${commission} service fee (2%) — $${total} deducted from your main wallet.`,
+        message:
+          acc.status === "APPROVED"
+            ? `$${amount} loaded into your ${acc.platform} ad account (${acc.name || acc.accountId}). Topup complete — an administrator will now assign your Business Manager access. $${commission} service fee (2%) — $${total} deducted from your main wallet.`
+            : `$${amount} loaded into your ${acc.platform} ad account (${acc.name || acc.accountId}). $${commission} service fee (2%) — $${total} deducted from your main wallet.`,
       });
     } catch (err) {
       console.error("Failed to insert load notification", err);

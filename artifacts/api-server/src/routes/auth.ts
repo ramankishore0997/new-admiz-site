@@ -1,6 +1,6 @@
 import { Router, type Response } from "express";
-import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, accountLoadsTable, passwordChangeRequestsTable, type User } from "@workspace/db";
-import { eq, or, ilike } from "drizzle-orm";
+import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, accountLoadsTable, withdrawalsTable, passwordChangeRequestsTable, type User } from "@workspace/db";
+import { eq, or, ilike, desc } from "drizzle-orm";
 import { hashPassword, verifyPassword, signToken, verifyToken } from "../lib/crypto";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
 import { rateLimit } from "../middlewares/rate-limit";
@@ -118,8 +118,9 @@ async function buildProfile(user: User) {
     accountId: a.accountId,
     name: a.name,
     platform: a.platform,
-    status: a.status as "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED",
+    status: a.status as "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED" | "APPROVED",
     spendLimit: a.spendLimit || "Starter",
+    businessPortfolioId: a.businessPortfolioId,
     balance: Number(a.balance) || 0,
     dateApplied: a.createdAt.toLocaleDateString(),
   }));
@@ -184,8 +185,30 @@ async function buildProfile(user: User) {
       100,
   ) / 100;
 
+  // Withdrawal ledger — non-rejected requests are frozen (excluded from the
+  // available balance) until approved, and stay excluded once paid out.
+  const withdrawalRows = await db
+    .select()
+    .from(withdrawalsTable)
+    .where(eq(withdrawalsTable.userId, user.id))
+    .orderBy(desc(withdrawalsTable.createdAt));
+
+  const withdrawals = withdrawalRows.map((w) => ({
+    id: w.id,
+    requestId: w.requestId,
+    amount: Number(w.amount) || 0,
+    usdtAddress: w.usdtAddress,
+    status: w.status,
+    rejectionReason: w.rejectionReason,
+    date: w.createdAt.toISOString(),
+  }));
+
+  const availableBalance = Math.round(
+    (netBalance - withdrawals.filter((w) => w.status !== "REJECTED").reduce((sum, w) => sum + w.amount, 0)) * 100,
+  ) / 100;
+
   const { password, ...profile } = user;
-  return { ...profile, balance: netBalance, adAccounts, deposits, applicationFees, balanceLoads };
+  return { ...profile, balance: availableBalance, adAccounts, deposits, applicationFees, balanceLoads, withdrawals };
 }
 
 /**

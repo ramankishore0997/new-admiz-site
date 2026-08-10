@@ -9,6 +9,7 @@ import adminRouter from "./admin";
 import paymentsRouter from "./payments";
 import accountsRouter from "./accounts";
 import chatRouter from "./chat";
+import withdrawalsRouter from "./withdrawals";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(adminRouter);
 router.use(paymentsRouter);
 router.use(accountsRouter);
 router.use(chatRouter);
+router.use(withdrawalsRouter);
 
 export default router;

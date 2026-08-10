@@ -12,8 +12,11 @@ import {
   Building,
   User,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  KeyRound,
+  X
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminAccounts() {
   const { toast } = useToast();
@@ -30,6 +33,11 @@ export default function AdminAccounts() {
   const [spendLimit, setSpendLimit] = useState("$5,000 / day");
   const [notes, setNotes] = useState("");
   const [isProvisioning, setIsProvisioning] = useState(false);
+
+  // Assign BM Access modal
+  const [assignBmAccount, setAssignBmAccount] = useState<any | null>(null);
+  const [assignBmId, setAssignBmId] = useState("");
+  const [isAssigningBm, setIsAssigningBm] = useState(false);
 
   const loadData = async () => {
     try {
@@ -98,6 +106,31 @@ export default function AdminAccounts() {
         await loadData();
       }
     } catch {}
+  };
+
+  const handleAssignBm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!assignBmAccount) return;
+    setIsAssigningBm(true);
+    try {
+      const res = await fetch(`/api/admin/accounts/${assignBmAccount.id}/assign-bm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ businessPortfolioId: assignBmId.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to assign BM access.");
+      }
+      toast({ title: "BM Access Assigned", description: `Account ${assignBmAccount.accountId} is now ACTIVE.` });
+      setAssignBmAccount(null);
+      setAssignBmId("");
+      await loadData();
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Action Failed", description: err.message });
+    } finally {
+      setIsAssigningBm(false);
+    }
   };
 
   return (
@@ -245,6 +278,7 @@ export default function AdminAccounts() {
                         <th className="pb-3">Client / Company</th>
                         <th className="pb-3">Platform</th>
                         <th className="pb-3">Account ID</th>
+                        <th className="pb-3">Topup Balance</th>
                         <th className="pb-3">Daily Limit</th>
                         <th className="pb-3">Status</th>
                         <th className="pb-3 text-right">Actions</th>
@@ -258,12 +292,28 @@ export default function AdminAccounts() {
                             <span className="text-[9px] text-slate-500 block mt-0.5">{acc.userEmail}</span>
                           </td>
                           <td className="py-4 text-slate-900 font-mono">{acc.platform}</td>
-                          <td className="py-4 text-slate-900 font-mono">{acc.accountId}</td>
+                          <td className="py-4 text-slate-900 font-mono">
+                            {acc.accountId}
+                            {acc.businessPortfolioId && (
+                              <span className="text-[8px] font-bold text-blue-600 block mt-0.5">BM: {acc.businessPortfolioId}</span>
+                            )}
+                          </td>
+                          <td className="py-4">
+                            <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border ${
+                              Number(acc.balance || 0) >= 100
+                                ? "text-emerald-700 border-emerald-200 bg-emerald-50"
+                                : "text-slate-500 border-slate-200 bg-slate-50"
+                            }`}>
+                              ${Number(acc.balance || 0).toFixed(2)}
+                            </span>
+                          </td>
                           <td className="py-4 text-slate-900">{acc.spendLimit}</td>
                           <td className="py-4">
                             <span className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border ${
                               acc.status === "ACTIVE"
                                 ? "text-emerald-700 border-emerald-200 bg-emerald-50"
+                                : acc.status === "APPROVED"
+                                ? "text-emerald-600 border-emerald-200 bg-emerald-50"
                                 : acc.status === "SUSPENDED"
                                 ? "text-red-600 border-red-200 bg-red-50"
                                 : "text-amber-600 border-amber-200 bg-amber-50"
@@ -272,7 +322,20 @@ export default function AdminAccounts() {
                             </span>
                           </td>
                           <td className="py-4 text-right space-x-1.5">
-                            {acc.status === "ACTIVE" ? (
+                            {acc.status === "APPROVED" ? (
+                              Number(acc.balance || 0) >= 100 ? (
+                                <button
+                                  onClick={() => { setAssignBmAccount(acc); setAssignBmId(acc.businessPortfolioId || ""); }}
+                                  className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                >
+                                  Assign BM Access
+                                </button>
+                              ) : (
+                                <span className="text-[8px] text-amber-600 font-black uppercase tracking-wider inline-flex items-center gap-1">
+                                  <Clock className="w-3 h-3" /> Awaiting topup
+                                </span>
+                              )
+                            ) : acc.status === "ACTIVE" ? (
                               <button
                                 onClick={() => handleUpdateStatus(acc.id, "SUSPENDED")}
                                 className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
@@ -303,6 +366,81 @@ export default function AdminAccounts() {
           </div>
         )}
       </div>
+
+      {/* Assign BM Access Modal */}
+      <AnimatePresence>
+        {assignBmAccount && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setAssignBmAccount(null)}
+              className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-md bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl z-10 space-y-4"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-black uppercase text-slate-900 flex items-center gap-2">
+                    <KeyRound className="w-5 h-5 text-blue-600" /> Assign BM Access
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-1">
+                    {assignBmAccount.accountId} · {assignBmAccount.platform}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setAssignBmAccount(null)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-[11px] text-emerald-800 font-semibold">
+                Client topup: <strong>${Number(assignBmAccount.balance || 0).toFixed(2)}</strong> — minimum topup completed. Assigning access will activate this account for the client.
+              </div>
+
+              <form onSubmit={handleAssignBm} className="space-y-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                    Business Manager / Portfolio ID <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={assignBmId}
+                    onChange={(e) => setAssignBmId(e.target.value)}
+                    placeholder="e.g. Portfolio 9029192"
+                    required
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-blue-500 transition-colors"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setAssignBmAccount(null)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isAssigningBm}
+                    className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-wider hover:bg-blue-500 transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {isAssigningBm ? "Assigning..." : "Assign & Activate"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </AdminLayout>
   );
 }

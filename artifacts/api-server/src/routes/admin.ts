@@ -9,6 +9,7 @@ import {
   accountsTable,
   notificationsTable,
   auditLogsTable,
+  MIN_LOAD_USD,
   type NewTimelineEvent,
   type NewNotification,
   type NewAuditLog
@@ -355,8 +356,8 @@ router.post("/admin/applications/:id/approve", async (req: AuthenticatedRequest,
         });
         await db.insert(notificationsTable).values({
           userId: app.userId,
-          title: "Ad Account Provisioned 🚀",
-          message: `Your ${acc.platform} ad account (${acc.accountId}) is ACTIVE. Load funds from your main wallet to start spending.`,
+          title: "Ad Account Approved 🚀",
+          message: `Your ${acc.platform} ad account (${acc.accountId}) is now APPROVED. Top up the minimum amount to get Business Manager access assigned.`,
         });
       }
     } catch (err) {
@@ -677,6 +678,7 @@ router.get("/admin/accounts", async (req: AuthenticatedRequest, res, next) => {
         businessPortfolioId: accountsTable.businessPortfolioId,
         spendLimit: accountsTable.spendLimit,
         status: accountsTable.status,
+        balance: accountsTable.balance,
         notes: accountsTable.notes,
         createdAt: accountsTable.createdAt,
         userEmail: usersTable.email,
@@ -726,15 +728,15 @@ router.post("/admin/accounts", async (req: AuthenticatedRequest, res, next) => {
         businessPortfolioId,
         spendLimit,
         notes,
-        status: "ACTIVE",
+        status: "APPROVED",
       })
       .returning();
 
     // Notify user
     await db.insert(notificationsTable).values({
       userId: app.userId,
-      title: "Ad Account Provisioned 🚀",
-      message: `Your ${platform} ad account (${accountId || "Pending Setup"}) has been successfully provisioned. Check details in the dashboard.`,
+      title: "Ad Account Approved 🚀",
+      message: `Your ${platform} ad account (${accountId || "Pending Setup"}) has been approved. Top up the minimum amount to get Business Manager access assigned.`,
     });
 
     await logAudit(adminId, "PROVISION_AD_ACCOUNT", "account", newAcc.id, { platform, accountId });
@@ -778,6 +780,78 @@ router.patch("/admin/accounts/:id/status", async (req: AuthenticatedRequest, res
     await logAudit(adminId, "CHANGE_ACCOUNT_STATUS", "account", accId, { status });
 
     return res.json(acc);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * POST /admin/accounts/:id/assign-bm
+ * Assign Business Manager access to an approved ad account. Only allowed
+ * after the client has topped up the minimum amount (balance >= MIN_LOAD_USD).
+ * Sets the account to ACTIVE.
+ */
+router.post("/admin/accounts/:id/assign-bm", async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const accId = Number(req.params.id);
+    const { businessPortfolioId } = req.body || {};
+    const adminId = req.userId || 0;
+
+    if (Number.isNaN(accId)) {
+      return res.status(400).json({ error: "Invalid account ID." });
+    }
+
+    const cleanBmId = String(businessPortfolioId || "").trim();
+    if (!cleanBmId) {
+      return res.status(400).json({ error: "Business Manager / Portfolio ID is required." });
+    }
+
+    const [acc] = await db
+      .select()
+      .from(accountsTable)
+      .where(eq(accountsTable.id, accId))
+      .limit(1);
+
+    if (!acc) {
+      return res.status(404).json({ error: "Ad account record not found." });
+    }
+
+    if (acc.status !== "APPROVED") {
+      return res.status(400).json({ error: "This ad account is not in the approved state. Only approved accounts can be linked to a Business Manager." });
+    }
+
+    if (Number(acc.balance || 0) < MIN_LOAD_USD) {
+      return res.status(400).json({
+        error: `Client must top up at least $${MIN_LOAD_USD} before Business Manager access can be assigned. Current account balance: $${Number(acc.balance || 0).toFixed(2)}.`,
+      });
+    }
+
+    const [updated] = await db
+      .update(accountsTable)
+      .set({
+        businessPortfolioId: cleanBmId,
+        status: "ACTIVE",
+        updatedAt: new Date(),
+      })
+      .where(eq(accountsTable.id, accId))
+      .returning();
+
+    // Notify user
+    await db.insert(notificationsTable).values({
+      userId: acc.userId,
+      title: "BM Access Assigned 🎯",
+      message: `Business Manager access has been assigned to your ${acc.platform} ad account (${acc.accountId}). BM ID: ${cleanBmId}. Your account is now ACTIVE — start spending.`,
+    });
+
+    await logAudit(adminId, "ASSIGN_BM_ACCESS", "account", accId, { businessPortfolioId: cleanBmId });
+
+    // Telegram notification (fail-soft)
+    const bmEmail = await telegramNotify.userEmail(acc.userId);
+    void telegramNotify.sendTelegramMessage(
+      `🎯 BM Access Assigned\nAccount: ${acc.accountId} (${acc.platform})\nBM ID: ${cleanBmId}\nClient: ${bmEmail}\nStatus: ACTIVE`,
+    );
+
+    return res.json(updated);
   } catch (err) {
     return next(err);
   }
