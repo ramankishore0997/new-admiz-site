@@ -583,7 +583,7 @@ export default function ClientDashboard() {
                           onClick={() => openLoadModal(acc)}
                           className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest transition-colors cursor-pointer shadow-[0_4px_15px_rgba(5,150,105,0.2)]"
                         >
-                          <Wallet className="w-3.5 h-3.5" /> {acc.status === "APPROVED" ? "Topup & Get BM Access" : "Load Fund"}
+                          <Wallet className="w-3.5 h-3.5" /> {acc.status === "APPROVED" && Number(acc.balance || 0) < 100 ? "Topup & Get BM Access" : "Load Fund"}
                         </button>
                       )}
                     </div>
