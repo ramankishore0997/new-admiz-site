@@ -134,14 +134,14 @@ export default function Signup() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Country</label>
+                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Full Name / Username</label>
                   <div className="relative">
-                    <Globe className="absolute left-4 top-3 w-4 h-4 text-slate-400" />
+                    <User className="absolute left-4 top-3 w-4 h-4 text-slate-400" />
                     <input
                       type="text"
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      placeholder="United States"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="e.g. John Carter"
                       required
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-slate-900 text-xs outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors"
                     />
