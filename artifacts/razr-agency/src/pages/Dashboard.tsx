@@ -29,6 +29,7 @@ import {
   Lock,
 } from "lucide-react";
 import { SiTelegram, SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
+import { QRCodeSVG } from "qrcode.react";
 import { PAYMENT_CONFIG } from "@/config/payment";
 
 const CRYPTO_OPTIONS = PAYMENT_CONFIG.wallets;
@@ -629,6 +630,14 @@ export default function Dashboard() {
                         <span className="text-[10px] font-black text-primary uppercase tracking-wider bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full inline-block mt-0.5">{selectedCrypto.network}</span>
                       </div>
                     </div>
+                  </div>
+
+                  {/* QR Code */}
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                      <QRCodeSVG value={selectedCrypto.address} size={140} level="H" includeMargin={false} />
+                    </div>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Scan to pay ({selectedCrypto.network})</span>
                   </div>
 
                   {/* Address Copy Field */}
