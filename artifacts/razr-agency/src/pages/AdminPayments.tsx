@@ -13,6 +13,7 @@ import {
   AlertCircle,
   X,
   ArrowDownToLine,
+  Pencil,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -104,6 +105,27 @@ export default function AdminPayments() {
       toast({ title: "Approved!", description: `Payment approved and credited: $${num} USDT.` });
       setApprovingPayment(null);
       setEditedAmount("");
+      fetchPayments();
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Action Failed", description: err.message });
+    } finally {
+      setIsSubmittingAction(false);
+    }
+  };
+
+  const handleQuickApprove = async (id: number, currentAmount: number) => {
+    setIsSubmittingAction(true);
+    try {
+      const res = await fetch(`/api/admin/payments/${id}/verify`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "PAID", amount: currentAmount }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to approve payment.");
+      }
+      toast({ title: "Approved!", description: `Payment approved and credited: $${currentAmount} USDT.` });
       fetchPayments();
     } catch (err: any) {
       toast({ variant: "destructive", title: "Action Failed", description: err.message });
@@ -317,7 +339,16 @@ export default function AdminPayments() {
 
                       {/* Amount & Network */}
                       <td className="py-4 px-6">
-                        <div className="text-sm font-black text-slate-900">${p.amount} USDT</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-black text-slate-900">${p.amount} USDT</span>
+                          <button
+                            onClick={() => handleOpenApproveModal(p)}
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 text-[10px] font-bold border border-slate-200 transition-colors cursor-pointer"
+                            title="Edit Amount"
+                          >
+                            <Pencil className="w-3 h-3" /> Edit
+                          </button>
+                        </div>
                         <span className="inline-block mt-1 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-600">
                           {p.network}
                         </span>
@@ -388,24 +419,43 @@ export default function AdminPayments() {
                       {/* Actions */}
                       <td className="py-4 px-6 text-right">
                         {p.status === "PENDING_VERIFICATION" || p.status === "PAYMENT_PENDING" ? (
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleOpenApproveModal(p)}
                               disabled={isSubmittingAction}
-                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+                              title="Edit amount & Approve"
                             >
-                              Approve
+                              <Pencil className="w-3 h-3" /> Edit & Approve
+                            </button>
+                            <button
+                              onClick={() => handleQuickApprove(p.id, Number(p.amount))}
+                              disabled={isSubmittingAction}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-[10px] font-black uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
+                              title="Approve directly"
+                            >
+                              <CheckCircle className="w-3 h-3" /> Approve
                             </button>
                             <button
                               onClick={() => setRejectingPaymentId(p.id)}
                               disabled={isSubmittingAction}
-                              className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[10px] font-black uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[10px] font-black uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
                             >
-                              Reject
+                              <XCircle className="w-3 h-3" /> Reject
                             </button>
                           </div>
                         ) : (
-                          <span className="text-[10px] text-slate-400 font-bold uppercase">Verified</span>
+                          <div className="flex items-center justify-end gap-2">
+                            <span className="text-[10px] text-slate-400 font-bold uppercase">Verified</span>
+                            <button
+                              onClick={() => handleOpenApproveModal(p)}
+                              disabled={isSubmittingAction}
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[9px] font-bold uppercase cursor-pointer transition-colors"
+                              title="Edit credited amount"
+                            >
+                              <Pencil className="w-3 h-3" /> Edit Amount
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
