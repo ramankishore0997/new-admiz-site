@@ -5,7 +5,7 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { mockupPreviewPlugin } from "./mockupPreviewPlugin";
 
-export default defineConfig(async ({ command }) => {
+export default defineConfig(async ({ command }): Promise<import("vite").UserConfig> => {
   const isBuild = command === "build";
 
   const rawPort = process.env.PORT;

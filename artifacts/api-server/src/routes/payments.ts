@@ -233,9 +233,21 @@ router.patch("/admin/payments/:id/verify", authenticate, requireAdmin, async (re
       return res.status(404).json({ error: "Payment record not found." });
     }
 
+    const rawAmount = req.body?.amount;
+    let finalAmount = payment.amount;
+
+    if (rawAmount !== undefined && rawAmount !== null) {
+      const numAmount = Number(rawAmount);
+      if (Number.isNaN(numAmount) || numAmount <= 0) {
+        return res.status(400).json({ error: "Invalid payment amount. Amount must be a positive number." });
+      }
+      finalAmount = String(numAmount);
+    }
+
     const [updated] = await db
       .update(paymentsTable)
       .set({
+        amount: finalAmount,
         status,
         rejectionReason: status === "REJECTED" ? (rejectionReason || "Verification failed.") : null,
         verifiedBy: adminId,
@@ -245,7 +257,7 @@ router.patch("/admin/payments/:id/verify", authenticate, requireAdmin, async (re
       .where(eq(paymentsTable.id, paymentId))
       .returning();
 
-    logger.info(`Payment ID ${paymentId} status updated to ${status} by admin ${adminId}`);
+    logger.info(`Payment ID ${paymentId} (Amount: $${finalAmount}) status updated to ${status} by admin ${adminId}`);
 
     // Telegram admin notification (fail-soft) — also covers web-admin changes
     const email = await telegramNotify.userEmail(payment.userId);

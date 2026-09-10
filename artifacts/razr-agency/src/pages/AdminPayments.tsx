@@ -28,6 +28,8 @@ export default function AdminPayments() {
 
   // Modal states
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
+  const [approvingPayment, setApprovingPayment] = useState<any | null>(null);
+  const [editedAmount, setEditedAmount] = useState<string>("");
   const [rejectingPaymentId, setRejectingPaymentId] = useState<number | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
@@ -75,19 +77,33 @@ export default function AdminPayments() {
     toast({ title: "Copied!", description: `${label} copied to clipboard.` });
   };
 
-  const handleApprove = async (id: number) => {
+  const handleOpenApproveModal = (p: any) => {
+    setApprovingPayment(p);
+    setEditedAmount(String(p.amount ?? ""));
+  };
+
+  const handleConfirmApprove = async () => {
+    if (!approvingPayment) return;
+    const num = Number(editedAmount);
+    if (Number.isNaN(num) || num <= 0) {
+      toast({ variant: "destructive", title: "Invalid Amount", description: "Please enter a valid positive amount." });
+      return;
+    }
+
     setIsSubmittingAction(true);
     try {
-      const res = await fetch(`/api/admin/payments/${id}/verify`, {
+      const res = await fetch(`/api/admin/payments/${approvingPayment.id}/verify`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "PAID" }),
+        body: JSON.stringify({ status: "PAID", amount: num }),
       });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || "Failed to approve payment.");
       }
-      toast({ title: "Approved!", description: "Payment status set to PAID." });
+      toast({ title: "Approved!", description: `Payment approved and credited: $${num} USDT.` });
+      setApprovingPayment(null);
+      setEditedAmount("");
       fetchPayments();
     } catch (err: any) {
       toast({ variant: "destructive", title: "Action Failed", description: err.message });
@@ -374,9 +390,9 @@ export default function AdminPayments() {
                         {p.status === "PENDING_VERIFICATION" || p.status === "PAYMENT_PENDING" ? (
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => handleApprove(p.id)}
+                              onClick={() => handleOpenApproveModal(p)}
                               disabled={isSubmittingAction}
-                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
                             >
                               Approve
                             </button>
@@ -545,6 +561,119 @@ export default function AdminPayments() {
                 alt="Payment Proof Screenshot"
                 className="max-h-[75vh] w-auto mx-auto rounded-lg object-contain"
               />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit & Approve Deposit Modal */}
+      <AnimatePresence>
+        {approvingPayment && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setApprovingPayment(null)}
+              className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-lg bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl z-10 space-y-5"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <CheckCircle className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black uppercase text-slate-900 tracking-wide">Approve & Credit Deposit</h3>
+                    <p className="text-[11px] text-slate-500">Order: <span className="font-mono font-bold">{approvingPayment.orderId}</span></p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setApprovingPayment(null)}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Client & Payment Info Details */}
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-2 text-xs">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Client:</span>
+                  <span className="font-bold text-slate-900">{approvingPayment.userEmail}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Network:</span>
+                  <span className="font-bold uppercase text-slate-700">{approvingPayment.network}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Submitted Amount:</span>
+                  <span className="font-black text-slate-900">${approvingPayment.amount} USDT</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">TXID:</span>
+                  <span className="font-mono text-[10px] text-emerald-700 truncate max-w-[240px]">{approvingPayment.txHash}</span>
+                </div>
+              </div>
+
+              {/* Editable Amount Input */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 flex items-center justify-between">
+                  <span>Credited Amount ($ USDT) *</span>
+                  <span className="text-[9px] font-normal text-slate-400">Edit if received amount differs</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">$</span>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0.01"
+                    value={editedAmount}
+                    onChange={(e) => setEditedAmount(e.target.value)}
+                    placeholder="Enter amount to credit"
+                    className="w-full bg-white border-2 border-emerald-500/30 rounded-xl pl-8 pr-4 py-2.5 text-base font-black text-slate-900 outline-none focus:border-emerald-600 transition-all shadow-xs"
+                    autoFocus
+                  />
+                </div>
+                <p className="text-[10px] text-slate-500">
+                  This exact amount will be credited to the client's available wallet balance immediately upon approval.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setApprovingPayment(null)}
+                  disabled={isSubmittingAction}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmApprove}
+                  disabled={isSubmittingAction || !editedAmount || Number(editedAmount) <= 0}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-500 transition-all shadow-md shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
+                >
+                  {isSubmittingAction ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Approving...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      Approve & Credit (${editedAmount || approvingPayment.amount} USDT)
+                    </>
+                  )}
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

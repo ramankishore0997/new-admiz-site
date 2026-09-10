@@ -61,6 +61,18 @@ export default function ClientApplication() {
   const [applyCountry, setApplyCountry] = useState("United States");
   const [applyCurrency, setApplyCurrency] = useState("USD");
   const [applyHatType, setApplyHatType] = useState<"" | "BLACK" | "GREY" | "WHITE">("");
+  const [applyAppCount, setApplyAppCount] = useState<number>(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const walletBalance = Number(user?.balance ?? 0);
+
+  // Auto-fill applyAppCount based on user's wallet balance ($10/app, up to 5 max)
+  useEffect(() => {
+    if (user) {
+      const calculated = Math.max(1, Math.min(5, Math.floor(walletBalance / 10)));
+      setApplyAppCount(calculated);
+    }
+  }, [walletBalance]);
 
   const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; badge: string; features: string[]; styles: string }> = {
     BLACK: {
@@ -305,19 +317,56 @@ export default function ClientApplication() {
       toast({ variant: "destructive", title: "Missing Details", description: invalid });
       return;
     }
+
+    const requiredFee = applyAppCount * 10;
+    if (walletBalance < requiredFee) {
+      toast({
+        variant: "destructive",
+        title: "Insufficient Balance",
+        description: `You have selected ${applyAppCount} application${applyAppCount > 1 ? "s" : ""} which requires $${requiredFee}. Your current balance is $${walletBalance.toFixed(2)}.`,
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      // First save draft
+      // 1. First save draft and submit the current application
       await handleSaveDraft();
-      // Then submit (backend charges the $10 application fee)
       await apiFetch(`/api/applications/${application.id}/submit`, { method: "POST" });
 
+      // 2. If user selected multiple accounts, create and submit remaining (applyAppCount - 1)
+      if (applyAppCount > 1) {
+        for (let i = 2; i <= applyAppCount; i++) {
+          const extraApp = await apiFetch<any>("/api/applications", { method: "POST" });
+          await apiFetch(`/api/applications/${extraApp.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+              personalInfo: { fullName: user?.username || "", email: user?.email || "" },
+              businessInfo: {},
+              advertisingInfo: { platform: platName },
+              accountRequirements: {
+                hatType: applyHatType || undefined,
+                businessManagerId: applyPlatform === "meta" ? applyBmId.trim() || undefined : undefined,
+                gmail: applyPlatform === "google" ? applyGmail.trim() || undefined : undefined,
+                accountName: applyAccountName ? `${applyAccountName.trim()} #${i}` : undefined,
+                country: applyCountry,
+                currency: applyCurrency,
+              },
+            }),
+          });
+          await apiFetch(`/api/applications/${extraApp.id}/submit`, { method: "POST" });
+        }
+      }
+
       toast({
-        title: "Application Submitted",
-        description: "Your account request is in review — unlimited free replacements included on every account.",
+        title: "Applications Submitted",
+        description: `Successfully submitted ${applyAppCount} account application${applyAppCount > 1 ? "s" : ""} — unlimited free replacements included on every account!`,
       });
       await loadData();
     } catch (e: any) {
       toast({ variant: "destructive", title: "Submission Failed", description: e.message || "Could not submit application." });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -410,14 +459,50 @@ export default function ClientApplication() {
       <ClientLayout>
         <div className="max-w-3xl mx-auto relative z-10 pb-20">
           {/* Stepper Header */}
-          <div className="mb-10 pb-6 border-b border-slate-200 flex items-center justify-between">
+          <div className="mb-8 pb-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">Ad Account Application</h1>
-              <p className="text-xs text-slate-500 mt-1">Application ID: {application.publicId} ({application.status})</p>
+              <div className="flex flex-wrap items-center gap-3 mt-1.5">
+                <p className="text-xs text-slate-500">
+                  Application ID: <span className="font-mono font-bold text-slate-700">{application.publicId}</span> ({application.status})
+                </p>
+
+                {/* Subtle Number of Accounts selector right next to Application ID */}
+                <div className="inline-flex items-center gap-1.5 bg-slate-100/90 border border-slate-200 rounded-lg px-2 py-1 text-xs">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">Accounts:</span>
+                  <div className="flex items-center gap-0.5 bg-white rounded-md border border-slate-200/80 p-0.5">
+                    {[1, 2, 3, 4, 5].map((num) => {
+                      const isSelected = applyAppCount === num;
+                      const isAffordable = walletBalance >= num * 10;
+                      return (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setApplyAppCount(num)}
+                          className={`w-5 h-5 rounded text-[10px] font-black transition-all cursor-pointer flex items-center justify-center ${
+                            isSelected
+                              ? "bg-slate-900 text-white shadow-xs"
+                              : isAffordable
+                              ? "text-slate-700 hover:bg-slate-100"
+                              : "text-slate-300 hover:bg-slate-50"
+                          }`}
+                          title={
+                            isAffordable
+                              ? `${num} Account${num > 1 ? "s" : ""} ($${num * 10} from wallet)`
+                              : `Requires $${num * 10} wallet balance (Current: $${walletBalance.toFixed(2)})`
+                          }
+                        >
+                          {num}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
             <button
               onClick={handleSaveDraft}
-              className="px-4 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 rounded-lg text-[10px] font-black uppercase tracking-wider text-slate-700 transition-colors cursor-pointer"
+              className="px-4 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 rounded-lg text-[10px] font-black uppercase tracking-wider text-slate-700 transition-colors cursor-pointer self-start sm:self-auto"
             >
               Save Progress
             </button>
@@ -504,7 +589,7 @@ export default function ClientApplication() {
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-emerald-600/40 to-teal-500/40" />
 
             <div className="space-y-6">
-              {/* Platform selection */}
+              {/* Form title */}
               <div className="flex items-center gap-3">
                 <Sparkles className="w-5 h-5 text-primary" />
                 <h3 className="text-base font-black uppercase text-slate-900 tracking-wider">Ad Account Details</h3>
@@ -653,7 +738,7 @@ export default function ClientApplication() {
                 </p>
               </div>
 
-              {user && (user.balance ?? 0) < 10 && (
+              {user && walletBalance < applyAppCount * 10 && (
                 <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs flex items-start gap-2.5 text-red-600">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <p>
@@ -676,17 +761,27 @@ export default function ClientApplication() {
           <div className="flex justify-between items-center">
             <button
               onClick={handleSaveDraft}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-black uppercase tracking-wider text-slate-600 transition-colors cursor-pointer"
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-black uppercase tracking-wider text-slate-600 transition-colors cursor-pointer disabled:opacity-50"
             >
               Save Draft
             </button>
 
             <button
               onClick={handleSubmitApplication}
-              disabled={user ? (user.balance ?? 0) < 10 : false}
+              disabled={isSubmitting || (user ? walletBalance < applyAppCount * 10 : false)}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer"
             >
-              Submit & Unlock Account <CheckCircle className="w-4 h-4 text-white" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  Submit & Unlock Account <CheckCircle className="w-4 h-4 text-white" />
+                </>
+              )}
             </button>
           </div>
         </div>
