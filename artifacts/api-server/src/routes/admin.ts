@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   db,
+  pool,
   applicationsTable,
   usersTable,
   applicationTimelineTable,
@@ -9,6 +10,8 @@ import {
   accountsTable,
   notificationsTable,
   auditLogsTable,
+  paymentsTable,
+  withdrawalsTable,
   MIN_LOAD_USD,
   type NewTimelineEvent,
   type NewNotification,
@@ -565,23 +568,154 @@ router.post("/admin/documents/:id/reject", async (req: AuthenticatedRequest, res
 });
 
 /**
- * Super Admin user manager: List administrators and clients
+ * Super Admin / Admin user manager: List administrators and clients with computed wallet balance
  */
 router.get("/admin/users", async (req: AuthenticatedRequest, res, next) => {
   try {
-    const list = await db
-      .select({
-        id: usersTable.id,
-        email: usersTable.email,
-        username: usersTable.username,
-        role: usersTable.role,
-        status: usersTable.status,
-        createdAt: usersTable.createdAt,
-      })
-      .from(usersTable)
-      .orderBy(desc(usersTable.id));
+    const { rows } = await pool.query(
+      `SELECT 
+        u.id, 
+        u.email, 
+        u.username, 
+        u.company_name AS "companyName",
+        u.role, 
+        u.status, 
+        u.created_at AS "createdAt",
+        ROUND(
+          COALESCE((SELECT SUM(amount::numeric) FROM payments WHERE user_id = u.id AND status = 'PAID'), 0)
+          - COALESCE((SELECT SUM(amount::numeric) FROM application_fees WHERE user_id = u.id), 0)
+          - COALESCE((SELECT SUM(total::numeric) FROM account_loads WHERE user_id = u.id), 0)
+          - COALESCE((SELECT SUM(amount::numeric) FROM withdrawals WHERE user_id = u.id AND status <> 'REJECTED'), 0)
+        , 2)::float AS balance
+      FROM users u
+      ORDER BY u.id DESC`
+    );
 
-    return res.json(list);
+    return res.json(rows);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/**
+ * Admin: Adjust or set user wallet balance by User ID or Email
+ */
+router.post("/admin/users/adjust-balance", async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const { userId, email, mode = "SET", amount, note } = req.body;
+    const adminId = req.userId || 0;
+
+    if (amount === undefined || amount === null || Number.isNaN(Number(amount))) {
+      return res.status(400).json({ error: "Valid numeric amount is required." });
+    }
+
+    const numAmount = Number(amount);
+
+    // Find target user
+    let userQuery = db.select().from(usersTable);
+    if (userId) {
+      userQuery = userQuery.where(eq(usersTable.id, Number(userId)));
+    } else if (email) {
+      userQuery = userQuery.where(eq(usersTable.email, String(email).toLowerCase().trim()));
+    } else {
+      return res.status(400).json({ error: "User ID or Email is required." });
+    }
+
+    const [targetUser] = await userQuery.limit(1);
+    if (!targetUser) {
+      return res.status(404).json({ error: "Target user not found." });
+    }
+
+    // Get current balance
+    const { rows: balRows } = await pool.query(
+      `SELECT 
+        ROUND(
+          COALESCE((SELECT SUM(amount::numeric) FROM payments WHERE user_id = $1 AND status = 'PAID'), 0)
+          - COALESCE((SELECT SUM(amount::numeric) FROM application_fees WHERE user_id = $1), 0)
+          - COALESCE((SELECT SUM(total::numeric) FROM account_loads WHERE user_id = $1), 0)
+          - COALESCE((SELECT SUM(amount::numeric) FROM withdrawals WHERE user_id = $1 AND status <> 'REJECTED'), 0)
+        , 2)::float AS balance`,
+      [targetUser.id]
+    );
+
+    const currentBalance = Number(balRows[0]?.balance || 0);
+
+    let delta = 0;
+    let finalBalance = currentBalance;
+
+    if (mode === "SET") {
+      if (numAmount < 0) {
+        return res.status(400).json({ error: "Target balance cannot be negative." });
+      }
+      delta = Math.round((numAmount - currentBalance) * 100) / 100;
+      finalBalance = numAmount;
+    } else if (mode === "ADD") {
+      delta = Math.round(numAmount * 100) / 100;
+      finalBalance = Math.round((currentBalance + delta) * 100) / 100;
+      if (finalBalance < 0) {
+        return res.status(400).json({ error: `Cannot deduct $${Math.abs(delta)}. Current balance is only $${currentBalance}.` });
+      }
+    } else {
+      return res.status(400).json({ error: "Invalid adjustment mode. Use 'SET' or 'ADD'." });
+    }
+
+    if (delta === 0) {
+      return res.json({
+        success: true,
+        user: { id: targetUser.id, email: targetUser.email, username: targetUser.username },
+        balance: currentBalance,
+        message: "Balance is already at this amount.",
+      });
+    }
+
+    if (delta > 0) {
+      // Credit funds via paymentsTable
+      const orderId = `ADJ-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      await db.insert(paymentsTable).values({
+        orderId,
+        userId: targetUser.id,
+        amount: String(delta),
+        currency: "USDT",
+        network: "MANUAL_ADJUSTMENT",
+        receivingAddress: "ADMIN_CONSOLE",
+        txHash: `ADMIN-CREDIT-${adminId}-${Date.now()}`,
+        screenshotUrl: "",
+        note: note || `Manual balance adjustment (+ $${delta}) by Admin #${adminId}`,
+        status: "PAID",
+        verifiedBy: adminId,
+        verifiedAt: new Date(),
+      });
+    } else {
+      // Deduct funds via approved withdrawal ledger entry
+      const requestId = `ADJ-DED-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      await db.insert(withdrawalsTable).values({
+        requestId,
+        userId: targetUser.id,
+        amount: String(Math.abs(delta)),
+        usdtAddress: "ADMIN_ADJUSTMENT_DEDUCTION",
+        status: "APPROVED",
+        rejectionReason: null,
+        processedBy: adminId,
+        processedAt: new Date(),
+      });
+    }
+
+    await logAudit(adminId, "ADJUST_USER_BALANCE", "user", targetUser.id, {
+      previousBalance: currentBalance,
+      adjustedDelta: delta,
+      newBalance: finalBalance,
+      mode,
+      note,
+    });
+
+    return res.json({
+      success: true,
+      user: { id: targetUser.id, email: targetUser.email, username: targetUser.username },
+      previousBalance: currentBalance,
+      delta,
+      newBalance: finalBalance,
+      message: `Balance updated from $${currentBalance} to $${finalBalance} USDT.`,
+    });
   } catch (err) {
     return next(err);
   }
