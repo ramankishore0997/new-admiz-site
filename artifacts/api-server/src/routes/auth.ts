@@ -8,9 +8,9 @@ import * as telegramNotify from "../lib/telegram/service";
 
 const router = Router();
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: "Too many attempts. Please wait a few minutes and try again." });
-const registerLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: "Too many registrations from this network. Please try again later." });
-const resetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: "Too many reset requests. Please try again later." });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 50, message: "Too many attempts. Please wait a few minutes and try again." });
+const registerLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: "Too many registrations from this network. Please try again later." });
+const resetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: "Too many reset requests. Please try again later." });
 
 // Configure cookie properties
 const isProd = process.env.NODE_ENV === "production";

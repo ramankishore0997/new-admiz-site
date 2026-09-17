@@ -10,6 +10,9 @@ import * as telegramNotify from "./lib/telegram/service";
 
 const app: Express = express();
 
+// Trust reverse proxy (Railway, Cloudflare, Nginx, Render) for accurate client IP in rate limiting & auth
+app.set("trust proxy", 1);
+
 app.use(
   pinoHttp({
     logger,

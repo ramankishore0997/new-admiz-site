@@ -8,14 +8,30 @@ interface Bucket {
 const buckets = new Map<string, Bucket>();
 
 /**
- * Minimal in-memory rate limiter (per IP).
- * Sufficient for auth endpoints on a single-function deployment.
+ * Periodically purge stale rate limit buckets to avoid memory leaks
+ */
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, bucket] of buckets.entries()) {
+    if (bucket.resetAt <= now) {
+      buckets.delete(key);
+    }
+  }
+}, 5 * 60 * 1000).unref?.();
+
+/**
+ * Minimal in-memory rate limiter (per client IP).
  */
 export function rateLimit(opts: { windowMs: number; max: number; message?: string }) {
   const message = opts.message || "Too many requests. Please try again later.";
 
   return (req: Request, res: Response, next: NextFunction) => {
-    const key = req.ip || req.socket.remoteAddress || "unknown";
+    // Extract real client IP (supports Cloudflare, reverse proxies, and direct connections)
+    const cfIp = req.headers["cf-connecting-ip"] as string | undefined;
+    const realIp = req.headers["x-real-ip"] as string | undefined;
+    const forwardedFor = (req.headers["x-forwarded-for"] as string | undefined)?.split(",")[0]?.trim();
+    const key = cfIp || realIp || forwardedFor || req.ip || req.socket.remoteAddress || "unknown";
+    
     const now = Date.now();
 
     let bucket = buckets.get(key);
@@ -33,4 +49,4 @@ export function rateLimit(opts: { windowMs: number; max: number; message?: strin
 
     next();
   };
-}
+}
