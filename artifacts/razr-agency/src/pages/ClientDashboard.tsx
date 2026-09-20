@@ -615,13 +615,13 @@ export default function ClientDashboard() {
                 </span>
               </div>
               <p className="text-[11px] text-slate-600 mt-0.5">
-                100% Unspent Capital Migration Guarantee · Whitelisted Enterprise ASN Routing · Instant Zero-Fee Account Replacement SLA
+                RAZR Global Media International Ltd (CR: 3318942) · 100% Capital Escrow Guarantee · Whitelisted Enterprise ASN Routing
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-left md:text-right">
-              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Agency SLA Contract</div>
+              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Governed Under HK Law</div>
               <div className="text-xs font-mono font-bold text-emerald-700">#AGY-2026-HK-PRIME</div>
             </div>
           </div>

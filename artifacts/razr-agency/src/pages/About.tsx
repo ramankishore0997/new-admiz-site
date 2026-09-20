@@ -234,6 +234,59 @@ export default function About() {
           </div>
         </div>
       </section>
+
+      {/* Corporate Entity & Governance Section */}
+      <section className="py-16 pb-24 relative">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 p-8 md:p-12 shadow-xl shadow-slate-200/60">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase tracking-widest">
+                  🏢 Global Headquarters & Corporate Entity
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-slate-900">
+                  Institutional Reliability Powered by Hong Kong SAR
+                </h2>
+                <p className="text-sm md:text-base text-slate-600 leading-relaxed">
+                  <strong className="text-slate-900">RAZR Global Media International Limited</strong> is incorporated under the Hong Kong SAR Companies Ordinance (CR No. 3318942 / BRN: 76192840). 
+                  Our international corporate structure ensures our clients benefit from institutional-grade contracts, multi-sig escrow capital protection, and direct Tier-1 agency agreements with global advertising networks.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-xs font-mono">
+                  <div className="p-3 rounded-xl bg-white border border-slate-200">
+                    <div className="text-[9px] text-slate-400 uppercase font-sans font-bold">Entity Type</div>
+                    <div className="text-slate-900 font-bold mt-0.5">Limited by Shares</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white border border-slate-200">
+                    <div className="text-[9px] text-slate-400 uppercase font-sans font-bold">Registry Number</div>
+                    <div className="text-emerald-700 font-bold mt-0.5">CR: 3318942</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white border border-slate-200 col-span-2 sm:col-span-1">
+                    <div className="text-[9px] text-slate-400 uppercase font-sans font-bold">Head Office</div>
+                    <div className="text-slate-900 font-bold mt-0.5">Two IFC, Central</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-6 space-y-3 shadow-md">
+                <div className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center justify-between">
+                  <span>Registered Corporate Address</span>
+                  <span className="text-emerald-600 font-mono text-[10px]">VERIFIED</span>
+                </div>
+                <div className="text-xs font-mono text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                  RAZR Global Media International Limited<br />
+                  Level 19, Two International Finance Centre<br />
+                  8 Finance Street, Central<br />
+                  Hong Kong SAR
+                </div>
+                <div className="pt-2 text-[10px] text-slate-500 flex flex-col gap-1">
+                  <div><strong>Legal Inquiries:</strong> legal@razr.marketing</div>
+                  <div><strong>Corporate Governance:</strong> compliance@razr.marketing</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </PageWrapper>
   );
 }

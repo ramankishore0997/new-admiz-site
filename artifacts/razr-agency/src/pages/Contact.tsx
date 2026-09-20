@@ -117,24 +117,34 @@ export default function Contact() {
               <ContactChannel
                 href={TELEGRAM_URL}
                 icon={<SiTelegram className="w-6 h-6 text-[#229ED9]" />}
-                title="Telegram"
+                title="Telegram Direct"
                 value={`@${TELEGRAM_HANDLE}`}
-                badge="Fastest"
+                badge="Priority SLA"
                 delay={0.15}
                 accent="from-emerald-500/40 to-teal-500/20"
               />
 
-              {/* Email */}
-              <ContactChannel
-                href={`mailto:${CONTACT_EMAIL}`}
-                icon={<Mail className="w-6 h-6 text-primary" />}
-                title="Email"
-                value={CONTACT_EMAIL}
-                delay={0.2}
-                accent="from-primary/40 to-emerald-500/20"
-              />
+              {/* Department Inquiries */}
+              <div className="grid grid-cols-2 gap-3">
+                <ContactChannel
+                  href="mailto:billing@razr.marketing"
+                  icon={<Mail className="w-5 h-5 text-primary" />}
+                  title="Finance"
+                  value="billing@razr.marketing"
+                  delay={0.2}
+                  accent="from-primary/40 to-emerald-500/20"
+                />
+                <ContactChannel
+                  href="mailto:compliance@razr.marketing"
+                  icon={<Mail className="w-5 h-5 text-emerald-600" />}
+                  title="Compliance"
+                  value="compliance@razr.marketing"
+                  delay={0.22}
+                  accent="from-emerald-500/40 to-teal-500/20"
+                />
+              </div>
 
-              {/* Hong Kong HQ */}
+              {/* Hong Kong Global Headquarters */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -142,11 +152,23 @@ export default function Contact() {
                 className="relative rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-200/60 p-5 overflow-hidden"
               >
                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
-                <div className="relative flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <div className="text-sm font-black uppercase tracking-wider text-slate-900 mb-1">Hong Kong HQ</div>
-                    <div className="text-xs text-slate-600 leading-relaxed">Hong Kong SAR, China — serving advertisers worldwide. Global delivery in every timezone.</div>
+                <div className="relative flex items-start gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-700">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-black uppercase tracking-wider text-slate-900">Hong Kong Global Headquarters</span>
+                      <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono">CR: 3318942</span>
+                    </div>
+                    <div className="text-xs font-semibold text-slate-700">RAZR Global Media International Limited</div>
+                    <div className="text-[11px] text-slate-500 leading-relaxed font-mono">
+                      Level 19, Two International Finance Centre (Two IFC)<br />
+                      8 Finance Street, Central, Hong Kong SAR
+                    </div>
+                    <div className="text-[10px] text-emerald-700 font-bold pt-1">
+                      Desk Hours: 09:00 – 23:00 HKT (GMT+8) · 24/7 Priority Emergency Coverage
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -155,14 +177,13 @@ export default function Contact() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="relative rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-200/60 p-5 mt-2 overflow-hidden"
+                className="relative rounded-2xl border border-slate-200 bg-slate-50 p-4 overflow-hidden"
               >
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
                 <div className="relative flex items-start gap-3">
-                  <MessageCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
-                    <div className="text-sm font-black uppercase tracking-wider text-slate-900 mb-1">Why message us?</div>
-                    <div className="text-xs text-slate-600 leading-relaxed">Talk to a real human about your vertical, budget, and goals — get a custom plan within minutes.</div>
+                    <div className="text-xs font-black uppercase tracking-wider text-slate-900 mb-0.5">Direct Enterprise Liaison</div>
+                    <div className="text-[11px] text-slate-600 leading-relaxed">Speak directly with an assigned Senior Media Director regarding uncapped spend allocations, pixel whitelisting, and multi-network campaigns.</div>
                   </div>
                 </div>
               </motion.div>
