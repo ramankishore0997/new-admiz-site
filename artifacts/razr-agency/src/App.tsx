@@ -31,6 +31,9 @@ import ForgotPassword from "@/pages/ForgotPassword";
 
 import ClientDashboard from "@/pages/ClientDashboard";
 import ClientApplication from "@/pages/ClientApplication";
+import ClientSpecs from "@/pages/ClientSpecs";
+import ClientPlaybook from "@/pages/ClientPlaybook";
+import ClientGuarantee from "@/pages/ClientGuarantee";
 import ClientNotifications from "@/pages/ClientNotifications";
 import ClientSupport from "@/pages/ClientSupport";
 import ClientSettings from "@/pages/ClientSettings";
@@ -144,6 +147,15 @@ function Router() {
           </Route>
           <Route path="/app/application">
             {() => <ProtectedRoute path="/app/application" component={ClientApplication} />}
+          </Route>
+          <Route path="/app/specs">
+            {() => <ProtectedRoute path="/app/specs" component={ClientSpecs} />}
+          </Route>
+          <Route path="/app/playbook">
+            {() => <ProtectedRoute path="/app/playbook" component={ClientPlaybook} />}
+          </Route>
+          <Route path="/app/guarantee">
+            {() => <ProtectedRoute path="/app/guarantee" component={ClientGuarantee} />}
           </Route>
           <Route path="/app/notifications">
             {() => <ProtectedRoute path="/app/notifications" component={ClientNotifications} />}

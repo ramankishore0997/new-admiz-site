@@ -14,22 +14,29 @@ import {
   Menu,
   X,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Zap,
+  BookOpen,
+  ShieldCheck,
+  Building2
 } from "lucide-react";
 
 interface MenuItem {
   name: string;
   href: string;
   icon: React.ComponentType<any>;
+  badge?: string;
 }
 
 const CLIENT_MENU: MenuItem[] = [
   { name: "Overview", href: "/app/dashboard", icon: LayoutDashboard },
-  { name: "My Application", href: "/app/application", icon: FileText },
+  { name: "My Application", href: "/app/application", icon: FileText, badge: "Instant" },
+  { name: "Account Specs", href: "/app/specs", icon: Zap, badge: "Live" },
+  { name: "Scaling Playbook", href: "/app/playbook", icon: BookOpen },
+  { name: "SLA Guarantee", href: "/app/guarantee", icon: ShieldCheck, badge: "100%" },
   { name: "Notifications", href: "/app/notifications", icon: Bell },
   { name: "Support Center", href: "/app/support", icon: HelpCircle },
-  { name: "Account Profile", href: "/app/account", icon: User },
-  { name: "Settings", href: "/app/settings", icon: Settings },
+  { name: "Account Settings", href: "/app/settings", icon: Settings },
 ];
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -73,15 +80,33 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   <Icon className={`w-4 h-4 ${isActive ? "text-emerald-600" : "text-slate-400"}`} />
                   <span>{item.name}</span>
                 </div>
-                {isActive && <ChevronRight className="w-3.5 h-3.5" />}
+                <div className="flex items-center gap-1.5">
+                  {item.badge && (
+                    <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      {item.badge}
+                    </span>
+                  )}
+                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-emerald-600" />}
+                </div>
               </a>
             </Link>
           );
         })}
       </nav>
 
+      {/* Mini Trust & Entity Badge in Sidebar */}
+      <div className="my-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-[10px] space-y-1 relative z-10">
+        <div className="flex items-center gap-1.5 text-slate-800 font-bold">
+          <Building2 className="w-3.5 h-3.5 text-emerald-600" /> RAZR Global Media Ltd
+        </div>
+        <div className="text-[9px] text-slate-500 font-mono">CR: 3318942 · Hong Kong HQ</div>
+        <div className="text-[9px] text-emerald-700 font-bold flex items-center gap-1 pt-0.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 100% Escrow Protection
+        </div>
+      </div>
+
       {/* Bottom Profile / Logout */}
-      <div className="pt-6 border-t border-slate-200 space-y-4 relative z-10">
+      <div className="pt-4 border-t border-slate-200 space-y-4 relative z-10">
         {user && (
           <div className="flex items-center gap-3 px-2">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center text-xs font-black text-white shadow-md">
