@@ -66,6 +66,7 @@ interface AuthContextType {
   ) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  setSessionUser: (user: User | null) => void;
   submitDepositProof: (payload: {
     amount: number;
     network: string;
@@ -279,6 +280,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signup,
         logout,
         refreshUser,
+        setSessionUser: setUser,
         submitDepositProof,
         applyAdAccount,
       }}

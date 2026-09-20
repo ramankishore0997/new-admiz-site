@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,100 +8,55 @@ import RazrLogo from "@/components/RazrLogo";
 
 export default function AuthCallback() {
   const [, setLocation] = useLocation();
-  const { refreshUser } = useAuth();
+  const { setSessionUser } = useAuth();
   const { toast } = useToast();
   const [statusText, setStatusText] = useState("Verifying Google credentials...");
   const [hasError, setHasError] = useState(false);
+  const syncInProgress = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
 
-    async function handleAuth() {
-      if (!isSupabaseConfigured) {
-        setHasError(true);
-        setStatusText("Supabase is not configured yet. Please check environment variables.");
-        toast({
-          variant: "destructive",
-          title: "Setup Required",
-          description: "Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.",
-        });
-        setTimeout(() => setLocation("/login"), 3000);
-        return;
-      }
+    async function syncAndRedirect(session: any) {
+      if (syncInProgress.current || !session?.user) return;
+      syncInProgress.current = true;
 
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const email = session.user.email;
+        const name =
+          session.user.user_metadata?.full_name ||
+          session.user.user_metadata?.name ||
+          email?.split("@")[0] ||
+          "Client";
 
-        if (error) throw error;
+        if (isMounted) setStatusText("Synchronizing institutional profile...");
 
-        if (session && session.user) {
-          const email = session.user.email;
-          const name = session.user.user_metadata?.full_name || session.user.user_metadata?.name || email?.split("@")[0] || "Client";
+        const res = await fetch("/api/auth/oauth-sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email, name }),
+        });
 
-          setStatusText("Synchronizing institutional profile...");
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || "Failed to initialize server session");
+        }
 
-          const res = await fetch("/api/auth/oauth-sync", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ email, name }),
+        const userData = await res.json();
+        setSessionUser(userData);
+
+        if (isMounted) {
+          toast({
+            title: "Authenticated Successfully",
+            description: `Welcome to RAZR Marketing, ${name}!`,
           });
-
-          if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error || "Failed to initialize server session");
-          }
-
-          await refreshUser();
-
-          if (isMounted) {
-            toast({
-              title: "Authenticated Successfully",
-              description: `Welcome to RAZR Marketing, ${name}!`,
-            });
-            setLocation("/app/dashboard");
-          }
-        } else {
-          // Listen for onAuthStateChange in case hash parsing is in progress
-          const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
-            if (currentSession && currentSession.user) {
-              subscription.unsubscribe();
-              const email = currentSession.user.email;
-              const name = currentSession.user.user_metadata?.full_name || email?.split("@")[0] || "Client";
-
-              const res = await fetch("/api/auth/oauth-sync", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ email, name }),
-              });
-
-              if (res.ok) {
-                await refreshUser();
-                if (isMounted) {
-                  toast({
-                    title: "Authenticated Successfully",
-                    description: "Welcome to RAZR Marketing!",
-                  });
-                  setLocation("/app/dashboard");
-                }
-              }
-            }
-          });
-
-          // Timeout after 6s if no session
-          setTimeout(() => {
-            if (isMounted) {
-              setHasError(true);
-              setStatusText("Session timeout. Redirecting to login...");
-              setTimeout(() => setLocation("/login"), 2000);
-            }
-          }, 6000);
+          window.location.replace("/app/dashboard");
         }
       } catch (err: any) {
         if (isMounted) {
           setHasError(true);
-          setStatusText(err.message || "Google authentication failed.");
+          setStatusText(err.message || "Session sync failed.");
           toast({
             variant: "destructive",
             title: "Authentication Failed",
@@ -112,12 +67,53 @@ export default function AuthCallback() {
       }
     }
 
-    handleAuth();
+    async function handleAuth() {
+      if (!isSupabaseConfigured) {
+        setHasError(true);
+        setStatusText("Supabase is not configured yet. Please check environment variables.");
+        setTimeout(() => setLocation("/login"), 3000);
+        return;
+      }
+
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+
+        if (session && session.user) {
+          await syncAndRedirect(session);
+        } else {
+          // Listen for onAuthStateChange
+          const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
+            if (currentSession && currentSession.user) {
+              subscription.unsubscribe();
+              void syncAndRedirect(currentSession);
+            }
+          });
+
+          // Timeout after 8s if no session
+          setTimeout(() => {
+            if (isMounted && !syncInProgress.current) {
+              setHasError(true);
+              setStatusText("Session timeout. Redirecting to login...");
+              setTimeout(() => setLocation("/login"), 2000);
+            }
+          }, 8000);
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          setHasError(true);
+          setStatusText(err.message || "Google authentication failed.");
+          setTimeout(() => setLocation("/login"), 3000);
+        }
+      }
+    }
+
+    void handleAuth();
 
     return () => {
       isMounted = false;
     };
-  }, [setLocation, refreshUser, toast]);
+  }, [setLocation, setSessionUser, toast]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
