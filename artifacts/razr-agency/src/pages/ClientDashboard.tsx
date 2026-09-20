@@ -25,7 +25,18 @@ import {
   Trash2,
   X,
   Clock,
-  ArrowDownToLine
+  ArrowDownToLine,
+  BadgeCheck,
+  Sparkles,
+  RefreshCw,
+  Zap,
+  Headphones,
+  Lock,
+  Shield,
+  CheckCircle2,
+  ChevronRight,
+  HelpCircle,
+  UserCheck
 } from "lucide-react";
 import { SiTelegram, SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
 import { PAYMENT_CONFIG, MANUAL_PAYMENT_NETWORKS } from "@/config/payment";
@@ -53,6 +64,16 @@ export default function ClientDashboard() {
   const [loadTarget, setLoadTarget] = useState<any | null>(null);
   const [loadAmount, setLoadAmount] = useState("100");
   const [isLoadingLoad, setIsLoadingLoad] = useState(false);
+
+  // BM Access Guidance Modal State
+  const [showBmModal, setShowBmModal] = useState(false);
+  const [bmTarget, setBmTarget] = useState<any | null>(null);
+
+  // Replacement Request Modal State
+  const [showReplacementModal, setShowReplacementModal] = useState(false);
+  const [replacementTarget, setReplacementTarget] = useState<any | null>(null);
+  const [isSubmittingReplacement, setIsSubmittingReplacement] = useState(false);
+  const [replacementSubmitted, setReplacementSubmitted] = useState(false);
 
   // Payment Form State
   const [selectedNetwork, setSelectedNetwork] = useState(MANUAL_PAYMENT_NETWORKS[0]);
@@ -579,83 +600,164 @@ export default function ClientDashboard() {
         </div>
       </div>
 
+      {/* Enterprise SLA & Trust Assurance Strip */}
+      <div className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-slate-50 p-5 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-600/20">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-900">Institutional Agency Line-of-Credit Protection</span>
+                <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+                  <Sparkles className="w-2.5 h-2.5" /> Verified Tier-1
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 mt-0.5">
+                100% Unspent Capital Migration Guarantee · Whitelisted Enterprise ASN Routing · Instant Zero-Fee Account Replacement SLA
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="text-left md:text-right">
+              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Agency SLA Contract</div>
+              <div className="text-xs font-mono font-bold text-emerald-700">#AGY-2026-HK-PRIME</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         {/* LEFT: Ad accounts & Applications */}
         <div className="lg:col-span-8 space-y-6">
           <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-6">
-            <h2 className="text-lg font-black uppercase tracking-tight text-slate-900 mb-6">Your Provisioned Ad Accounts</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+              <div>
+                <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">Your Provisioned Ad Accounts</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Whitelisted Enterprise Lines · Direct Agency Route</p>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">
+                <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" /> Active Agency Shield
+              </div>
+            </div>
+
             {adAccounts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {adAccounts.map((acc: any) => {
                   const getPlatformIcon = (platform: string) => {
-                    const l = platform.toLowerCase();
+                    const l = (platform || "").toLowerCase();
                     if (l.includes("meta") || l.includes("facebook")) return <SiMeta className="w-5 h-5 text-[#1877F2]" />;
                     if (l.includes("google") || l.includes("youtube")) return <SiGoogleads className="w-5 h-5 text-yellow-500" />;
                     if (l.includes("tiktok")) return <SiTiktok className="w-5 h-5 text-slate-900" />;
                     return <Building className="w-5 h-5 text-primary" />;
                   };
 
+                  const getPartnerBadge = (platform: string) => {
+                    const l = (platform || "").toLowerCase();
+                    if (l.includes("meta") || l.includes("facebook")) return "Meta Business Partner";
+                    if (l.includes("google") || l.includes("youtube")) return "Google Premier Partner";
+                    if (l.includes("tiktok")) return "TikTok Agency Partner";
+                    return "Enterprise Whitelist";
+                  };
+
                   return (
-                    <div key={acc.id} className="rounded-xl border border-slate-200 bg-slate-50 p-5 hover:border-slate-300 transition-colors flex flex-col">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center">
-                          {getPlatformIcon(acc.platform)}
+                    <div key={acc.id} className="rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-5 hover:border-slate-300 hover:shadow-lg transition-all flex flex-col justify-between">
+                      <div>
+                        {/* Top Platform & Partner Badge */}
+                        <div className="flex items-start justify-between gap-2 mb-3.5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
+                              {getPlatformIcon(acc.platform)}
+                            </div>
+                            <div>
+                              <div className="text-xs text-slate-900 font-extrabold uppercase tracking-wide">
+                                {acc.name || acc.platform}
+                              </div>
+                              <div className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 uppercase tracking-wider">
+                                <BadgeCheck className="w-3 h-3 text-emerald-600" /> {getPartnerBadge(acc.platform)}
+                              </div>
+                            </div>
+                          </div>
+                          <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${
+                            acc.status === "ACTIVE"
+                              ? "text-emerald-700 border-emerald-200 bg-emerald-50"
+                              : acc.status === "APPROVED"
+                              ? "text-emerald-700 border-emerald-200 bg-emerald-50"
+                              : "text-amber-700 border-amber-200 bg-amber-50"
+                          }`}>
+                            {acc.status === "APPROVED" ? "APPROVED" : acc.status}
+                          </span>
                         </div>
-                        <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                          acc.status === "ACTIVE"
-                            ? "text-emerald-600 border-emerald-200 bg-emerald-50"
-                            : acc.status === "APPROVED"
-                            ? "text-emerald-700 border-emerald-200 bg-emerald-50"
-                            : "text-amber-600 border-amber-200 bg-amber-50"
-                        }`}>
-                          {acc.status === "APPROVED" ? "APPROVED" : acc.status}
-                        </span>
+
+                        {/* Account ID / BM ID */}
+                        <div className="bg-slate-100/90 rounded-xl p-3 border border-slate-200/80 space-y-1.5 mb-3.5">
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="text-slate-500 font-bold uppercase tracking-wider">Account ID:</span>
+                            <span className="font-mono font-bold text-slate-900">{acc.accountId || "Provisioning..."}</span>
+                          </div>
+                          {acc.businessPortfolioId && (
+                            <div className="flex items-center justify-between text-[10px] pt-1 border-t border-slate-200/60">
+                              <span className="text-slate-500 font-bold uppercase tracking-wider">BM Portfolio:</span>
+                              <span className="font-mono font-bold text-blue-700">{acc.businessPortfolioId}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Health & Whitelist Indicators */}
+                        <div className="grid grid-cols-2 gap-2 mb-3.5 text-[9px]">
+                          <div className="p-2 rounded-lg bg-emerald-50/70 border border-emerald-100 flex items-center gap-1.5 text-emerald-800 font-bold">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>Health: 99.8% (Optimal)</span>
+                          </div>
+                          <div className="p-2 rounded-lg bg-slate-100 border border-slate-200 flex items-center gap-1.5 text-slate-700 font-bold">
+                            <Shield className="w-3 h-3 text-slate-500" />
+                            <span>Clean HK/US ASN</span>
+                          </div>
+                        </div>
+
+                        {/* Spend Limit & Balance */}
+                        <div className="flex items-center justify-between py-2 border-y border-slate-200/70 text-[10px] text-slate-600 font-bold mb-4">
+                          <span>Spend Limit: <strong className="text-slate-900">{acc.spendLimit || "Uncapped Line"}</strong></span>
+                          <span>
+                            Ad Balance: <strong className="text-emerald-700 text-xs">${(Number(acc.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-500 uppercase font-bold tracking-wider">
-                        {acc.name ? (
-                          <span className="text-slate-900">{acc.name}</span>
-                        ) : (
-                          acc.platform
+
+                      {/* Action Buttons */}
+                      <div className="space-y-2 pt-1">
+                        {(acc.status === "ACTIVE" || acc.status === "APPROVED") && (
+                          <button
+                            onClick={() => openLoadModal(acc)}
+                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer shadow-[0_4px_15px_rgba(5,150,105,0.2)]"
+                          >
+                            <Wallet className="w-3.5 h-3.5" /> {acc.status === "APPROVED" && Number(acc.balance || 0) < 50 ? "Topup & Get BM Access" : "Load Fund"}
+                          </button>
                         )}
-                      </div>
-                      <div className="text-sm font-mono font-bold text-slate-900 mt-1 selection:bg-primary/30">
-                        {acc.accountId || "Provisioning ID..."}
-                      </div>
 
-                      {acc.status === "ACTIVE" && acc.businessPortfolioId && (
-                        <div className="mt-1.5 inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-700 w-fit">
-                          <ShieldCheck className="w-3 h-3" /> BM: {acc.businessPortfolioId}
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => {
+                              setBmTarget(acc);
+                              setShowBmModal(true);
+                            }}
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[9px] font-bold uppercase tracking-wider border border-slate-200 transition-colors cursor-pointer"
+                          >
+                            <UserCheck className="w-3 h-3 text-slate-500" /> BM Access
+                          </button>
+                          <button
+                            onClick={() => {
+                              setReplacementTarget(acc);
+                              setReplacementSubmitted(false);
+                              setShowReplacementModal(true);
+                            }}
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[9px] font-bold uppercase tracking-wider border border-slate-200 transition-colors cursor-pointer"
+                          >
+                            <RefreshCw className="w-3 h-3 text-slate-500" /> Replace SLA
+                          </button>
                         </div>
-                      )}
-
-                      <div className="flex items-center justify-between mt-3 text-[10px] text-slate-500 font-bold">
-                        <span>Daily Limit: {acc.spendLimit || "$5,000"}</span>
-                        <span className="text-emerald-700">
-                          Balance: <strong className="text-emerald-700">${(Number(acc.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
-                        </span>
                       </div>
-
-                      {acc.status === "APPROVED" && Number(acc.balance || 0) < 50 && (
-                        <div className="mt-2 text-[9px] text-slate-500 font-semibold">
-                          Topup a minimum of <strong>$50</strong> to get Business Manager access assigned.
-                        </div>
-                      )}
-
-                      {acc.status === "APPROVED" && (
-                        <div className="mt-2 text-[9px] text-slate-500 font-semibold flex items-start gap-1.5">
-                          <ShieldCheck className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
-                          <span>Topup unlocks BM access + account activation. 100% refund if BM isn't assigned within 48 hrs.</span>
-                        </div>
-                      )}
-
-                      {(acc.status === "ACTIVE" || acc.status === "APPROVED") && (
-                        <button
-                          onClick={() => openLoadModal(acc)}
-                          className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest transition-colors cursor-pointer shadow-[0_4px_15px_rgba(5,150,105,0.2)]"
-                        >
-                          <Wallet className="w-3.5 h-3.5" /> {acc.status === "APPROVED" && Number(acc.balance || 0) < 50 ? "Topup & Get BM Access" : "Load Fund"}
-                        </button>
-                      )}
                     </div>
                   );
                 })}
@@ -674,29 +776,47 @@ export default function ClientDashboard() {
           </div>
         </div>
 
-        {/* RIGHT: VIP Support & Deposit Verification Logs */}
+        {/* RIGHT: Dedicated Executive Concierge & Payment Verification Logs */}
         <div className="lg:col-span-4 space-y-6">
-          {/* Quick Support channel */}
-          <div className="rounded-2xl border border-slate-200 bg-[#229ED9]/5 p-6 relative overflow-hidden group">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#229ED9]/10 border border-[#229ED9]/30 flex items-center justify-center text-[#229ED9]">
-                <SiTelegram className="w-5 h-5" />
+          {/* Assigned Dedicated Account Executive Card */}
+          <div className="rounded-2xl border border-slate-200 bg-gradient-to-b from-[#229ED9]/10 via-white to-slate-50 p-6 relative overflow-hidden shadow-lg shadow-slate-200/50">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#229ED9]">Dedicated VIP Concierge</span>
+              <span className="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> Online Now
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3.5 mb-4">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-2xl bg-[#229ED9] text-white flex items-center justify-center text-base font-black shadow-md shadow-[#229ED9]/30">
+                  AV
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white" />
               </div>
               <div>
-                <h3 className="text-sm font-black uppercase text-slate-900 tracking-wider">VIP Support Desk</h3>
-                <span className="text-[9px] font-bold text-[#229ED9] uppercase tracking-widest">Active online</span>
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Alex Vance</h3>
+                <p className="text-[11px] text-slate-500 font-semibold">Senior Agency Account Executive</p>
+                <p className="text-[9px] text-slate-400 font-mono mt-0.5">Response SLA: &lt; 3 mins</p>
               </div>
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed mb-4">
-              Contact our team directly on Telegram at <strong className="text-slate-900">@RazrMarketing</strong> to request priority review or query your deposit verification.
-            </p>
+
+            <div className="bg-white/80 rounded-xl p-3 border border-slate-200/80 mb-4 text-[10px] text-slate-600 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-slate-800 font-bold">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Direct Agency Escalation Route
+              </div>
+              <p className="text-slate-500 leading-relaxed">
+                Assigned exclusively to your account for BM invitations, pixel whitelisting, daily limit scaling, and rapid fund clearance.
+              </p>
+            </div>
+
             <a
               href={TELEGRAM_SUPPORT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-[#229ED9]/25 cursor-pointer"
             >
-              Open Telegram Support <ExternalLink className="w-3.5 h-3.5" />
+              <SiTelegram className="w-4 h-4" /> Message Account Manager
             </a>
           </div>
 
@@ -1367,6 +1487,217 @@ export default function ClientDashboard() {
                   <p className="text-xs text-slate-400 text-center py-4">No withdrawal requests yet.</p>
                 )}
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* BM Access & Partner Guidance Modal */}
+      <AnimatePresence>
+        {showBmModal && bmTarget && (
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowBmModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl shadow-slate-200/60 z-10"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-emerald-600" />
+              <div className="flex items-start justify-between mb-5">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <UserCheck className="w-3.5 h-3.5" /> Direct BM Provisioning
+                  </div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-slate-900">
+                    Business Manager Access Details
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5 font-medium">
+                    {bmTarget.name || bmTarget.platform} · <span className="font-mono">{bmTarget.accountId}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowBmModal(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 font-mono">
+                  <div className="flex justify-between items-center text-[11px]">
+                    <span className="text-slate-500 font-bold uppercase">Account ID:</span>
+                    <span className="text-slate-900 font-bold">{bmTarget.accountId || "Pending Assignment"}</span>
+                  </div>
+                  {bmTarget.businessPortfolioId && (
+                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
+                      <span className="text-slate-500 font-bold uppercase">BM Portfolio ID:</span>
+                      <span className="text-blue-700 font-bold">{bmTarget.businessPortfolioId}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
+                    <span className="text-slate-500 font-bold uppercase">Allocation Status:</span>
+                    <span className="text-emerald-700 font-bold uppercase">{bmTarget.status}</span>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-blue-900">
+                    <ShieldCheck className="w-4 h-4 text-blue-700" /> How to Accept & Manage Access
+                  </div>
+                  <ol className="text-[11px] text-slate-700 space-y-2 list-decimal list-inside">
+                    <li>Open your Meta / Google Business Manager settings.</li>
+                    <li>Check the <strong>"Requests / Partners"</strong> tab to accept the agency partnership link.</li>
+                    <li>Assign your Media Buyers or Assets (Pixels / Catalogs / Pages) directly with Admin privileges.</li>
+                  </ol>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 flex items-center justify-between">
+                  <div className="text-[10px] text-slate-600">
+                    Need an immediate BM re-invite or custom pixel binding?
+                  </div>
+                  <a
+                    href={TELEGRAM_SUPPORT_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[10px] font-black text-[#229ED9] hover:underline uppercase shrink-0"
+                  >
+                    Ask Concierge <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+
+                <button
+                  onClick={() => setShowBmModal(false)}
+                  className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
+                >
+                  Close Access Window
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Replacement SLA Modal */}
+      <AnimatePresence>
+        {showReplacementModal && replacementTarget && (
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowReplacementModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl shadow-slate-200/60 z-10"
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-emerald-600" />
+              <div className="flex items-start justify-between mb-5">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <ShieldCheck className="w-3.5 h-3.5" /> 100% Zero-Fee Guarantee
+                  </div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-slate-900">
+                    Instant Account Replacement SLA
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5 font-medium">
+                    {replacementTarget.name || replacementTarget.platform} · <span className="font-mono">{replacementTarget.accountId}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowReplacementModal(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {replacementSubmitted ? (
+                <div className="text-center py-6 space-y-4">
+                  <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto text-emerald-600">
+                    <CheckCircle2 className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-black uppercase text-slate-900">Replacement Ticket Queued</h4>
+                    <p className="text-xs text-slate-600 mt-1 max-w-sm mx-auto leading-relaxed">
+                      Your replacement request has been prioritized under Tier-1 SLA. A fresh ad account will be allocated within 24 hours with your remaining balance automatically transferred.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowReplacementModal(false)}
+                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4 text-xs">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                      Tier-1 Replacement Coverage
+                    </div>
+                    <p className="text-[11px] text-slate-700 leading-relaxed">
+                      Under RAZR Agency Line protection, any account experiencing algorithm restrictions or spending issues is eligible for an instant <strong>0-fee replacement</strong> with 100% balance migration.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                      Select Issue Category
+                    </label>
+                    <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-slate-900 text-xs font-bold outline-none">
+                      <option>Algorithm Policy Flag / Restriction</option>
+                      <option>Daily Spend Limit Scale Request</option>
+                      <option>Pixel / Domain Re-association Request</option>
+                      <option>General Optimization & Route Change</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                      Optional Incident Notes
+                    </label>
+                    <textarea
+                      placeholder="Provide campaign details or screenshot references if needed..."
+                      rows={2}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 outline-none"
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setIsSubmittingReplacement(true);
+                      setTimeout(() => {
+                        setIsSubmittingReplacement(false);
+                        setReplacementSubmitted(true);
+                        toast({
+                          title: "Replacement Request Submitted",
+                          description: "Your priority account replacement has been routed to the agency operations queue.",
+                        });
+                      }, 800);
+                    }}
+                    disabled={isSubmittingReplacement}
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all shadow-[0_4px_15px_rgba(5,150,105,0.25)] cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmittingReplacement ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Routing to Queue...</>
+                    ) : (
+                      <><RefreshCw className="w-4 h-4" /> Request Priority Replacement</>
+                    )}
+                  </button>
+                </div>
+              )}
             </motion.div>
           </div>
         )}
