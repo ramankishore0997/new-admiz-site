@@ -36,7 +36,7 @@ function MagneticCTA() {
   };
   const onLeave = () => { mx.set(0); my.set(0); };
 
-  const targetPath = user ? "/app/dashboard" : "/apply-agency";
+  const targetPath = user ? "/app/dashboard" : "/login";
 
   return (
     <motion.a
@@ -270,7 +270,7 @@ export default function Navbar() {
               {/* Mobile CTA */}
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
                 <Link
-                  href={user ? "/app/dashboard" : "/apply-agency"}
+                  href={user ? "/app/dashboard" : "/login"}
                   onClick={() => setOpen(false)}
                   className="relative block group rounded-2xl overflow-hidden"
                 >
