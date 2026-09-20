@@ -118,6 +118,7 @@ const TABLES: string[] = [
     platform text NOT NULL,
     account_id text,
     business_portfolio_id text,
+    name text,
     spend_limit text,
     status text NOT NULL DEFAULT 'PENDING_PROVISIONING',
     balance text NOT NULL DEFAULT '0',
@@ -126,6 +127,7 @@ const TABLES: string[] = [
     updated_at timestamp NOT NULL DEFAULT now()
   )`,
   `ALTER TABLE accounts ADD COLUMN IF NOT EXISTS balance text NOT NULL DEFAULT '0'`,
+  `ALTER TABLE accounts ADD COLUMN IF NOT EXISTS name text`,
   `CREATE TABLE IF NOT EXISTS notifications (
     id serial PRIMARY KEY,
     user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -180,6 +182,19 @@ const TABLES: string[] = [
     created_at timestamp NOT NULL DEFAULT now(),
     updated_at timestamp NOT NULL DEFAULT now()
   )`,
+  `CREATE TABLE IF NOT EXISTS withdrawals (
+    id serial PRIMARY KEY,
+    request_id text NOT NULL UNIQUE,
+    user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    amount text NOT NULL,
+    usdt_address text NOT NULL,
+    status text NOT NULL DEFAULT 'PENDING',
+    rejection_reason text,
+    processed_by integer REFERENCES users(id) ON DELETE SET NULL,
+    processed_at timestamp,
+    created_at timestamp NOT NULL DEFAULT now(),
+    updated_at timestamp NOT NULL DEFAULT now()
+  )`,
   `CREATE TABLE IF NOT EXISTS application_fees (
     id serial PRIMARY KEY,
     user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -218,6 +233,7 @@ const TABLES: string[] = [
     created_at timestamp NOT NULL DEFAULT now()
   )`,
 ];
+
 
 async function main() {
   console.log("[bootstrap] Connecting to database...");

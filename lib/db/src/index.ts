@@ -18,7 +18,7 @@ function tryLoadEnvFile() {
 }
 tryLoadEnvFile();
 
-const { Pool } = pg;
+export const { Pool } = pg;
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
