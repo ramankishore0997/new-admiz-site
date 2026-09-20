@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { Router, type Response } from "express";
 import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, accountLoadsTable, withdrawalsTable, passwordChangeRequestsTable, type User } from "@workspace/db";
 import { eq, or, ilike, desc } from "drizzle-orm";
@@ -274,6 +275,63 @@ const handleLogin = async (req: any, res: Response, next: any) => {
 
 router.post("/auth/login", authLimiter, handleLogin);
 router.post("/login", authLimiter, handleLogin);
+
+/**
+ * POST /api/auth/oauth-sync
+ * Synchronize Supabase/Google OAuth logins with the internal PostgreSQL database.
+ */
+router.post("/auth/oauth-sync", authLimiter, async (req: any, res: Response, next: any) => {
+  try {
+    const { email, name } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "OAuth email is required." });
+    }
+
+    const cleanEmail = String(email).toLowerCase().trim();
+    let [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, cleanEmail))
+      .limit(1);
+
+    if (!user) {
+      const generatedUsername = (name || cleanEmail.split("@")[0] || "client").trim();
+      const randomSecret = crypto.randomBytes(32).toString("hex");
+      const hashedPassword = hashPassword(randomSecret);
+
+      const [newUser] = await db
+        .insert(usersTable)
+        .values({
+          email: cleanEmail,
+          password: hashedPassword,
+          username: generatedUsername,
+          companyName: "",
+          telegramHandle: "",
+          phoneNumber: "",
+          country: "",
+          role: "CLIENT",
+          status: "ACTIVE",
+        })
+        .returning();
+
+      user = newUser;
+      void telegramNotify.notifyNewUser(newUser);
+    }
+
+    if (user.status !== "ACTIVE") {
+      return res.status(403).json({ error: "Your account is currently suspended or inactive." });
+    }
+
+    // Create session token
+    const token = signToken({ id: user.id, role: user.role });
+    res.cookie("token", token, COOKIE_OPTIONS);
+
+    return res.json(await buildProfile(user));
+  } catch (err) {
+    return next(err);
+  }
+});
 
 /**
  * Fetch current user profile

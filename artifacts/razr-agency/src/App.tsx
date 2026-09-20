@@ -28,6 +28,7 @@ import ApplyAgencyAccount from "@/pages/ApplyAgencyAccount";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import ForgotPassword from "@/pages/ForgotPassword";
+import AuthCallback from "@/pages/AuthCallback";
 
 import ClientDashboard from "@/pages/ClientDashboard";
 import ClientApplication from "@/pages/ClientApplication";
@@ -133,6 +134,7 @@ function Router() {
           <Route path="/signup" component={Signup} />
           <Route path="/register" component={Signup} />
           <Route path="/forgot-password" component={ForgotPassword} />
+          <Route path="/auth/callback" component={AuthCallback} />
           <Route path="/dashboard">
             {() => <DashboardRedirect />}
           </Route>
