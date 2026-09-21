@@ -690,18 +690,24 @@ export default function ClientDashboard() {
                           </span>
                         </div>
 
-                        {/* Account ID / BM ID */}
+                        {/* Account ID / BM Access */}
                         <div className="bg-slate-100/90 rounded-xl p-3 border border-slate-200/80 space-y-1.5 mb-3.5">
                           <div className="flex items-center justify-between text-[10px]">
                             <span className="text-slate-500 font-bold uppercase tracking-wider">Account ID:</span>
                             <span className="font-mono font-bold text-slate-900">{acc.accountId || "Provisioning..."}</span>
                           </div>
-                          {acc.businessPortfolioId && (
-                            <div className="flex items-center justify-between text-[10px] pt-1 border-t border-slate-200/60">
-                              <span className="text-slate-500 font-bold uppercase tracking-wider">BM Portfolio:</span>
-                              <span className="font-mono font-bold text-blue-700">{acc.businessPortfolioId}</span>
-                            </div>
-                          )}
+                          <div className="flex items-center justify-between text-[10px] pt-1.5 border-t border-slate-200/60">
+                            <span className="text-slate-500 font-bold uppercase tracking-wider">BM Access:</span>
+                            {acc.status === "ACTIVE" && acc.businessPortfolioId ? (
+                              <span className="font-mono font-bold text-blue-700 flex items-center gap-1">
+                                <BadgeCheck className="w-3 h-3 text-emerald-600" /> BM: {acc.businessPortfolioId}
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-flex items-center gap-1">
+                                <Clock className="w-2.5 h-2.5 text-amber-600" /> Pending Admin Assignment
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         {/* Health & Whitelist Indicators */}
@@ -1530,56 +1536,103 @@ export default function ClientDashboard() {
                 </button>
               </div>
 
-              <div className="space-y-4 text-xs">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 font-mono">
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-slate-500 font-bold uppercase">Account ID:</span>
-                    <span className="text-slate-900 font-bold">{bmTarget.accountId || "Pending Assignment"}</span>
-                  </div>
-                  {bmTarget.businessPortfolioId && (
+              {bmTarget.status === "ACTIVE" && bmTarget.businessPortfolioId ? (
+                <div className="space-y-4 text-xs">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 font-mono">
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="text-slate-500 font-bold uppercase">Account ID:</span>
+                      <span className="text-slate-900 font-bold">{bmTarget.accountId || "Provisioning..."}</span>
+                    </div>
                     <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
-                      <span className="text-slate-500 font-bold uppercase">BM Portfolio ID:</span>
+                      <span className="text-slate-500 font-bold uppercase">Assigned BM Portfolio:</span>
                       <span className="text-blue-700 font-bold">{bmTarget.businessPortfolioId}</span>
                     </div>
-                  )}
-                  <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
-                    <span className="text-slate-500 font-bold uppercase">Allocation Status:</span>
-                    <span className="text-emerald-700 font-bold uppercase">{bmTarget.status}</span>
+                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
+                      <span className="text-slate-500 font-bold uppercase">Allocation Status:</span>
+                      <span className="text-emerald-700 font-bold uppercase">ACTIVE (CONNECTED)</span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4 space-y-2">
-                  <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-blue-900">
-                    <ShieldCheck className="w-4 h-4 text-blue-700" /> How to Accept & Manage Access
+                  <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-blue-900">
+                      <ShieldCheck className="w-4 h-4 text-blue-700" /> How to Accept & Manage Access
+                    </div>
+                    <ol className="text-[11px] text-slate-700 space-y-2 list-decimal list-inside">
+                      <li>Open your Meta / Google Business Manager settings.</li>
+                      <li>Check the <strong>"Requests / Partners"</strong> tab to accept the agency partnership link.</li>
+                      <li>Assign your Media Buyers or Assets (Pixels / Catalogs / Pages) directly with Admin privileges.</li>
+                    </ol>
                   </div>
-                  <ol className="text-[11px] text-slate-700 space-y-2 list-decimal list-inside">
-                    <li>Open your Meta / Google Business Manager settings.</li>
-                    <li>Check the <strong>"Requests / Partners"</strong> tab to accept the agency partnership link.</li>
-                    <li>Assign your Media Buyers or Assets (Pixels / Catalogs / Pages) directly with Admin privileges.</li>
-                  </ol>
-                </div>
 
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 flex items-center justify-between">
-                  <div className="text-[10px] text-slate-600">
-                    Need an immediate BM re-invite or custom pixel binding?
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 flex items-center justify-between">
+                    <div className="text-[10px] text-slate-600">
+                      Need an immediate BM re-invite or custom pixel binding?
+                    </div>
+                    <a
+                      href={TELEGRAM_SUPPORT_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[10px] font-black text-[#229ED9] hover:underline uppercase shrink-0"
+                    >
+                      Ask Concierge <ExternalLink className="w-3 h-3" />
+                    </a>
                   </div>
-                  <a
-                    href={TELEGRAM_SUPPORT_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[10px] font-black text-[#229ED9] hover:underline uppercase shrink-0"
+
+                  <button
+                    onClick={() => setShowBmModal(false)}
+                    className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
                   >
-                    Ask Concierge <ExternalLink className="w-3 h-3" />
-                  </a>
+                    Close Access Window
+                  </button>
                 </div>
+              ) : (
+                <div className="space-y-4 text-xs">
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-amber-900">
+                      <Clock className="w-4 h-4 text-amber-700" /> Pending Admin BM Assignment
+                    </div>
+                    <p className="text-[11px] text-amber-900/90 leading-relaxed font-medium">
+                      Your application has been received. The administration team has not assigned your Business Manager access yet. Once the admin team assigns your agency BM line from the backend, your verified BM Portfolio ID and invite steps will appear here.
+                    </p>
+                  </div>
 
-                <button
-                  onClick={() => setShowBmModal(false)}
-                  className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
-                >
-                  Close Access Window
-                </button>
-              </div>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2.5">
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="text-slate-500 font-bold uppercase">Account Status:</span>
+                      <span className="text-amber-700 font-bold uppercase">{bmTarget.status || "PENDING"}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
+                      <span className="text-slate-500 font-bold uppercase">BM Access:</span>
+                      <span className="text-slate-600 font-bold">Awaiting Backend Assignment</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
+                      <span className="text-slate-500 font-bold uppercase">Next Step:</span>
+                      <span className="text-slate-800 font-semibold">Admin will link your whitelisted line shortly</span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 flex items-center justify-between">
+                    <div className="text-[10px] text-slate-600">
+                      Need faster priority allocation or have questions?
+                    </div>
+                    <a
+                      href={TELEGRAM_SUPPORT_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[10px] font-black text-[#229ED9] hover:underline uppercase shrink-0"
+                    >
+                      Contact VIP Desk <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+
+                  <button
+                    onClick={() => setShowBmModal(false)}
+                    className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
+                  >
+                    Close Window
+                  </button>
+                </div>
+              )}
             </motion.div>
           </div>
         )}

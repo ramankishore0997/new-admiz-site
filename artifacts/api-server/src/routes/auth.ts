@@ -121,7 +121,7 @@ async function buildProfile(user: User) {
     platform: a.platform,
     status: a.status as "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED" | "APPROVED",
     spendLimit: a.spendLimit || "Starter",
-    businessPortfolioId: a.businessPortfolioId,
+    businessPortfolioId: a.status === "ACTIVE" ? a.businessPortfolioId : null,
     balance: Number(a.balance) || 0,
     dateApplied: a.createdAt.toLocaleDateString(),
   }));

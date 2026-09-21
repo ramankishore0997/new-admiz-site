@@ -25,7 +25,7 @@ export async function provisionAdAccount(app: {
       userId: app.userId,
       platform,
       accountId: `ACC-${stamp}${random}`,
-      businessPortfolioId: String(reqs.businessManagerId || reqs.gmail || "").trim() || null,
+      businessPortfolioId: null, // Only assigned when admin assigns BM access
       name: String(reqs.accountName || "").trim() || null,
       spendLimit: "Starter",
       status: "APPROVED",
