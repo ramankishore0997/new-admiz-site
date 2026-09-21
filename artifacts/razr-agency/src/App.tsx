@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import LoadingScreen from "@/components/LoadingScreen";
-import StickyUrgencyBar from "@/components/StickyUrgencyBar";
 import CursorGlow from "@/components/effects/CursorGlow";
 import NoiseTexture from "@/components/effects/NoiseTexture";
 import AmbientLights from "@/components/effects/AmbientLights";
@@ -260,7 +259,6 @@ function App() {
           <NoiseTexture />
           <CursorGlow />
           <LoadingScreen />
-          <StickyUrgencyBar />
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <Router />
           </WouterRouter>

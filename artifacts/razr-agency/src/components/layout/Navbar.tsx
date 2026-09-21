@@ -117,7 +117,7 @@ export default function Navbar() {
       {/* Floating Glass Navbar */}
       <div
         className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none transition-all duration-500"
-        style={{ top: `calc(var(--topbar-h, 0px) + ${isScrolled ? "12px" : "20px"})` }}
+        style={{ top: isScrolled ? "12px" : "18px" }}
       >
         <motion.header
           ref={navRef}
