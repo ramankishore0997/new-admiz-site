@@ -818,6 +818,16 @@ router.get("/admin/accounts", async (req: AuthenticatedRequest, res, next) => {
         userEmail: usersTable.email,
         companyName: usersTable.companyName,
         publicApplicationId: applicationsTable.publicId,
+        clientSubmittedBmId: sql<string>`COALESCE(
+          ${applicationsTable.accountRequirements}->>'businessManagerId',
+          ${applicationsTable.accountRequirements}->>'gmail',
+          ${applicationsTable.accountRequirements}->>'existingAccountId',
+          ''
+        )`,
+        clientAccountName: sql<string>`${applicationsTable.accountRequirements}->>'accountName'`,
+        clientHatType: sql<string>`${applicationsTable.accountRequirements}->>'hatType'`,
+        clientCountry: sql<string>`${applicationsTable.accountRequirements}->>'country'`,
+        clientCurrency: sql<string>`${applicationsTable.accountRequirements}->>'currency'`,
       })
       .from(accountsTable)
       .innerJoin(usersTable, eq(accountsTable.userId, usersTable.id))

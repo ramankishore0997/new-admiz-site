@@ -369,6 +369,35 @@ export default function AdminApplications() {
                       <span className="text-slate-500 block">Account Currency</span>
                       <span className="font-bold text-slate-900">{appDetail.application.accountRequirements?.currency || "Pending"}</span>
                     </div>
+                    
+                    <div className="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 col-span-2 md:col-span-3 mt-1">
+                      <span className="text-[9px] font-black uppercase text-indigo-700 block tracking-wider mb-1">
+                        Client Submitted BM & Account Configuration Targets
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div>
+                          <span className="text-[10px] text-slate-500 block">Submitted BM / Gmail ID:</span>
+                          <span className="font-mono font-bold text-indigo-900 select-all">
+                            {appDetail.application.accountRequirements?.businessManagerId ||
+                             appDetail.application.accountRequirements?.gmail ||
+                             appDetail.application.accountRequirements?.existingAccountId ||
+                             "None (Fresh Line)"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-500 block">Requested Account Name:</span>
+                          <span className="font-bold text-slate-900">
+                            {appDetail.application.accountRequirements?.accountName || "Default Name"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-500 block">Risk Profile:</span>
+                          <span className="font-bold text-slate-900">
+                            {appDetail.application.accountRequirements?.hatType || "White Hat"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

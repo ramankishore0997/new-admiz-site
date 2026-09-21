@@ -14,7 +14,9 @@ import {
   ShieldCheck,
   AlertCircle,
   KeyRound,
-  X
+  X,
+  UserCheck,
+  Copy
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -290,18 +292,28 @@ export default function AdminAccounts() {
                           <td className="py-4">
                             <span className="font-bold text-slate-900 block">{acc.companyName}</span>
                             <span className="text-[9px] text-slate-500 block mt-0.5">{acc.userEmail}</span>
+                            {acc.publicApplicationId && (
+                              <span className="text-[8px] font-mono text-slate-400 block mt-0.5">{acc.publicApplicationId}</span>
+                            )}
                           </td>
                           <td className="py-4 text-slate-900 font-mono">{acc.platform}</td>
                           <td className="py-4 text-slate-900 font-mono">
-                            {acc.accountId}
+                            <div className="font-bold">{acc.accountId}</div>
+                            {acc.clientSubmittedBmId && (
+                              <span className="text-[8px] font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded block mt-1">
+                                Client BM: {acc.clientSubmittedBmId}
+                              </span>
+                            )}
                             {acc.businessPortfolioId && (
-                              <span className="text-[8px] font-bold text-blue-600 block mt-0.5">BM: {acc.businessPortfolioId}</span>
+                              <span className="text-[8px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded block mt-0.5">
+                                Assigned: {acc.businessPortfolioId}
+                              </span>
                             )}
                           </td>
                           <td className="py-4">
                             <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border ${
                               Number(acc.balance || 0) >= 50
-                                ? "text-emerald-700 border-emerald-200 bg-emerald-50"
+                                 ? "text-emerald-700 border-emerald-200 bg-emerald-50"
                                 : "text-slate-500 border-slate-200 bg-slate-50"
                             }`}>
                               ${Number(acc.balance || 0).toFixed(2)}
@@ -325,7 +337,10 @@ export default function AdminAccounts() {
                             {acc.status === "APPROVED" ? (
                               Number(acc.balance || 0) >= 50 ? (
                                 <button
-                                  onClick={() => { setAssignBmAccount(acc); setAssignBmId(acc.businessPortfolioId || ""); }}
+                                  onClick={() => {
+                                    setAssignBmAccount(acc);
+                                    setAssignBmId(acc.businessPortfolioId || acc.clientSubmittedBmId || "");
+                                  }}
                                   className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
                                 >
                                   Assign BM Access
@@ -382,7 +397,7 @@ export default function AdminAccounts() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-md bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl z-10 space-y-4"
+              className="relative w-full max-w-lg bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl z-10 space-y-4"
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -390,7 +405,7 @@ export default function AdminAccounts() {
                     <KeyRound className="w-5 h-5 text-blue-600" /> Assign BM Access
                   </h3>
                   <p className="text-xs text-slate-600 mt-1">
-                    {assignBmAccount.accountId} · {assignBmAccount.platform}
+                    {assignBmAccount.accountId} · {assignBmAccount.platform} · <span className="font-bold text-slate-900">{assignBmAccount.companyName}</span>
                   </p>
                 </div>
                 <button
@@ -401,22 +416,69 @@ export default function AdminAccounts() {
                 </button>
               </div>
 
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-[11px] text-emerald-800 font-semibold">
-                Client topup: <strong>${Number(assignBmAccount.balance || 0).toFixed(2)}</strong> — minimum topup completed. Assigning access will activate this account for the client.
+              {/* Client Submitted Information Box */}
+              <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-3.5 text-xs space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
+                    <UserCheck className="w-3.5 h-3.5 text-indigo-700" /> Client Application Submission
+                  </span>
+                  {assignBmAccount.clientSubmittedBmId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAssignBmId(assignBmAccount.clientSubmittedBmId);
+                        toast({ title: "Auto-Filled", description: "Client's submitted BM ID copied to input." });
+                      }}
+                      className="text-[9px] font-black uppercase text-indigo-700 bg-white border border-indigo-300 px-2.5 py-1 rounded hover:bg-indigo-100 transition-colors cursor-pointer shadow-xs"
+                    >
+                      Use Client BM ID
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  <div className="bg-white/90 p-2.5 rounded-lg border border-indigo-100 space-y-0.5">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block font-sans">Client's Target BM / ID / Gmail</span>
+                    <span className="font-mono font-bold text-indigo-900 break-all select-all">
+                      {assignBmAccount.clientSubmittedBmId || "Not provided in form"}
+                    </span>
+                  </div>
+                  <div className="bg-white/90 p-2.5 rounded-lg border border-indigo-100 space-y-0.5">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block font-sans">Account Name & Risk Hat</span>
+                    <span className="font-bold text-slate-900">
+                      {assignBmAccount.clientAccountName || "Standard"} ({assignBmAccount.clientHatType || "White"})
+                    </span>
+                  </div>
+                </div>
+
+                {(assignBmAccount.clientCountry || assignBmAccount.clientCurrency) && (
+                  <div className="text-[10px] text-slate-600 flex items-center gap-2 pt-1 border-t border-indigo-200/60">
+                    <span>Country: <strong>{assignBmAccount.clientCountry || "US"}</strong></span>
+                    <span>·</span>
+                    <span>Currency: <strong>{assignBmAccount.clientCurrency || "USD"}</strong></span>
+                    <span>·</span>
+                    <span>App: <strong>{assignBmAccount.publicApplicationId}</strong></span>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11px] text-emerald-800 font-semibold flex items-center justify-between">
+                <span>Client Topup: <strong>${Number(assignBmAccount.balance || 0).toFixed(2)}</strong></span>
+                <span className="text-[9px] uppercase tracking-wider bg-emerald-200/70 text-emerald-900 px-2 py-0.5 rounded font-black">Ready to Activate</span>
               </div>
 
               <form onSubmit={handleAssignBm} className="space-y-4">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
-                    Business Manager / Portfolio ID <span className="text-red-500">*</span>
+                    Assigned Business Manager / Portfolio ID <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={assignBmId}
                     onChange={(e) => setAssignBmId(e.target.value)}
-                    placeholder="e.g. Portfolio 9029192"
+                    placeholder="e.g. Portfolio 9029192 or Paste BM ID"
                     required
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-blue-500 transition-colors"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs font-mono font-bold outline-none focus:border-blue-500 transition-colors"
                   />
                 </div>
 
@@ -431,9 +493,9 @@ export default function AdminAccounts() {
                   <button
                     type="submit"
                     disabled={isAssigningBm}
-                    className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-wider hover:bg-blue-500 transition-colors disabled:opacity-50 cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-wider hover:bg-blue-500 transition-colors disabled:opacity-50 cursor-pointer shadow-md shadow-blue-600/25"
                   >
-                    {isAssigningBm ? "Assigning..." : "Assign & Activate"}
+                    {isAssigningBm ? "Assigning..." : "Assign & Activate Account"}
                   </button>
                 </div>
               </form>
