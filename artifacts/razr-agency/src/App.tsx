@@ -7,7 +7,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import LoadingScreen from "@/components/LoadingScreen";
 import StickyUrgencyBar from "@/components/StickyUrgencyBar";
-import ExitIntentPopup from "@/components/ExitIntentPopup";
 import CursorGlow from "@/components/effects/CursorGlow";
 import NoiseTexture from "@/components/effects/NoiseTexture";
 import AmbientLights from "@/components/effects/AmbientLights";
@@ -268,7 +267,6 @@ function App() {
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <ChatWidget />
           </WouterRouter>
-          <ExitIntentPopup />
           <Toaster />
         </AuthProvider>
       </TooltipProvider>
