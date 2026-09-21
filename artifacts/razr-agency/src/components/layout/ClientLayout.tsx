@@ -94,16 +94,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         })}
       </nav>
 
-      {/* Mini Trust & Entity Badge in Sidebar */}
-      <div className="my-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-[10px] space-y-1 relative z-10">
-        <div className="flex items-center gap-1.5 text-slate-800 font-bold">
-          <Building2 className="w-3.5 h-3.5 text-emerald-600" /> RAZR Global Media Ltd
-        </div>
-        <div className="text-[9px] text-slate-500 font-mono">CR: 3318942 · Hong Kong HQ</div>
-        <div className="text-[9px] text-emerald-700 font-bold flex items-center gap-1 pt-0.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 100% Escrow Protection
-        </div>
-      </div>
+
 
       {/* Bottom Profile / Logout */}
       <div className="pt-4 border-t border-slate-200 space-y-4 relative z-10">
