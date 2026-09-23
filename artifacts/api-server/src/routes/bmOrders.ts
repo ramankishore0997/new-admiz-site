@@ -22,7 +22,7 @@ export interface BmPackage {
   name: string;
   platform: string;
   price: number;
-  category: "meta" | "google" | "tiktok";
+  category: "meta";
   badge: string;
   description: string;
   features: string[];
@@ -31,94 +31,56 @@ export interface BmPackage {
 
 export const BM_CATALOG: BmPackage[] = [
   {
-    id: "meta-enterprise-bm",
-    name: "Meta Tier-1 Enterprise BM",
+    id: "meta-standard-agency-bm",
+    name: "Meta Standard Agency BM",
     platform: "Meta Ads (Facebook & IG)",
-    price: 150,
+    price: 7,
+    category: "meta",
+    badge: "Starter Choice",
+    description: "Active agency Business Manager ready for immediate campaign launch and pixel connection.",
+    features: [
+      "Immediate Campaign & Pixel Binding",
+      "Clean Policy Trust Rating",
+      "Direct Admin Role Invitation Link",
+      "Rapid Replacement Protection SLA",
+      "2FA & Security Guard Enabled"
+    ],
+    stockReady: 18,
+  },
+  {
+    id: "meta-reinstated-active-bm",
+    name: "Meta Reinstated Active BM",
+    platform: "Meta Ads (Facebook & IG)",
+    price: 9,
     category: "meta",
     badge: "Most Popular",
-    description: "High-trust Enterprise Business Manager with multi-ad account capacity and direct credit line readiness.",
+    description: "Reinstated high-trust Business Manager with warm compliance score and multi-account expansion readiness.",
     features: [
-      "Multi-Ad Account Spawning (Up to 5–10 lines)",
-      "Uncapped Daily Spend Capacity ($5,000/day to Uncapped)",
-      "High-Trust Agency ASN IP Ingestion",
-      "Unlimited Pixel, Domain & Conversion API Bindings",
-      "Immediate Replacement Protection SLA",
-      "Direct Admin Role Invite Link"
+      "Multi-Ad Account Spawning (Up to 3-5 Lines)",
+      "Reinstated Compliance Status (Zero Friction)",
+      "Accelerated Ad Approval Velocity",
+      "Direct Admin Role Invitation Link",
+      "Immediate Replacement Guarantee"
     ],
-    stockReady: 12,
+    stockReady: 14,
   },
   {
-    id: "meta-aged-reinstated-bm",
-    name: "Meta Aged Reinstated BM (2021–2023)",
+    id: "meta-enterprise-unlimited-bm",
+    name: "Meta Enterprise Unlimited BM",
     platform: "Meta Ads (Facebook & IG)",
-    price: 199,
+    price: 12,
     category: "meta",
-    badge: "Maximum Resilience",
-    description: "Pre-warmed aged business portfolio with prior institutional spend history and enhanced policy clearance.",
+    badge: "Maximum Scale",
+    description: "Enterprise tier Business Manager configured for uncapped daily spend and high-volume media buying.",
     features: [
-      "Aged Institutional Trust Score (3+ Years Active)",
-      "Reinstated Compliance Status (Zero Flag Friction)",
-      "Rapid 5–15 Minute Ad Approval Velocity",
-      "Whitelisted Against Automated Bot Triggers",
-      "Immediate Replacement Protection SLA",
-      "Direct Admin Role Invite Link"
+      "High / Uncapped Daily Spend Limit Capacity",
+      "Multi-Ad Account Creation Permissions",
+      "Unlimited Pixel, Domain & CAPI Integrations",
+      "Dedicated Escalation Route",
+      "Instant Admin Role Invitation Link",
+      "Full Replacement Protection SLA"
     ],
-    stockReady: 8,
-  },
-  {
-    id: "meta-unlimited-bm",
-    name: "Meta Unlimited Scale Line BM",
-    platform: "Meta Ads (Facebook & IG)",
-    price: 299,
-    category: "meta",
-    badge: "Aggressive Scale",
-    description: "Built for high-velocity media buyers and aggressive scale campaigns across global target geos.",
-    features: [
-      "Zero Daily Spend Caps from Day 1",
-      "Unlimited Ad Account Creation Permissions",
-      "0% Foreign Ad Tax Billing Structure",
-      "Dedicated Human Meta Escalation Route",
-      "Immediate Replacement Protection SLA",
-      "Direct Admin Role Invite Link"
-    ],
-    stockReady: 6,
-  },
-  {
-    id: "tiktok-agency-bc",
-    name: "TikTok Agency Business Center (BC)",
-    platform: "TikTok Ads",
-    price: 180,
-    category: "tiktok",
-    badge: "Global Virality",
-    description: "Global TikTok for Business Agency Center with worldwide geo targeting and 0% VAT structure.",
-    features: [
-      "Worldwide Geo Targeting without local business barriers",
-      "0% VAT / Ad Tax on all campaigns",
-      "Direct Spark Ads & Creator Marketplace Integration",
-      "Rapid Algorithmic Learning Phase Clearance",
-      "Immediate Replacement Protection SLA",
-      "Direct Admin Role Invite Link"
-    ],
-    stockReady: 7,
-  },
-  {
-    id: "google-premier-mcc",
-    name: "Google Premier Agency MCC Line",
-    platform: "Google Ads",
-    price: 250,
-    category: "google",
-    badge: "Premier Partner",
-    description: "Enterprise Invoiced Google MCC line with pre-warmed trust rating for YouTube, Search, and Performance Max.",
-    features: [
-      "Premier Partner Invoiced Billing Structure",
-      "High Search Impression Share Whitelist",
-      "YouTube Ads, Search, Display & PMax Enabled",
-      "Zero Suspicious Payment Triggers",
-      "Immediate Replacement Protection SLA",
-      "Direct Admin Access Invitation"
-    ],
-    stockReady: 5,
+    stockReady: 9,
   }
 ];
 

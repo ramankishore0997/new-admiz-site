@@ -27,7 +27,7 @@ import {
   Activity,
   PlusCircle
 } from "lucide-react";
-import { SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
+import { SiMeta } from "react-icons/si";
 import { apiFetch } from "@/lib/api";
 
 interface BmPackage {
@@ -35,7 +35,7 @@ interface BmPackage {
   name: string;
   platform: string;
   price: number;
-  category: "meta" | "google" | "tiktok";
+  category: "meta";
   badge: string;
   description: string;
   features: string[];
@@ -60,94 +60,56 @@ interface BmOrder {
 
 const STATIC_CATALOG: BmPackage[] = [
   {
-    id: "meta-enterprise-bm",
-    name: "Meta Tier-1 Enterprise BM",
+    id: "meta-standard-agency-bm",
+    name: "Meta Standard Agency BM",
     platform: "Meta Ads (Facebook & IG)",
-    price: 150,
+    price: 7,
+    category: "meta",
+    badge: "Starter Choice",
+    description: "Active agency Business Manager ready for immediate campaign launch and pixel connection.",
+    features: [
+      "Immediate Campaign & Pixel Binding",
+      "Clean Policy Trust Rating",
+      "Direct Admin Role Invitation Link",
+      "Rapid Replacement Protection SLA",
+      "2FA & Security Guard Enabled"
+    ],
+    stockReady: 18,
+  },
+  {
+    id: "meta-reinstated-active-bm",
+    name: "Meta Reinstated Active BM",
+    platform: "Meta Ads (Facebook & IG)",
+    price: 9,
     category: "meta",
     badge: "Most Popular",
-    description: "High-trust Enterprise Business Manager with multi-ad account capacity and direct credit line readiness.",
+    description: "Reinstated high-trust Business Manager with warm compliance score and multi-account expansion readiness.",
     features: [
-      "Multi-Ad Account Spawning (Up to 5–10 lines)",
-      "Uncapped Daily Spend Capacity ($5,000/day to Uncapped)",
-      "High-Trust Agency ASN IP Ingestion",
-      "Unlimited Pixel, Domain & Conversion API Bindings",
-      "Immediate Replacement Protection SLA",
-      "Direct Admin Role Invite Link"
+      "Multi-Ad Account Spawning (Up to 3-5 Lines)",
+      "Reinstated Compliance Status (Zero Friction)",
+      "Accelerated Ad Approval Velocity",
+      "Direct Admin Role Invitation Link",
+      "Immediate Replacement Guarantee"
     ],
-    stockReady: 12,
+    stockReady: 14,
   },
   {
-    id: "meta-aged-reinstated-bm",
-    name: "Meta Aged Reinstated BM (2021–2023)",
+    id: "meta-enterprise-unlimited-bm",
+    name: "Meta Enterprise Unlimited BM",
     platform: "Meta Ads (Facebook & IG)",
-    price: 199,
+    price: 12,
     category: "meta",
-    badge: "Maximum Resilience",
-    description: "Pre-warmed aged business portfolio with prior institutional spend history and enhanced policy clearance.",
+    badge: "Maximum Scale",
+    description: "Enterprise tier Business Manager configured for uncapped daily spend and high-volume media buying.",
     features: [
-      "Aged Institutional Trust Score (3+ Years Active)",
-      "Reinstated Compliance Status (Zero Flag Friction)",
-      "Rapid 5–15 Minute Ad Approval Velocity",
-      "Whitelisted Against Automated Bot Triggers",
-      "Immediate Replacement Protection SLA",
-      "Direct Admin Role Invite Link"
+      "High / Uncapped Daily Spend Limit Capacity",
+      "Multi-Ad Account Creation Permissions",
+      "Unlimited Pixel, Domain & CAPI Integrations",
+      "Dedicated Escalation Route",
+      "Instant Admin Role Invitation Link",
+      "Full Replacement Protection SLA"
     ],
-    stockReady: 8,
-  },
-  {
-    id: "meta-unlimited-bm",
-    name: "Meta Unlimited Scale Line BM",
-    platform: "Meta Ads (Facebook & IG)",
-    price: 299,
-    category: "meta",
-    badge: "Aggressive Scale",
-    description: "Built for high-velocity media buyers and aggressive scale campaigns across global target geos.",
-    features: [
-      "Zero Daily Spend Caps from Day 1",
-      "Unlimited Ad Account Creation Permissions",
-      "0% Foreign Ad Tax Billing Structure",
-      "Dedicated Human Meta Escalation Route",
-      "Immediate Replacement Protection SLA",
-      "Direct Admin Role Invite Link"
-    ],
-    stockReady: 6,
-  },
-  {
-    id: "tiktok-agency-bc",
-    name: "TikTok Agency Business Center (BC)",
-    platform: "TikTok Ads",
-    price: 180,
-    category: "tiktok",
-    badge: "Global Virality",
-    description: "Global TikTok for Business Agency Center with worldwide geo targeting and 0% VAT structure.",
-    features: [
-      "Worldwide Geo Targeting without local business barriers",
-      "0% VAT / Ad Tax on all campaigns",
-      "Direct Spark Ads & Creator Marketplace Integration",
-      "Rapid Algorithmic Learning Phase Clearance",
-      "Immediate Replacement Protection SLA",
-      "Direct Admin Role Invite Link"
-    ],
-    stockReady: 7,
-  },
-  {
-    id: "google-premier-mcc",
-    name: "Google Premier Agency MCC Line",
-    platform: "Google Ads",
-    price: 250,
-    category: "google",
-    badge: "Premier Partner",
-    description: "Enterprise Invoiced Google MCC line with pre-warmed trust rating for YouTube, Search, and Performance Max.",
-    features: [
-      "Premier Partner Invoiced Billing Structure",
-      "High Search Impression Share Whitelist",
-      "YouTube Ads, Search, Display & PMax Enabled",
-      "Zero Suspicious Payment Triggers",
-      "Immediate Replacement Protection SLA",
-      "Direct Admin Access Invitation"
-    ],
-    stockReady: 5,
+    stockReady: 9,
   }
 ];
 
@@ -158,7 +120,7 @@ export default function BuyBusinessManager() {
   const [catalog, setCatalog] = useState<BmPackage[]>(STATIC_CATALOG);
   const [myOrders, setMyOrders] = useState<BmOrder[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
-  const [activeFilter, setActiveFilter] = useState<"all" | "meta" | "google" | "tiktok">("all");
+  const [activeFilter, setActiveFilter] = useState<string>("all");
 
   // Buy Modal State
   const [selectedPackage, setSelectedPackage] = useState<BmPackage | null>(null);
@@ -247,15 +209,10 @@ export default function BuyBusinessManager() {
     }
   };
 
-  const filteredCatalog = activeFilter === "all"
-    ? catalog
-    : catalog.filter((pkg) => pkg.category === activeFilter);
+  const filteredCatalog = catalog;
 
-  const getPlatformIcon = (cat: string) => {
-    if (cat === "meta") return <SiMeta className="w-5 h-5 text-[#1877F2]" />;
-    if (cat === "google") return <SiGoogleads className="w-5 h-5 text-amber-500" />;
-    if (cat === "tiktok") return <SiTiktok className="w-5 h-5 text-slate-900" />;
-    return <Building className="w-5 h-5 text-emerald-600" />;
+  const getPlatformIcon = (_cat: string) => {
+    return <SiMeta className="w-5 h-5 text-[#1877F2]" />;
   };
 
   return (
@@ -267,13 +224,13 @@ export default function BuyBusinessManager() {
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-widest mb-3">
-                <ShoppingBag className="w-3.5 h-3.5" /> Institutional Line Marketplace
+                <ShoppingBag className="w-3.5 h-3.5" /> Meta Portfolio Marketplace
               </div>
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-black uppercase tracking-tight text-slate-900">
-                Buy Agency Business Managers <span className="text-emerald-600">& Portfolio Lines</span>
+                Buy Meta Agency Business Managers <span className="text-emerald-600">& Lines</span>
               </h1>
               <p className="text-sm text-slate-600 mt-2 max-w-2xl leading-relaxed">
-                Direct access to high-trust aged & enterprise Business Managers across Meta, Google MCC, and TikTok. Instant admin invite link delivery with full replacement guarantee.
+                Direct access to high-trust active & enterprise Meta Business Managers starting from $7 USDT. Instant admin invite link delivery with full replacement guarantee.
               </p>
             </div>
 
@@ -294,33 +251,17 @@ export default function BuyBusinessManager() {
           </div>
         </div>
 
-        {/* Category Filters */}
+        {/* Section Title */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
             <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">
-              Available Business Manager Lines
+              Available Meta Business Manager Lines
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">Select your preferred platform tier to inspect specifications and claim your line.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Choose your preferred tier ($7 – $12 USDT) to instantly claim your invitation link.</p>
           </div>
 
-          <div className="flex items-center gap-2">
-            {[
-              { id: "all", label: "All Lines" },
-              { id: "meta", label: "Meta Ads" },
-              { id: "google", label: "Google MCC" },
-              { id: "tiktok", label: "TikTok BC" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveFilter(tab.id as any)}
-                className={"px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer " +
-                  (activeFilter === tab.id
-                    ? "bg-slate-900 text-white shadow-md"
-                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200")}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase">
+            <SiMeta className="w-4 h-4 text-[#1877F2]" /> Meta Ads (Facebook & Instagram)
           </div>
         </div>
 
