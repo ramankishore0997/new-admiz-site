@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { Router, type Response } from "express";
-import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, accountLoadsTable, withdrawalsTable, passwordChangeRequestsTable, type User } from "@workspace/db";
+import { db, usersTable, accountsTable, paymentsTable, applicationFeesTable, accountLoadsTable, withdrawalsTable, passwordChangeRequestsTable, bmOrdersTable, type User } from "@workspace/db";
 import { eq, or, ilike, desc } from "drizzle-orm";
 import { hashPassword, verifyPassword, signToken, verifyToken } from "../lib/crypto";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/auth";
@@ -179,10 +179,21 @@ async function buildProfile(user: User) {
     date: l.createdAt.toISOString(),
   }));
 
+  // BM Purchases (Buy Business Manager)
+  const bmOrderRows = await db
+    .select()
+    .from(bmOrdersTable)
+    .where(eq(bmOrdersTable.userId, user.id));
+
+  const activeBmSpend = bmOrderRows
+    .filter((b) => b.status !== "CANCELLED")
+    .reduce((sum, b) => sum + (Number(b.price) || 0), 0);
+
   const netBalance = Math.round(
     (balance -
       applicationFees.reduce((sum, f) => sum + f.amount, 0) -
-      balanceLoads.reduce((sum, l) => sum + l.total, 0)) *
+      balanceLoads.reduce((sum, l) => sum + l.total, 0) -
+      activeBmSpend) *
       100,
   ) / 100;
 

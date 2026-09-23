@@ -586,6 +586,7 @@ router.get("/admin/users", async (req: AuthenticatedRequest, res, next) => {
           - COALESCE((SELECT SUM(amount::numeric) FROM application_fees WHERE user_id = u.id), 0)
           - COALESCE((SELECT SUM(total::numeric) FROM account_loads WHERE user_id = u.id), 0)
           - COALESCE((SELECT SUM(amount::numeric) FROM withdrawals WHERE user_id = u.id AND status <> 'REJECTED'), 0)
+          - COALESCE((SELECT SUM(price::numeric) FROM bm_orders WHERE user_id = u.id AND status <> 'CANCELLED'), 0)
         , 2)::float AS balance
       FROM users u
       ORDER BY u.id DESC`
@@ -634,6 +635,7 @@ router.post("/admin/users/adjust-balance", async (req: AuthenticatedRequest, res
           - COALESCE((SELECT SUM(amount::numeric) FROM application_fees WHERE user_id = $1), 0)
           - COALESCE((SELECT SUM(total::numeric) FROM account_loads WHERE user_id = $1), 0)
           - COALESCE((SELECT SUM(amount::numeric) FROM withdrawals WHERE user_id = $1 AND status <> 'REJECTED'), 0)
+          - COALESCE((SELECT SUM(price::numeric) FROM bm_orders WHERE user_id = $1 AND status <> 'CANCELLED'), 0)
         , 2)::float AS balance`,
       [targetUser.id]
     );

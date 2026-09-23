@@ -18,7 +18,8 @@ import {
   Zap,
   BookOpen,
   ShieldCheck,
-  Building2
+  Building2,
+  ShoppingBag
 } from "lucide-react";
 
 interface MenuItem {
@@ -30,6 +31,7 @@ interface MenuItem {
 
 const CLIENT_MENU: MenuItem[] = [
   { name: "Overview", href: "/app/dashboard", icon: LayoutDashboard },
+  { name: "Buy Business Manager", href: "/app/buy-bm", icon: ShoppingBag, badge: "Store" },
   { name: "My Application", href: "/app/application", icon: FileText, badge: "Instant" },
   { name: "Account Specs", href: "/app/specs", icon: Zap, badge: "Live" },
   { name: "Scaling Playbook", href: "/app/playbook", icon: BookOpen },

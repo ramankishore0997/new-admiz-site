@@ -232,6 +232,23 @@ const TABLES: string[] = [
     error text,
     created_at timestamp NOT NULL DEFAULT now()
   )`,
+  `CREATE TABLE IF NOT EXISTS bm_orders (
+    id serial PRIMARY KEY,
+    order_id text NOT NULL UNIQUE,
+    user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    bm_package_id text NOT NULL,
+    bm_package_name text NOT NULL,
+    platform text NOT NULL DEFAULT 'Meta Ads',
+    price text NOT NULL,
+    currency text NOT NULL DEFAULT 'USDT',
+    status text NOT NULL DEFAULT 'PENDING_DELIVERY',
+    invite_link text,
+    delivery_notes text,
+    delivered_by integer REFERENCES users(id) ON DELETE SET NULL,
+    delivered_at timestamp,
+    created_at timestamp NOT NULL DEFAULT now(),
+    updated_at timestamp NOT NULL DEFAULT now()
+  )`,
 ];
 
 

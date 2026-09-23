@@ -10,6 +10,7 @@ import paymentsRouter from "./payments";
 import accountsRouter from "./accounts";
 import chatRouter from "./chat";
 import withdrawalsRouter from "./withdrawals";
+import bmOrdersRouter from "./bmOrders";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(paymentsRouter);
 router.use(accountsRouter);
 router.use(chatRouter);
 router.use(withdrawalsRouter);
+router.use(bmOrdersRouter);
 
 export default router;

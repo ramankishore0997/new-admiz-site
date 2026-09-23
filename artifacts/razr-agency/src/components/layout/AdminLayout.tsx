@@ -18,7 +18,8 @@ import {
   X,
   DollarSign,
   ChevronRight,
-  MessageCircle
+  MessageCircle,
+  ShoppingBag
 } from "lucide-react";
 
 interface MenuItem {
@@ -29,6 +30,7 @@ interface MenuItem {
 
 const ADMIN_MENU: MenuItem[] = [
   { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
+  { name: "BM Orders", href: "/admin/bm-orders", icon: ShoppingBag },
   { name: "Live Chat", href: "/admin/live-chat", icon: MessageCircle },
   { name: "Payments Verification", href: "/admin/payments", icon: DollarSign },
   { name: "Applications", href: "/admin/applications", icon: ClipboardList },

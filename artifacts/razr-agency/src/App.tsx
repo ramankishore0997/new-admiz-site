@@ -29,6 +29,7 @@ import ForgotPassword from "@/pages/ForgotPassword";
 import AuthCallback from "@/pages/AuthCallback";
 
 import ClientDashboard from "@/pages/ClientDashboard";
+import BuyBusinessManager from "@/pages/BuyBusinessManager";
 import ClientApplication from "@/pages/ClientApplication";
 import ClientSpecs from "@/pages/ClientSpecs";
 import ClientPlaybook from "@/pages/ClientPlaybook";
@@ -38,6 +39,7 @@ import ClientSupport from "@/pages/ClientSupport";
 import ClientSettings from "@/pages/ClientSettings";
 
 import AdminLogin from "@/pages/AdminLogin";
+import AdminBmOrders from "@/pages/AdminBmOrders";
 import AdminApplications from "@/pages/AdminApplications";
 import AdminAccounts from "@/pages/AdminAccounts";
 import AdminDocuments from "@/pages/AdminDocuments";
@@ -145,6 +147,9 @@ function Router() {
           <Route path="/app/dashboard">
             {() => <ProtectedRoute path="/app/dashboard" component={ClientDashboard} />}
           </Route>
+          <Route path="/app/buy-bm">
+            {() => <ProtectedRoute path="/app/buy-bm" component={BuyBusinessManager} />}
+          </Route>
           <Route path="/app/application">
             {() => <ProtectedRoute path="/app/application" component={ClientApplication} />}
           </Route>
@@ -174,6 +179,9 @@ function Router() {
           <Route path="/admin/login" component={AdminLogin} />
           <Route path="/admin/dashboard">
             {() => <ProtectedRoute path="/admin/dashboard" component={AdminApplications} role="ADMIN" />}
+          </Route>
+          <Route path="/admin/bm-orders">
+            {() => <ProtectedRoute path="/admin/bm-orders" component={AdminBmOrders} role="ADMIN" />}
           </Route>
           <Route path="/admin/payments">
             {() => <ProtectedRoute path="/admin/payments" component={AdminPayments} role="ADMIN" />}

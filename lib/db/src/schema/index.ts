@@ -234,6 +234,25 @@ export const withdrawalsTable = pgTable("withdrawals", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// 15. Business Manager Orders Table (Buy BM Marketplace)
+export const bmOrdersTable = pgTable("bm_orders", {
+  id: serial("id").primaryKey(),
+  orderId: text("order_id").notNull().unique(), // e.g. BMO-2026-XXXX
+  userId: integer("user_id").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
+  bmPackageId: text("bm_package_id").notNull(),
+  bmPackageName: text("bm_package_name").notNull(),
+  platform: text("platform").default("Meta Ads").notNull(),
+  price: text("price").notNull(), // USD price deducted
+  currency: text("currency").default("USDT").notNull(),
+  status: text("status").default("PENDING_DELIVERY").notNull(), // PENDING_DELIVERY, DELIVERED, CANCELLED
+  inviteLink: text("invite_link"), // Admin provided BM invite URL
+  deliveryNotes: text("delivery_notes"), // Admin setup instructions / backup code
+  deliveredBy: integer("delivered_by").references(() => usersTable.id, { onDelete: "set null" }),
+  deliveredAt: timestamp("delivered_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Drizzle Relations Configuration
 export const usersRelations = relations(usersTable, ({ many }) => ({
   applications: many(applicationsTable),
@@ -487,5 +506,8 @@ export type NewChatMessage = typeof chatMessagesTable.$inferInsert;
 
 export type VisitorSession = typeof visitorSessionsTable.$inferSelect;
 export type NewVisitorSession = typeof visitorSessionsTable.$inferInsert;
+
+export type BmOrder = typeof bmOrdersTable.$inferSelect;
+export type NewBmOrder = typeof bmOrdersTable.$inferInsert;
 
 export * from "./telegram";
