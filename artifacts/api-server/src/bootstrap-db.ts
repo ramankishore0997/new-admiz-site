@@ -239,6 +239,8 @@ const TABLES: string[] = [
     bm_package_id text NOT NULL,
     bm_package_name text NOT NULL,
     platform text NOT NULL DEFAULT 'Meta Ads',
+    quantity integer NOT NULL DEFAULT 1,
+    unit_price text,
     price text NOT NULL,
     currency text NOT NULL DEFAULT 'USDT',
     status text NOT NULL DEFAULT 'PENDING_DELIVERY',
@@ -249,6 +251,8 @@ const TABLES: string[] = [
     created_at timestamp NOT NULL DEFAULT now(),
     updated_at timestamp NOT NULL DEFAULT now()
   )`,
+  `ALTER TABLE bm_orders ADD COLUMN IF NOT EXISTS quantity integer NOT NULL DEFAULT 1`,
+  `ALTER TABLE bm_orders ADD COLUMN IF NOT EXISTS unit_price text`,
 ];
 
 

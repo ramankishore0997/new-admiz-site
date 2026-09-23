@@ -119,7 +119,7 @@ router.post("/bm-orders/buy", authenticate, async (req: AuthenticatedRequest, re
     const userId = req.userId;
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-    const { packageId } = req.body || {};
+    const { packageId, quantity: rawQuantity = 1 } = req.body || {};
     if (!packageId) {
       return res.status(400).json({ error: "Package ID is required." });
     }
@@ -129,12 +129,19 @@ router.post("/bm-orders/buy", authenticate, async (req: AuthenticatedRequest, re
       return res.status(404).json({ error: "Business Manager package not found." });
     }
 
+    // Validate quantity between 1 and 500
+    const parsedQty = parseInt(String(rawQuantity), 10);
+    const quantity = Math.max(1, Math.min(500, Number.isNaN(parsedQty) ? 1 : parsedQty));
+    const totalPrice = Number((pkg.price * quantity).toFixed(2));
+
     // Check client balance
     const availableBalance = await getUserAvailableBalance(userId);
-    if (availableBalance < pkg.price) {
+    if (availableBalance < totalPrice) {
       return res.status(402).json({
-        error: `Insufficient wallet balance. Price: $${pkg.price} USDT, Available: $${availableBalance.toFixed(2)} USDT. Please add funds to your wallet to complete purchase.`,
-        requiredAmount: pkg.price,
+        error: `Insufficient wallet balance. Total (${quantity}x @ $${pkg.price}): $${totalPrice} USDT, Available: $${availableBalance.toFixed(2)} USDT. Please add funds to your wallet to complete purchase.`,
+        requiredAmount: totalPrice,
+        unitPrice: pkg.price,
+        quantity,
         currentBalance: availableBalance,
       });
     }
@@ -152,7 +159,9 @@ router.post("/bm-orders/buy", authenticate, async (req: AuthenticatedRequest, re
         bmPackageId: pkg.id,
         bmPackageName: pkg.name,
         platform: pkg.platform,
-        price: String(pkg.price),
+        quantity,
+        unitPrice: String(pkg.price),
+        price: String(totalPrice),
         currency: "USDT",
         status: "PENDING_DELIVERY",
       })
@@ -162,7 +171,7 @@ router.post("/bm-orders/buy", authenticate, async (req: AuthenticatedRequest, re
     await db.insert(notificationsTable).values({
       userId,
       title: "Business Manager Order Placed 🎯",
-      message: `Your order for ${pkg.name} (#${orderId}) has been placed. Our administration team is generating and whitelisting your invite link.`,
+      message: `Your order for ${quantity}x ${pkg.name} (#${orderId}) for $${totalPrice} USDT has been placed. Our administration team is generating and whitelisting your invite links.`,
     });
 
     // Telegram admin alert (fail-soft)
@@ -180,8 +189,10 @@ router.post("/bm-orders/buy", authenticate, async (req: AuthenticatedRequest, re
       `━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• Order ID: ${orderId}\n` +
       `• Package: ${pkg.name}\n` +
+      `• Quantity: ${quantity} Line(s)\n` +
+      `• Unit Price: $${pkg.price} USDT\n` +
+      `• Total Paid: $${totalPrice} USDT\n` +
       `• Platform: ${pkg.platform}\n` +
-      `• Amount Paid: $${pkg.price} USDT\n` +
       `• Client: ${clientEmail} (${user?.username || "Client"})\n` +
       `• Telegram: ${tgHandle}\n` +
       `• Status: ⏳ Pending Admin Invite Link\n` +
@@ -198,7 +209,7 @@ router.post("/bm-orders/buy", authenticate, async (req: AuthenticatedRequest, re
         inviteLink: null, // Hidden until DELIVERED
       },
       newBalance,
-      message: "Business Manager order placed successfully! Admin team will dispatch your invite link shortly.",
+      message: `Order for ${quantity}x ${pkg.name} placed successfully! Admin team will dispatch your invite link shortly.`,
     });
   } catch (err) {
     return next(err);
@@ -246,6 +257,8 @@ router.get("/admin/bm-orders", authenticate, requireAdmin, async (_req: Authenti
         bmPackageId: bmOrdersTable.bmPackageId,
         bmPackageName: bmOrdersTable.bmPackageName,
         platform: bmOrdersTable.platform,
+        quantity: bmOrdersTable.quantity,
+        unitPrice: bmOrdersTable.unitPrice,
         price: bmOrdersTable.price,
         currency: bmOrdersTable.currency,
         status: bmOrdersTable.status,

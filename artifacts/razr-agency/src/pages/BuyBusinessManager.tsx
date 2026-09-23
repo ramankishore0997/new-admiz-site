@@ -25,7 +25,9 @@ import {
   RefreshCw,
   Wallet,
   Activity,
-  PlusCircle
+  PlusCircle,
+  Minus,
+  Plus
 } from "lucide-react";
 import { SiMeta } from "react-icons/si";
 import { apiFetch } from "@/lib/api";
@@ -49,6 +51,8 @@ interface BmOrder {
   bmPackageId: string;
   bmPackageName: string;
   platform: string;
+  quantity?: number;
+  unitPrice?: string | null;
   price: string;
   currency: string;
   status: "PENDING_DELIVERY" | "DELIVERED" | "CANCELLED";
@@ -124,9 +128,15 @@ export default function BuyBusinessManager() {
 
   // Buy Modal State
   const [selectedPackage, setSelectedPackage] = useState<BmPackage | null>(null);
+  const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   const walletBalance = Number(user?.balance || 0);
+
+  const handleOpenBuyModal = (pkg: BmPackage) => {
+    setSelectedPackage(pkg);
+    setSelectedQuantity(1);
+  };
 
   const fetchCatalog = async () => {
     try {
@@ -174,11 +184,14 @@ export default function BuyBusinessManager() {
   const handleConfirmPurchase = async () => {
     if (!selectedPackage) return;
 
-    if (walletBalance < selectedPackage.price) {
+    const safeQty = Math.max(1, Math.min(500, selectedQuantity || 1));
+    const totalPrice = Number((selectedPackage.price * safeQty).toFixed(2));
+
+    if (walletBalance < totalPrice) {
       toast({
         variant: "destructive",
         title: "Insufficient Balance",
-        description: `Your available balance is $${walletBalance.toFixed(2)} USDT. Please add funds to your wallet to complete purchase.`,
+        description: `Your available balance is $${walletBalance.toFixed(2)} USDT. Required: $${totalPrice.toFixed(2)} USDT (${safeQty}x @ $${selectedPackage.price}).`,
       });
       return;
     }
@@ -187,15 +200,16 @@ export default function BuyBusinessManager() {
     try {
       const res = await apiFetch<any>("/api/bm-orders/buy", {
         method: "POST",
-        body: JSON.stringify({ packageId: selectedPackage.id }),
+        body: JSON.stringify({ packageId: selectedPackage.id, quantity: safeQty }),
       });
 
       toast({
         title: "Order Placed Successfully! 🎯",
-        description: `Order #${res.order?.orderId} placed. Our administration team is dispatching your invite link.`,
+        description: `Order #${res.order?.orderId} for ${safeQty} line(s) placed. Admin team is dispatching your invite link(s).`,
       });
 
       setSelectedPackage(null);
+      setSelectedQuantity(1);
       await refreshUser();
       await fetchMyOrders();
     } catch (err: any) {
@@ -328,7 +342,7 @@ export default function BuyBusinessManager() {
                   </div>
 
                   <button
-                    onClick={() => setSelectedPackage(pkg)}
+                    onClick={() => handleOpenBuyModal(pkg)}
                     className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
                   >
                     Buy Business Manager <ArrowUpRight className="w-4 h-4" />
@@ -365,6 +379,7 @@ export default function BuyBusinessManager() {
             <div className="space-y-4">
               {myOrders.map((order) => {
                 const isDelivered = order.status === "DELIVERED";
+                const qty = order.quantity || 1;
                 return (
                   <div
                     key={order.id}
@@ -385,19 +400,22 @@ export default function BuyBusinessManager() {
                           }`}>
                             {isDelivered ? "DELIVERED / ACTIVE" : order.status === "CANCELLED" ? "CANCELLED / REFUNDED" : "AWAITING ADMIN INVITE"}
                           </span>
+                          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                            {qty} {qty === 1 ? "Line" : "Lines"}
+                          </span>
                         </div>
                         <h3 className="text-base font-black text-slate-900 mt-1 uppercase">
                           {order.bmPackageName}
                         </h3>
                         <p className="text-xs text-slate-500">
-                          {order.platform} · Paid: <strong className="text-slate-900 font-mono">${order.price} USDT</strong> · Ordered: {new Date(order.createdAt).toLocaleDateString()}
+                          {order.platform} · Total: <strong className="text-slate-900 font-mono">${order.price} USDT</strong> {qty > 1 && `($${order.unitPrice || (Number(order.price) / qty).toFixed(0)}/line)`} · Ordered: {new Date(order.createdAt).toLocaleDateString()}
                         </p>
                       </div>
 
                       <div className="flex items-center gap-2">
                         {isDelivered && order.inviteLink ? (
                           <a
-                            href={order.inviteLink}
+                            href={order.inviteLink.split("\n")[0]}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-emerald-600/25"
@@ -418,24 +436,35 @@ export default function BuyBusinessManager() {
                         <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-black uppercase tracking-wider text-emerald-900 flex items-center gap-1.5">
-                              <ShieldCheck className="w-4 h-4 text-emerald-700" /> Business Manager Invitation Link
+                              <ShieldCheck className="w-4 h-4 text-emerald-700" /> Business Manager Invitation Link{qty > 1 ? "s" : ""} ({qty} Lines)
                             </span>
                             <span className="text-[10px] font-bold text-emerald-700">Admin Role Invitation</span>
                           </div>
 
-                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                            <input
-                              type="text"
-                              readOnly
-                              value={order.inviteLink}
-                              className="flex-1 bg-white border border-emerald-200 rounded-xl px-4 py-2.5 text-xs font-mono text-slate-900 outline-none select-all"
-                            />
-                            <button
-                              onClick={() => handleCopy(order.inviteLink || "", "BM Invite Link")}
-                              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-emerald-200 text-emerald-800 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer shrink-0 shadow-xs"
-                            >
-                              <Copy className="w-3.5 h-3.5" /> Copy Link
-                            </button>
+                          <div className="space-y-2">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                              {order.inviteLink.includes("\n") ? (
+                                <textarea
+                                  readOnly
+                                  rows={Math.min(6, order.inviteLink.split("\n").length + 1)}
+                                  value={order.inviteLink}
+                                  className="w-full bg-white border border-emerald-200 rounded-xl px-4 py-2.5 text-xs font-mono text-slate-900 outline-none select-all resize-y"
+                                />
+                              ) : (
+                                <input
+                                  type="text"
+                                  readOnly
+                                  value={order.inviteLink}
+                                  className="flex-1 bg-white border border-emerald-200 rounded-xl px-4 py-2.5 text-xs font-mono text-slate-900 outline-none select-all"
+                                />
+                              )}
+                              <button
+                                onClick={() => handleCopy(order.inviteLink || "", "BM Invite Link(s)")}
+                                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-emerald-200 text-emerald-800 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer shrink-0 shadow-xs"
+                              >
+                                <Copy className="w-3.5 h-3.5" /> Copy All
+                              </button>
+                            </div>
                           </div>
 
                           {order.deliveryNotes && (
@@ -460,7 +489,7 @@ export default function BuyBusinessManager() {
                       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                         <div className="flex items-center gap-2 text-slate-700">
                           <Activity className="w-4 h-4 text-emerald-600" />
-                          <span>Admin operations team has received your order and is whitelisting your dedicated invite link. It will automatically appear here once dispatched.</span>
+                          <span>Admin operations team has received your order for {qty} Business Manager line(s) and is generating your dedicated invite links. They will automatically appear here once dispatched.</span>
                         </div>
                       </div>
                     )}
@@ -518,79 +547,157 @@ export default function BuyBusinessManager() {
                 </button>
               </div>
 
-              {/* Package Summary Box */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3 text-xs">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500 font-bold uppercase">Package:</span>
-                  <span className="font-black text-slate-900 uppercase">{selectedPackage.name}</span>
-                </div>
-                <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-200">
-                  <span className="text-slate-500 font-bold uppercase">Total Price:</span>
-                  <span className="font-mono font-black text-emerald-700 text-base">${selectedPackage.price} USDT</span>
-                </div>
-                <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-200">
-                  <span className="text-slate-500 font-bold uppercase">Your Available Balance:</span>
-                  <span className={`font-mono font-bold ${walletBalance >= selectedPackage.price ? "text-slate-900" : "text-red-600"}`}>
-                    ${walletBalance.toFixed(2)} USDT
+              {/* QUANTITY SELECTOR (1 to 500) */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-700">
+                    Select Quantity (1 to 500)
+                  </label>
+                  <span className="text-[11px] font-bold text-slate-500">
+                    Unit Price: ${selectedPackage.price} USDT
                   </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedQuantity((q) => Math.max(1, q - 1))}
+                    className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-bold transition-colors cursor-pointer shadow-xs"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+
+                  <input
+                    type="number"
+                    min={1}
+                    max={500}
+                    value={selectedQuantity}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (!Number.isNaN(val)) {
+                        setSelectedQuantity(Math.max(1, Math.min(500, val)));
+                      } else if (e.target.value === "") {
+                        setSelectedQuantity(1);
+                      }
+                    }}
+                    className="flex-1 bg-white border border-slate-200 rounded-xl py-2 px-3 text-center text-base font-black font-mono text-slate-900 focus:outline-none focus:border-emerald-600 shadow-xs"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedQuantity((q) => Math.min(500, q + 1))}
+                    className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-bold transition-colors cursor-pointer shadow-xs"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Quick Presets Chips */}
+                <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Quick:</span>
+                  {[1, 5, 10, 25, 50, 100, 500].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setSelectedQuantity(preset)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase transition-all cursor-pointer ${
+                        selectedQuantity === preset
+                          ? "bg-emerald-600 text-white shadow-xs"
+                          : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      {preset}x
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {walletBalance < selectedPackage.price ? (
-                <div className="space-y-4">
-                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
-                    <div className="font-black uppercase flex items-center gap-1.5 text-amber-800">
-                      <AlertCircle className="w-4 h-4" /> Insufficient Wallet Balance
+              {/* Package Summary Box */}
+              {(() => {
+                const totalPrice = Number((selectedPackage.price * selectedQuantity).toFixed(2));
+                const isBalanceEnough = walletBalance >= totalPrice;
+
+                return (
+                  <>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3 text-xs">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-slate-500 font-bold uppercase">Package:</span>
+                        <span className="font-black text-slate-900 uppercase">{selectedPackage.name}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-slate-500 font-bold uppercase">Quantity:</span>
+                        <span className="font-black text-slate-900 font-mono">{selectedQuantity} Line(s)</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-200">
+                        <span className="text-slate-500 font-bold uppercase">Total Order Price:</span>
+                        <span className="font-mono font-black text-emerald-700 text-base">${totalPrice} USDT</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-200">
+                        <span className="text-slate-500 font-bold uppercase">Your Available Balance:</span>
+                        <span className={`font-mono font-bold ${isBalanceEnough ? "text-slate-900" : "text-red-600"}`}>
+                          ${walletBalance.toFixed(2)} USDT
+                        </span>
+                      </div>
                     </div>
-                    <p>
-                      You need <strong>${(selectedPackage.price - walletBalance).toFixed(2)} USDT</strong> more to complete this order. Top up your main wallet with USDT to instantly purchase.
-                    </p>
-                  </div>
 
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPackage(null)}
-                      className="w-1/2 px-4 py-3 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <Link href="/app/dashboard">
-                      <a className="w-1/2 inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-600/25">
-                        <PlusCircle className="w-4 h-4" /> Add Funds
-                      </a>
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
-                    <span className="font-bold">Instant Wallet Deduction:</span> ${selectedPackage.price} USDT will be deducted from your wallet balance. Our admin team will dispatch your invite link directly to your portal.
-                  </div>
+                    {!isBalanceEnough ? (
+                      <div className="space-y-4">
+                        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+                          <div className="font-black uppercase flex items-center gap-1.5 text-amber-800">
+                            <AlertCircle className="w-4 h-4" /> Insufficient Wallet Balance
+                          </div>
+                          <p>
+                            You need <strong>${(totalPrice - walletBalance).toFixed(2)} USDT</strong> more to complete this order for {selectedQuantity} line(s). Top up your main wallet to complete purchase.
+                          </p>
+                        </div>
 
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPackage(null)}
-                      className="w-1/2 px-4 py-3 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleConfirmPurchase}
-                      disabled={isPurchasing}
-                      className="w-1/2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-600/25 transition-all cursor-pointer disabled:opacity-50"
-                    >
-                      {isPurchasing ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
-                      ) : (
-                        `Confirm Buy ($${selectedPackage.price})`
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPackage(null)}
+                            className="w-1/2 px-4 py-3 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <Link href="/app/dashboard">
+                            <a className="w-1/2 inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-600/25">
+                              <PlusCircle className="w-4 h-4" /> Add Funds
+                            </a>
+                          </Link>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
+                          <span className="font-bold">Instant Wallet Deduction:</span> ${totalPrice} USDT ({selectedQuantity}x @ ${selectedPackage.price}) will be deducted from your wallet balance.
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPackage(null)}
+                            className="w-1/2 px-4 py-3 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleConfirmPurchase}
+                            disabled={isPurchasing}
+                            className="w-1/2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-600/25 transition-all cursor-pointer disabled:opacity-50"
+                          >
+                            {isPurchasing ? (
+                              <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
+                            ) : (
+                              `Confirm Buy (${selectedQuantity}x · $${totalPrice})`
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </motion.div>
           </div>
         )}

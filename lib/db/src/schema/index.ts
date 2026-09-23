@@ -242,10 +242,12 @@ export const bmOrdersTable = pgTable("bm_orders", {
   bmPackageId: text("bm_package_id").notNull(),
   bmPackageName: text("bm_package_name").notNull(),
   platform: text("platform").default("Meta Ads").notNull(),
-  price: text("price").notNull(), // USD price deducted
+  quantity: integer("quantity").default(1).notNull(),
+  unitPrice: text("unit_price"),
+  price: text("price").notNull(), // Total USD price deducted
   currency: text("currency").default("USDT").notNull(),
   status: text("status").default("PENDING_DELIVERY").notNull(), // PENDING_DELIVERY, DELIVERED, CANCELLED
-  inviteLink: text("invite_link"), // Admin provided BM invite URL
+  inviteLink: text("invite_link"), // Admin provided BM invite URL(s)
   deliveryNotes: text("delivery_notes"), // Admin setup instructions / backup code
   deliveredBy: integer("delivered_by").references(() => usersTable.id, { onDelete: "set null" }),
   deliveredAt: timestamp("delivered_at"),

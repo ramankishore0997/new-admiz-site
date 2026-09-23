@@ -30,6 +30,8 @@ interface AdminBmOrder {
   bmPackageId: string;
   bmPackageName: string;
   platform: string;
+  quantity?: number;
+  unitPrice?: string | null;
   price: string;
   currency: string;
   status: "PENDING_DELIVERY" | "DELIVERED" | "CANCELLED";
@@ -323,6 +325,9 @@ export default function AdminBmOrders() {
                         >
                           {isDelivered ? "DELIVERED" : order.status === "CANCELLED" ? "CANCELLED" : "PENDING INVITE"}
                         </span>
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                          {order.quantity || 1} {(order.quantity || 1) === 1 ? "Line" : "Lines"}
+                        </span>
                         <span className="text-xs text-slate-400">
                           {new Date(order.createdAt).toLocaleString()}
                         </span>
@@ -332,7 +337,7 @@ export default function AdminBmOrders() {
                         {order.bmPackageName}
                       </h3>
                       <div className="text-xs text-slate-500 mt-0.5">
-                        {order.platform} · Price: <strong className="text-slate-900 font-mono">${order.price} USDT</strong>
+                        {order.platform} · Total Paid: <strong className="text-slate-900 font-mono">${order.price} USDT</strong> {(order.quantity || 1) > 1 && `($${order.unitPrice || (Number(order.price) / (order.quantity || 1)).toFixed(0)}/line)`}
                       </div>
                     </div>
 
@@ -469,10 +474,10 @@ export default function AdminBmOrders() {
                     <Send className="w-3.5 h-3.5" /> Order Fulfillment
                   </div>
                   <h3 className="text-lg font-black uppercase tracking-tight text-slate-900">
-                    Deliver Business Manager Invite
+                    Deliver Business Manager Invite{selectedOrderForDelivery.quantity && selectedOrderForDelivery.quantity > 1 ? "s" : ""}
                   </h3>
                   <p className="text-xs text-slate-600 mt-0.5">
-                    Order #{selectedOrderForDelivery.orderId} · {selectedOrderForDelivery.userEmail}
+                    Order #{selectedOrderForDelivery.orderId} · {selectedOrderForDelivery.quantity || 1} Line(s) · {selectedOrderForDelivery.userEmail}
                   </p>
                 </div>
                 <button
@@ -486,18 +491,31 @@ export default function AdminBmOrders() {
               <form onSubmit={handleDeliverSubmit} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    BM Invite Link / Admin URL <span className="text-red-500">*</span>
+                    BM Invite Link(s) / Admin URL(s) ({selectedOrderForDelivery.quantity || 1} Line{selectedOrderForDelivery.quantity && selectedOrderForDelivery.quantity > 1 ? "s" : ""}) <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="url"
-                    required
-                    placeholder="https://business.facebook.com/invitation?id=..."
-                    value={inviteLink}
-                    onChange={(e) => setInviteLink(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-900 focus:outline-none focus:border-emerald-600"
-                  />
+                  {(selectedOrderForDelivery.quantity || 1) > 1 ? (
+                    <textarea
+                      required
+                      rows={Math.min(8, Math.max(4, (selectedOrderForDelivery.quantity || 1) + 1))}
+                      placeholder="https://business.facebook.com/invitation?id=... (Enter each invite link on a new line)"
+                      value={inviteLink}
+                      onChange={(e) => setInviteLink(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-mono text-slate-900 focus:outline-none focus:border-emerald-600 resize-y"
+                    />
+                  ) : (
+                    <input
+                      type="url"
+                      required
+                      placeholder="https://business.facebook.com/invitation?id=..."
+                      value={inviteLink}
+                      onChange={(e) => setInviteLink(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-900 focus:outline-none focus:border-emerald-600"
+                    />
+                  )}
                   <p className="text-[10px] text-slate-500">
-                    Paste the exact admin invite link generated for the client.
+                    {(selectedOrderForDelivery.quantity || 1) > 1
+                      ? `Client ordered ${selectedOrderForDelivery.quantity} lines. Paste each invite link on a separate line.`
+                      : "Paste the exact admin invite link generated for the client."}
                   </p>
                 </div>
 
