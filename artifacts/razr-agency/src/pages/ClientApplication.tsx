@@ -6,6 +6,7 @@ import {
   FileText,
   Sparkles,
   CheckCircle,
+  CheckCircle2,
   ExternalLink,
   MessageSquare,
   AlertCircle,
@@ -15,12 +16,16 @@ import {
   ShieldCheck,
   CircleDollarSign,
   TrendingUp,
-  BadgeCheck
+  BadgeCheck,
+  HelpCircle,
+  Info,
+  ArrowRight
 } from "lucide-react";
 import { PAYMENT_CONFIG } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
 import { ACCOUNT_COUNTRIES, ACCOUNT_CURRENCIES } from "@/lib/countries-currencies";
 import SearchableSelect from "@/components/ui/SearchableSelect";
+import BmGuideModal from "@/components/onboarding/BmGuideModal";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
 
@@ -63,6 +68,7 @@ export default function ClientApplication() {
   const [applyHatType, setApplyHatType] = useState<"" | "BLACK" | "GREY" | "WHITE">("");
   const [applyAppCount, setApplyAppCount] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showBmGuide, setShowBmGuide] = useState(false);
 
   const walletBalance = Number(user?.balance ?? 0);
 
@@ -95,7 +101,7 @@ export default function ClientApplication() {
       desc: "The power tier — stable, flexible and built to print.",
       badge: "FREE REPLACEMENTS",
       features: [
-        "Semi-verified accounts with instant spend approval",
+        "High-trust institutional accounts with instant spend approval",
         "Unlimited free replacements on every single account",
         "Smooth, steady scaling with zero friction",
         "Warm accounts with prior spending history",
@@ -106,10 +112,10 @@ export default function ClientApplication() {
     WHITE: {
       title: "White Hat",
       emoji: "⚪",
-      desc: "The premium tier — fully verified, built to last forever.",
+      desc: "The premium tier — policy-perfect, built to last forever.",
       badge: "UNLIMITED REPLACEMENTS",
       features: [
-        "100% verified, policy-perfect accounts",
+        "100% policy-cleared, resilient agency accounts",
         "Unlimited free replacements — your campaigns never stop",
         "Maximum stability for long-term brand dominance",
         "Bank-grade account history & full spend limits",
@@ -414,7 +420,7 @@ export default function ClientApplication() {
           </div>
           <h2 className="text-3xl font-black uppercase tracking-tight text-slate-900 mb-4">Unlock Unlimited Ad Accounts</h2>
           <p className="text-sm text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
-            Verified agency ad accounts on Meta, Google & TikTok — provisioned in minutes with unlimited free replacements.
+            High-trust agency ad accounts on Meta, Google & TikTok — provisioned in minutes with unlimited free replacements.
             One wallet, unlimited accounts. Scale across every network with priority pipelines.
           </p>
 
@@ -590,9 +596,46 @@ export default function ClientApplication() {
 
             <div className="space-y-6">
               {/* Form title */}
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <h3 className="text-base font-black uppercase text-slate-900 tracking-wider">Ad Account Details</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  <h3 className="text-base font-black uppercase text-slate-900 tracking-wider">Ad Account Details</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowBmGuide(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-black uppercase tracking-wider hover:bg-blue-100 transition-colors cursor-pointer"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-blue-600" /> Meta BM Guide
+                </button>
+              </div>
+
+              {/* Interactive Step Guide Bar */}
+              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase text-emerald-900 flex items-center gap-1.5">
+                    <Info className="w-4 h-4 text-emerald-700" /> Application Checklist & Setup Guide
+                  </span>
+                  <span className="text-[10px] font-bold text-emerald-700">Fast 2-Min Process</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-[11px]">
+                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${applyPlatform ? "bg-white border-emerald-300 text-emerald-900 font-bold shadow-2xs" : "bg-white/60 border-emerald-100 text-slate-500"}`}>
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${applyPlatform ? "text-emerald-600" : "text-slate-300"}`} />
+                    <span>1. Pick Platform</span>
+                  </div>
+                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${(applyPlatform === "meta" && applyBmId) || (applyPlatform === "google" && applyGmail) || applyPlatform === "tiktok" ? "bg-white border-emerald-300 text-emerald-900 font-bold shadow-2xs" : "bg-white/60 border-emerald-100 text-slate-500"}`}>
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${(applyPlatform === "meta" && applyBmId) || (applyPlatform === "google" && applyGmail) || applyPlatform === "tiktok" ? "text-emerald-600" : "text-slate-300"}`} />
+                    <span>2. Enter {applyPlatform === "meta" ? "BM ID" : applyPlatform === "google" ? "Gmail" : "Handle"}</span>
+                  </div>
+                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${applyHatType ? "bg-white border-emerald-300 text-emerald-900 font-bold shadow-2xs" : "bg-white/60 border-emerald-100 text-slate-500"}`}>
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${applyHatType ? "text-emerald-600" : "text-slate-300"}`} />
+                    <span>3. Choose Hat Tier</span>
+                  </div>
+                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${walletBalance >= applyAppCount * 10 ? "bg-white border-emerald-300 text-emerald-900 font-bold shadow-2xs" : "bg-white/60 border-emerald-100 text-slate-500"}`}>
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${walletBalance >= applyAppCount * 10 ? "text-emerald-600" : "text-slate-300"}`} />
+                    <span>4. Submit ($10/app)</span>
+                  </div>
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -619,7 +662,16 @@ export default function ClientApplication() {
 
               {applyPlatform === "meta" && (
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Meta Business Manager ID (BM ID) *</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Meta Business Manager ID (BM ID) *</label>
+                    <button
+                      type="button"
+                      onClick={() => setShowBmGuide(true)}
+                      className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+                    >
+                      <HelpCircle className="w-3 h-3" /> Where to find BM ID? (Guide)
+                    </button>
+                  </div>
                   <input
                     type="text"
                     value={applyBmId}
@@ -984,6 +1036,12 @@ export default function ClientApplication() {
           </div>
         </div>
       </div>
+
+      {/* Visual Meta BM ID Guide Modal */}
+      <BmGuideModal
+        isOpen={showBmGuide}
+        onClose={() => setShowBmGuide(false)}
+      />
     </ClientLayout>
   );
 }

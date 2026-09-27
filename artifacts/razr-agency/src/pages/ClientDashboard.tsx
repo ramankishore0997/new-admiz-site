@@ -41,6 +41,8 @@ import {
 import { SiTelegram, SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
 import { PAYMENT_CONFIG, MANUAL_PAYMENT_NETWORKS } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
+import OnboardingRoadmap from "@/components/onboarding/OnboardingRoadmap";
+import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
 
@@ -96,6 +98,7 @@ export default function ClientDashboard() {
   const [submittedWithdrawal, setSubmittedWithdrawal] = useState<any>(null);
   const [myWithdrawals, setMyWithdrawals] = useState<any[]>([]);
   const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(true);
+  const [showGuideDrawer, setShowGuideDrawer] = useState(false);
 
   const MIN_WITHDRAWAL = 200;
 
@@ -495,6 +498,20 @@ export default function ClientDashboard() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Onboarding Step-by-Step Roadmap */}
+      <div className="mb-8">
+        <OnboardingRoadmap
+          walletBalance={Number(user?.balance ?? 0)}
+          hasPayments={myPayments.some((p) => p.status === "PAID")}
+          applications={applications}
+          onOpenDeposit={() => {
+            setShowDepositModal(true);
+            setDepositStep(1);
+          }}
+          onOpenGuide={() => setShowGuideDrawer(true)}
+        />
       </div>
 
       {/* Grid Quick Stats Cards */}
@@ -1755,6 +1772,17 @@ export default function ClientDashboard() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Interactive Platform User Guide Drawer */}
+      <ClientGuideDrawer
+        isOpen={showGuideDrawer}
+        onClose={() => setShowGuideDrawer(false)}
+        onOpenDeposit={() => {
+          setShowGuideDrawer(false);
+          setShowDepositModal(true);
+          setDepositStep(1);
+        }}
+      />
     </ClientLayout>
   );
 }

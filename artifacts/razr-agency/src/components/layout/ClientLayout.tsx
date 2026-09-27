@@ -21,6 +21,7 @@ import {
   Building2,
   ShoppingBag
 } from "lucide-react";
+import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
 
 interface MenuItem {
   name: string;
@@ -45,6 +46,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [location, setLocation] = useLocation();
   const { user, logout } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -97,6 +99,29 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       </nav>
 
 
+
+      {/* Quick Setup Guide Card */}
+      <div className="my-4 p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white space-y-2 relative z-10 shadow-lg shadow-slate-900/10">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+            <Sparkles className="w-3 h-3" /> Quick Guide
+          </span>
+          <span className="text-[9px] text-slate-400 font-bold">4 Steps</span>
+        </div>
+        <p className="text-[11px] text-slate-300 font-medium leading-snug">
+          Need step-by-step guidance on applying, deposits & BM setup?
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setIsGuideOpen(true);
+            setIsMobileOpen(false);
+          }}
+          className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+        >
+          <HelpCircle className="w-3.5 h-3.5" /> Open Step Guide
+        </button>
+      </div>
 
       {/* Bottom Profile / Logout */}
       <div className="pt-4 border-t border-slate-200 space-y-4 relative z-10">
@@ -185,6 +210,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <main className="flex-1 min-w-0 min-h-screen relative p-6 md:p-8 overflow-y-auto">
         {children}
       </main>
+
+      {/* Global Interactive Platform Guide Drawer */}
+      <ClientGuideDrawer
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
     </div>
   );
 }
