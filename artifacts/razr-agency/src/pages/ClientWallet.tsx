@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { PAYMENT_CONFIG, MANUAL_PAYMENT_NETWORKS } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
+import { playSuccessChime } from "@/lib/audioAlerts";
 
 export default function ClientWallet() {
   const { user, refreshUser } = useAuth();
@@ -201,6 +202,7 @@ export default function ClientWallet() {
 
       setSubmittedPayment(data);
       setDepositStep(3);
+      playSuccessChime();
       fetchMyPayments();
       await refreshUser();
       toast({
@@ -763,6 +765,25 @@ export default function ClientWallet() {
                         <Copy className="w-3.5 h-3.5 inline mr-1" /> Copy Amount
                       </button>
                     </div>
+
+                    {/* Quick Amount Presets */}
+                    <div className="flex flex-wrap gap-1.5 mt-2.5">
+                      {[50, 100, 250, 500, 1000, 2500].map((val) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setDepositAmount(String(val))}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                            depositAmount === String(val)
+                              ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
+                              : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+                          }`}
+                        >
+                          ${val}
+                        </button>
+                      ))}
+                    </div>
+
                     <p className="text-[9px] text-slate-400 mt-1.5">
                       {isFirstDeposit
                         ? `First topup: minimum $${MIN_DEPOSIT_FIRST}. Zero commission — the full amount is credited to your main wallet.`
@@ -848,9 +869,26 @@ export default function ClientWallet() {
 
                   {/* TXID Input */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
-                      Transaction Hash / TXID <span className="text-red-500">*</span>
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        Transaction Hash / TXID <span className="text-red-500">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            const text = await navigator.clipboard.readText();
+                            if (text) {
+                              setTxHash(text.trim());
+                              toast({ title: "Pasted!", description: "TXID pasted from clipboard." });
+                            }
+                          } catch {}
+                        }}
+                        className="text-[10px] font-bold text-emerald-600 hover:underline cursor-pointer"
+                      >
+                        Paste from Clipboard
+                      </button>
+                    </div>
                     <input
                       type="text"
                       value={txHash}

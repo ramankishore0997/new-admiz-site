@@ -42,7 +42,9 @@ import { SiTelegram, SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
 import { PAYMENT_CONFIG, MANUAL_PAYMENT_NETWORKS } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
 import OnboardingRoadmap from "@/components/onboarding/OnboardingRoadmap";
+import NextActionHero from "@/components/onboarding/NextActionHero";
 import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
+import { playSuccessChime, playNotificationPop } from "@/lib/audioAlerts";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
 
@@ -98,6 +100,7 @@ export default function ClientDashboard() {
   const [submittedWithdrawal, setSubmittedWithdrawal] = useState<any>(null);
   const [myWithdrawals, setMyWithdrawals] = useState<any[]>([]);
   const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(true);
+  const [myBmOrders, setMyBmOrders] = useState<any[]>([]);
   const [showGuideDrawer, setShowGuideDrawer] = useState(false);
 
   const MIN_WITHDRAWAL = 200;
@@ -109,6 +112,15 @@ export default function ClientDashboard() {
   // Tiered service fee for ad-account topups: <$100 → 3%, $100–$1,000 → 2%, >$1,000 → 1.5%
   const getLoadFeeRate = (amount: number) => (amount < 100 ? 0.03 : amount <= 1000 ? 0.02 : 0.015);
   const getLoadFeePct = (amount: number) => Math.round(getLoadFeeRate(amount) * 1000) / 10;
+
+  const fetchMyBmOrders = async () => {
+    try {
+      const data = await apiFetch<any[]>("/api/bm-orders/my");
+      setMyBmOrders(data || []);
+    } catch {
+      setMyBmOrders([]);
+    }
+  };
 
   const fetchMyWithdrawals = async () => {
     setIsLoadingWithdrawals(true);
@@ -154,6 +166,9 @@ export default function ClientDashboard() {
       apiFetch<any[]>("/api/applications")
         .then((data) => setApplications(data || []))
         .catch(() => {});
+      apiFetch<any[]>("/api/bm-orders/my")
+        .then((data) => setMyBmOrders(data || []))
+        .catch(() => {});
     }, 30000);
     return () => clearInterval(id);
   }, []);
@@ -163,9 +178,10 @@ export default function ClientDashboard() {
     fetchApplications();
 
     // Provisioned ad accounts come from the authenticated profile (/api/me)
-    // Load user manual payment verification history
+    // Load user manual payment history and BM orders
     fetchMyPayments();
     fetchMyWithdrawals();
+    fetchMyBmOrders();
   }, []);
 
   const handleCopy = (text: string, label: string) => {
@@ -262,11 +278,12 @@ export default function ClientDashboard() {
 
       setSubmittedPayment(data);
       setDepositStep(3);
+      playSuccessChime();
       fetchMyPayments();
       await refreshUser();
       toast({
         title: "Proof Submitted!",
-        description: "Payment proof submitted successfully. Your payment is pending verification.",
+        description: "Payment proof submitted successfully. Your deposit is in review.",
       });
     } catch (err: any) {
       setPaymentError(err.message || "Network error.");
@@ -498,6 +515,21 @@ export default function ClientDashboard() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Next Action Dynamic Hero Card */}
+      <div className="mb-8">
+        <NextActionHero
+          walletBalance={Number(user?.balance ?? 0)}
+          applications={applications}
+          adAccounts={adAccounts}
+          bmOrders={myBmOrders}
+          onOpenDeposit={() => {
+            setShowDepositModal(true);
+            setDepositStep(1);
+          }}
+          onOpenLoadModal={openLoadModal}
+        />
       </div>
 
       {/* Onboarding Step-by-Step Roadmap */}
@@ -992,6 +1024,25 @@ export default function ClientDashboard() {
                         <Copy className="w-3.5 h-3.5 inline mr-1" /> Copy Amount
                       </button>
                     </div>
+
+                    {/* Quick Amount Presets */}
+                    <div className="flex flex-wrap gap-1.5 mt-2.5">
+                      {[50, 100, 250, 500, 1000, 2500].map((val) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setDepositAmount(String(val))}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                            depositAmount === String(val)
+                              ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
+                              : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+                          }`}
+                        >
+                          ${val}
+                        </button>
+                      ))}
+                    </div>
+
                     <p className="text-[9px] text-slate-400 mt-1.5">
                       {isFirstDeposit
                         ? `First topup: minimum $${MIN_DEPOSIT_FIRST}. Zero commission — the full amount is credited to your main wallet.`
@@ -1075,9 +1126,26 @@ export default function ClientDashboard() {
 
                   {/* TXID Input */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
-                      Transaction Hash / TXID <span className="text-red-500">*</span>
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        Transaction Hash / TXID <span className="text-red-500">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            const text = await navigator.clipboard.readText();
+                            if (text) {
+                              setTxHash(text.trim());
+                              toast({ title: "Pasted!", description: "TXID pasted from clipboard." });
+                            }
+                          } catch {}
+                        }}
+                        className="text-[10px] font-bold text-emerald-600 hover:underline cursor-pointer"
+                      >
+                        Paste from Clipboard
+                      </button>
+                    </div>
                     <input
                       type="text"
                       value={txHash}

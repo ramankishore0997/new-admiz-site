@@ -31,17 +31,30 @@ interface MenuItem {
   badge?: string;
 }
 
-const CLIENT_MENU: MenuItem[] = [
-  { name: "Overview", href: "/app/dashboard", icon: LayoutDashboard },
-  { name: "Wallet & Funds", href: "/app/wallet", icon: Wallet, badge: "USDT" },
-  { name: "Buy Business Manager", href: "/app/buy-bm", icon: ShoppingBag, badge: "Store" },
-  { name: "My Application", href: "/app/application", icon: FileText, badge: "Instant" },
-  { name: "Account Specs", href: "/app/specs", icon: Zap, badge: "Live" },
-  { name: "Scaling Playbook", href: "/app/playbook", icon: BookOpen },
-  { name: "SLA Guarantee", href: "/app/guarantee", icon: ShieldCheck, badge: "100%" },
-  { name: "Notifications", href: "/app/notifications", icon: Bell },
-  { name: "Support Center", href: "/app/support", icon: HelpCircle },
-  { name: "Account Settings", href: "/app/settings", icon: Settings },
+interface MenuSection {
+  title: string;
+  items: MenuItem[];
+}
+
+const CLIENT_MENU_SECTIONS: MenuSection[] = [
+  {
+    title: "Core Operations",
+    items: [
+      { name: "Dashboard", href: "/app/dashboard", icon: LayoutDashboard },
+      { name: "Wallet & Funds", href: "/app/wallet", icon: Wallet, badge: "USDT" },
+      { name: "My Ad Accounts", href: "/app/application", icon: FileText, badge: "Instant" },
+      { name: "Buy Business Manager", href: "/app/buy-bm", icon: ShoppingBag, badge: "Store" },
+    ],
+  },
+  {
+    title: "Resources & Help",
+    items: [
+      { name: "Scaling Playbook", href: "/app/playbook", icon: BookOpen },
+      { name: "SLA Guarantee", href: "/app/guarantee", icon: ShieldCheck, badge: "100%" },
+      { name: "Support Center", href: "/app/support", icon: HelpCircle },
+      { name: "Account Settings", href: "/app/settings", icon: Settings },
+    ],
+  },
 ];
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -56,48 +69,55 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white border-r border-slate-200 p-6 relative">
+    <div className="flex flex-col h-full bg-white border-r border-slate-200 p-5 relative">
       {/* Glow effect */}
       <div className="absolute top-10 left-10 w-24 h-24 bg-emerald-200/40 rounded-full blur-2xl pointer-events-none" />
 
       {/* Brand logo */}
-      <div className="flex items-center gap-3 mb-10 pb-6 border-b border-slate-200 relative z-10">
+      <div className="flex items-center gap-3 mb-6 pb-5 border-b border-slate-200 relative z-10">
         <Link href="/">
           <RazrLogo size={32} />
         </Link>
       </div>
 
-      {/* Menu links */}
-      <nav className="flex-1 space-y-1.5 relative z-10">
-        {CLIENT_MENU.map((item) => {
-          const isActive = location === item.href;
-          const Icon = item.icon;
-          return (
-            <Link key={item.name} href={item.href}>
-              <a
-                onClick={() => setIsMobileOpen(false)}
-                className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 ${
-                  isActive
-                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isActive ? "text-emerald-600" : "text-slate-400"}`} />
-                  <span>{item.name}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  {item.badge && (
-                    <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
-                      {item.badge}
-                    </span>
-                  )}
-                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-emerald-600" />}
-                </div>
-              </a>
-            </Link>
-          );
-        })}
+      {/* Menu sections */}
+      <nav className="flex-1 space-y-6 relative z-10 overflow-y-auto pr-1">
+        {CLIENT_MENU_SECTIONS.map((section) => (
+          <div key={section.title} className="space-y-1.5">
+            <div className="px-3 text-[9px] font-black uppercase tracking-widest text-slate-400">
+              {section.title}
+            </div>
+            {section.items.map((item) => {
+              const isActive = location === item.href;
+              const Icon = item.icon;
+              return (
+                <Link key={item.name} href={item.href}>
+                  <a
+                    onClick={() => setIsMobileOpen(false)}
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+                      isActive
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Icon className={`w-4 h-4 ${isActive ? "text-emerald-600" : "text-slate-400"}`} />
+                      <span>{item.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {item.badge && (
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          {item.badge}
+                        </span>
+                      )}
+                      {isActive && <ChevronRight className="w-3.5 h-3.5 text-emerald-600" />}
+                    </div>
+                  </a>
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
 
