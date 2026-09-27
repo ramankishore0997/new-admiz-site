@@ -214,7 +214,7 @@ export default function ClientGuideDrawer({ isOpen, onClose, onOpenDeposit }: Cl
                         <li>Click <strong>Deposit Funds</strong> in your dashboard.</li>
                         <li>Copy the designated receiving wallet address and send USDT.</li>
                         <li>Paste your <strong>Transaction Hash (TxID)</strong> and upload a screenshot proof.</li>
-                        <li>Admin team verifies within 5–15 minutes and credits your balance.</li>
+                        <li>Admin team reviews within 5–15 minutes and credits your balance.</li>
                       </ol>
                     </div>
 

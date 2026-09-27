@@ -450,6 +450,12 @@ export default function ClientApplication() {
             )}
           </button>
         </div>
+
+        {/* Visual Meta BM ID Guide Modal */}
+        <BmGuideModal
+          isOpen={showBmGuide}
+          onClose={() => setShowBmGuide(false)}
+        />
       </ClientLayout>
     );
   }
@@ -803,7 +809,7 @@ export default function ClientApplication() {
               <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs flex items-start gap-2.5 text-amber-600">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <p>
-                  Please verify all submitted details. Once you click Submit, your application will freeze edits until reviewed.
+                  Please check and confirm all submitted details. Once you click Submit, your application will freeze edits until reviewed.
                 </p>
               </div>
             </div>
@@ -837,6 +843,12 @@ export default function ClientApplication() {
             </button>
           </div>
         </div>
+
+        {/* Visual Meta BM ID Guide Modal */}
+        <BmGuideModal
+          isOpen={showBmGuide}
+          onClose={() => setShowBmGuide(false)}
+        />
       </ClientLayout>
     );
   }
