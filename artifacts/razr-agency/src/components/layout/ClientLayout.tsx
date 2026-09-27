@@ -19,7 +19,8 @@ import {
   BookOpen,
   ShieldCheck,
   Building2,
-  ShoppingBag
+  ShoppingBag,
+  Wallet
 } from "lucide-react";
 import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
 
@@ -32,6 +33,7 @@ interface MenuItem {
 
 const CLIENT_MENU: MenuItem[] = [
   { name: "Overview", href: "/app/dashboard", icon: LayoutDashboard },
+  { name: "Wallet & Funds", href: "/app/wallet", icon: Wallet, badge: "USDT" },
   { name: "Buy Business Manager", href: "/app/buy-bm", icon: ShoppingBag, badge: "Store" },
   { name: "My Application", href: "/app/application", icon: FileText, badge: "Instant" },
   { name: "Account Specs", href: "/app/specs", icon: Zap, badge: "Live" },

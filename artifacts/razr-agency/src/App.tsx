@@ -29,6 +29,7 @@ import ForgotPassword from "@/pages/ForgotPassword";
 import AuthCallback from "@/pages/AuthCallback";
 
 import ClientDashboard from "@/pages/ClientDashboard";
+import ClientWallet from "@/pages/ClientWallet";
 import BuyBusinessManager from "@/pages/BuyBusinessManager";
 import ClientApplication from "@/pages/ClientApplication";
 import ClientSpecs from "@/pages/ClientSpecs";
@@ -146,6 +147,9 @@ function Router() {
           {/* Client Cockpit Routes */}
           <Route path="/app/dashboard">
             {() => <ProtectedRoute path="/app/dashboard" component={ClientDashboard} />}
+          </Route>
+          <Route path="/app/wallet">
+            {() => <ProtectedRoute path="/app/wallet" component={ClientWallet} />}
           </Route>
           <Route path="/app/buy-bm">
             {() => <ProtectedRoute path="/app/buy-bm" component={BuyBusinessManager} />}

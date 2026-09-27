@@ -523,8 +523,13 @@ export default function ClientDashboard() {
           </div>
           <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Available Ad Balance</div>
           <div className="text-3xl font-black text-slate-900 tabular-nums">${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mt-4">
-            <TrendingUp className="w-3.5 h-3.5" /> 100% Secure Cryptographical Storage
+          <div className="flex items-center justify-between text-xs text-emerald-600 font-bold mt-4">
+            <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5" /> 100% Commission-Free</span>
+            <Link href="/app/wallet">
+              <a className="text-primary hover:underline flex items-center gap-1 text-[11px] font-black uppercase tracking-wider">
+                Manage Wallet →
+              </a>
+            </Link>
           </div>
         </div>
 
