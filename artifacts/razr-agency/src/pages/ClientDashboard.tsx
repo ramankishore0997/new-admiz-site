@@ -549,13 +549,20 @@ export default function ClientDashboard() {
       {/* Grid Quick Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Wallet balance */}
-        <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg shadow-slate-200/60 p-6">
-          <div className="absolute top-4 right-4 w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10">
-            <Wallet className="w-5 h-5" />
+        <div className="relative group rounded-3xl overflow-hidden border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-sm hover:shadow-[0_12px_35px_-8px_rgba(5,150,105,0.12)] hover:-translate-y-0.5 transition-all duration-300 p-6 flex flex-col justify-between">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Available Ad Balance</span>
+              <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100/80 flex items-center justify-center shadow-2xs">
+                <Wallet className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-3xl font-black text-slate-900 font-mono tabular-nums">
+              ${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
           </div>
-          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Available Ad Balance</div>
-          <div className="text-3xl font-black text-slate-900 tabular-nums">${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
-          <div className="flex items-center justify-between text-xs text-emerald-600 font-bold mt-4">
+          <div className="flex items-center justify-between text-xs text-emerald-700 font-bold mt-5 pt-3 border-t border-slate-100">
             <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5" /> 100% Commission-Free</span>
             <Link href="/app/wallet">
               <a className="text-primary hover:underline flex items-center gap-1 text-[11px] font-black uppercase tracking-wider">
@@ -566,117 +573,128 @@ export default function ClientDashboard() {
         </div>
 
         {/* Ad accounts count */}
-        <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg shadow-slate-200/60 p-6">
-          <div className="absolute top-4 right-4 w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10">
-            <ShieldCheck className="w-5 h-5" />
+        <div className="relative group rounded-3xl overflow-hidden border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-sm hover:shadow-[0_12px_35px_-8px_rgba(2,6,23,0.08)] hover:-translate-y-0.5 transition-all duration-300 p-6 flex flex-col justify-between">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500" />
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Ad Lines</span>
+              <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shadow-2xs">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-3xl font-black text-slate-900 font-mono tabular-nums">
+              {adAccounts.filter((a: any) => a.status === "ACTIVE").length || 0}
+            </div>
           </div>
-          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Active Accounts</div>
-          <div className="text-3xl font-black text-slate-900 tabular-nums">
-            {adAccounts.filter((a: any) => a.status === "ACTIVE").length || 0}
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold mt-4">
-            <Activity className="w-3.5 h-3.5" /> Platform provision status
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold mt-5 pt-3 border-t border-slate-100">
+            <span className="relative flex w-2 h-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full w-2 h-2 bg-emerald-500" />
+            </span>
+            <span>Enterprise whitelist line active</span>
           </div>
         </div>
 
         {/* Live Application Tracker card */}
-        <div className="relative group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg shadow-slate-200/60 p-6">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
-              Live Application Status {applications.length > 0 && (
-                <span className="ml-1 text-primary">· {applications.length} account{applications.length > 1 ? "s" : ""}</span>
-              )}
-            </div>
-            <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-emerald-600">
-              <span className="relative flex w-1.5 h-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-emerald-500" />
+        <div className="relative group rounded-3xl overflow-hidden border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-sm hover:shadow-[0_12px_35px_-8px_rgba(2,6,23,0.08)] hover:-translate-y-0.5 transition-all duration-300 p-6 flex flex-col justify-between">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500" />
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Application Pipeline {applications.length > 0 && (
+                  <span className="ml-1 text-emerald-700 font-mono font-bold">({applications.length})</span>
+                )}
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <span className="relative flex w-1.5 h-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-emerald-500" />
+                </span>
+                LIVE
               </span>
-              LIVE
-            </span>
-          </div>
-          {appsError ? (
-            <div>
-              <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5">
-                {appsError}
-              </div>
-              <button
-                onClick={fetchApplications}
-                className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
-              >
-                Retry
-              </button>
             </div>
-          ) : isLoadingApps ? (
-            <div className="flex items-center justify-center h-12">
-              <Loader2 className="w-6 h-6 text-primary animate-spin" />
-            </div>
-          ) : activeApp ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900">
-                  {activeApp.publicId}
-                </span>
-                <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${getStatusColor(activeApp.status)}`}>
-                  {activeApp.status}
-                </span>
-              </div>
+            {appsError ? (
               <div>
-                <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-emerald-600 to-teal-500 rounded-full transition-all duration-500"
-                    style={{ width: `${getStatusPercentage(activeApp.status)}%` }}
-                  />
+                <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5">
+                  {appsError}
                 </div>
-                <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1.5">
-                  <span>Progress</span>
-                  <span>{getStatusPercentage(activeApp.status)}%</span>
+                <button
+                  onClick={fetchApplications}
+                  className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : isLoadingApps ? (
+              <div className="flex items-center justify-center h-12">
+                <Loader2 className="w-6 h-6 text-primary animate-spin" />
+              </div>
+            ) : activeApp ? (
+              <div className="space-y-3 mt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black font-mono uppercase tracking-wider text-slate-900">
+                    {activeApp.publicId}
+                  </span>
+                  <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${getStatusColor(activeApp.status)}`}>
+                    {activeApp.status}
+                  </span>
+                </div>
+                <div>
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/60">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500"
+                      style={{ width: `${getStatusPercentage(activeApp.status)}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mt-1">
+                    <span>Progress</span>
+                    <span className="font-bold text-slate-700">{getStatusPercentage(activeApp.status)}%</span>
+                  </div>
                 </div>
               </div>
-              <div className="text-[9px] text-slate-500 font-semibold flex items-start gap-1.5">
-                <Activity className="w-3 h-3 mt-0.5 text-primary shrink-0" />
-                <span>{getNextStep(activeApp.status)}</span>
+            ) : (
+              <div>
+                <div className="text-sm font-bold text-slate-700">No active application.</div>
+                <Link href="/app/application">
+                  <a className="inline-flex items-center gap-1.5 text-xs text-primary font-bold hover:underline mt-2">
+                    Apply Now <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
+                </Link>
               </div>
-              <div className="text-[9px] text-slate-400">
-                Last update: {timeAgo(activeApp.updatedAt)}
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="text-sm font-bold text-slate-700">No active application.</div>
-              <Link href="/app/application">
-                <a className="inline-flex items-center gap-1.5 text-xs text-primary font-bold hover:underline mt-4">
-                  Apply Now <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
-              </Link>
+            )}
+          </div>
+          {activeApp && (
+            <div className="text-[9px] text-slate-400 font-medium pt-3 mt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="truncate max-w-[180px]">{getNextStep(activeApp.status)}</span>
+              <span>{timeAgo(activeApp.updatedAt)}</span>
             </div>
           )}
         </div>
       </div>
 
       {/* Enterprise SLA & Trust Assurance Strip */}
-      <div className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-slate-50 p-5 mb-8">
+      <div className="rounded-3xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50/90 via-teal-50/40 to-white backdrop-blur-md p-5 md:p-6 mb-8 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-600/20">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-600/25">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900">Institutional Agency Line-of-Credit Protection</span>
-                <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                  <Sparkles className="w-2.5 h-2.5" /> Verified Tier-1
+                <span className="text-xs font-black uppercase tracking-wider text-slate-900">Institutional Agency Line Protection</span>
+                <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
+                  <Sparkles className="w-2.5 h-2.5" /> Tier-1 Architecture
                 </span>
               </div>
-              <p className="text-[11px] text-slate-600 mt-0.5">
-                RAZR Global Media International Ltd (CR: 3318942) · 100% Capital Escrow Guarantee · Whitelisted Enterprise ASN Routing
+              <p className="text-[11px] text-slate-600 mt-0.5 font-medium">
+                RAZR Global Media International Ltd (CR: 3318942) · Unlimited Free Replacements · Whitelisted Enterprise ASN Routing
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-left md:text-right">
-              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Governed Under HK Law</div>
-              <div className="text-xs font-mono font-bold text-emerald-700">#AGY-2026-HK-PRIME</div>
+              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Governed Under HK Law</div>
+              <div className="text-xs font-mono font-black text-emerald-700">#AGY-2026-HK-PRIME</div>
             </div>
           </div>
         </div>
@@ -685,13 +703,13 @@ export default function ClientDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         {/* LEFT: Ad accounts & Applications */}
         <div className="lg:col-span-8 space-y-6">
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-6">
+          <div className="rounded-3xl border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-sm p-6 md:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
               <div>
                 <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">Your Provisioned Ad Accounts</h2>
                 <p className="text-xs text-slate-500 mt-0.5">Whitelisted Enterprise Lines · Direct Agency Route</p>
               </div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider shadow-2xs">
                 <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" /> Active Agency Shield
               </div>
             </div>
@@ -716,19 +734,20 @@ export default function ClientDashboard() {
                   };
 
                   return (
-                    <div key={acc.id} className="rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-5 hover:border-slate-300 hover:shadow-lg transition-all flex flex-col justify-between">
+                    <div key={acc.id} className="relative rounded-3xl overflow-hidden border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/90 p-6 hover:border-slate-300 hover:shadow-[0_12px_35px_-8px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between shadow-sm">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500" />
                       <div>
                         {/* Top Platform & Partner Badge */}
-                        <div className="flex items-start justify-between gap-2 mb-3.5">
+                        <div className="flex items-start justify-between gap-2 mb-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
+                            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-center shrink-0 shadow-2xs">
                               {getPlatformIcon(acc.platform)}
                             </div>
                             <div>
-                              <div className="text-xs text-slate-900 font-extrabold uppercase tracking-wide">
+                              <div className="text-xs text-slate-900 font-black uppercase tracking-wide">
                                 {acc.name || acc.platform}
                               </div>
-                              <div className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 uppercase tracking-wider">
+                              <div className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 uppercase tracking-wider mt-0.5">
                                 <BadgeCheck className="w-3 h-3 text-emerald-600" /> {getPartnerBadge(acc.platform)}
                               </div>
                             </div>
@@ -745,12 +764,12 @@ export default function ClientDashboard() {
                         </div>
 
                         {/* Account ID / BM Access */}
-                        <div className="bg-slate-100/90 rounded-xl p-3 border border-slate-200/80 space-y-1.5 mb-3.5">
+                        <div className="bg-slate-100/80 rounded-2xl p-3.5 border border-slate-200/70 space-y-2 mb-4">
                           <div className="flex items-center justify-between text-[10px]">
                             <span className="text-slate-500 font-bold uppercase tracking-wider">Account ID:</span>
                             <span className="font-mono font-bold text-slate-900">{acc.accountId || "Provisioning..."}</span>
                           </div>
-                          <div className="flex items-center justify-between text-[10px] pt-1.5 border-t border-slate-200/60">
+                          <div className="flex items-center justify-between text-[10px] pt-2 border-t border-slate-200/60">
                             <span className="text-slate-500 font-bold uppercase tracking-wider">BM Access:</span>
                             {acc.status === "ACTIVE" && acc.businessPortfolioId ? (
                               <span className="font-mono font-bold text-blue-700 flex items-center gap-1">
@@ -765,22 +784,22 @@ export default function ClientDashboard() {
                         </div>
 
                         {/* Health & Whitelist Indicators */}
-                        <div className="grid grid-cols-2 gap-2 mb-3.5 text-[9px]">
-                          <div className="p-2 rounded-lg bg-emerald-50/70 border border-emerald-100 flex items-center gap-1.5 text-emerald-800 font-bold">
+                        <div className="grid grid-cols-2 gap-2 mb-4 text-[9px]">
+                          <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 flex items-center gap-1.5 text-emerald-800 font-bold">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                             <span>Health: 99.8% (Optimal)</span>
                           </div>
-                          <div className="p-2 rounded-lg bg-slate-100 border border-slate-200 flex items-center gap-1.5 text-slate-700 font-bold">
+                          <div className="p-2.5 rounded-xl bg-slate-100/90 border border-slate-200 flex items-center gap-1.5 text-slate-700 font-bold">
                             <Shield className="w-3 h-3 text-slate-500" />
                             <span>Clean HK/US ASN</span>
                           </div>
                         </div>
 
                         {/* Spend Limit & Balance */}
-                        <div className="flex items-center justify-between py-2 border-y border-slate-200/70 text-[10px] text-slate-600 font-bold mb-4">
+                        <div className="flex items-center justify-between py-2.5 border-y border-slate-200/70 text-[10px] text-slate-600 font-bold mb-4">
                           <span>Spend Limit: <strong className="text-slate-900">{acc.spendLimit || "Uncapped Line"}</strong></span>
                           <span>
-                            Ad Balance: <strong className="text-emerald-700 text-xs">${(Number(acc.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
+                            Ad Balance: <strong className="text-emerald-700 text-xs font-mono font-black">${(Number(acc.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
                           </span>
                         </div>
                       </div>
@@ -790,7 +809,7 @@ export default function ClientDashboard() {
                         {(acc.status === "ACTIVE" || acc.status === "APPROVED") && (
                           <button
                             onClick={() => openLoadModal(acc)}
-                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer shadow-[0_4px_15px_rgba(5,150,105,0.2)]"
+                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer shadow-md shadow-emerald-600/20"
                           >
                             <Wallet className="w-3.5 h-3.5" /> {acc.status === "APPROVED" && Number(acc.balance || 0) < 50 ? "Topup & Get BM Access" : "Load Fund"}
                           </button>
@@ -802,7 +821,7 @@ export default function ClientDashboard() {
                               setBmTarget(acc);
                               setShowBmModal(true);
                             }}
-                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[9px] font-bold uppercase tracking-wider border border-slate-200 transition-colors cursor-pointer"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-[9px] font-bold uppercase tracking-wider border border-slate-200 transition-colors cursor-pointer shadow-2xs"
                           >
                             <UserCheck className="w-3 h-3 text-slate-500" /> BM Access
                           </button>
@@ -812,7 +831,7 @@ export default function ClientDashboard() {
                               setReplacementSubmitted(false);
                               setShowReplacementModal(true);
                             }}
-                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 text-[9px] font-bold uppercase tracking-wider border border-slate-200 transition-colors cursor-pointer"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-[9px] font-bold uppercase tracking-wider border border-slate-200 transition-colors cursor-pointer shadow-2xs"
                           >
                             <RefreshCw className="w-3 h-3 text-slate-500" /> Replace SLA
                           </button>
@@ -823,9 +842,9 @@ export default function ClientDashboard() {
                 })}
               </div>
             ) : (
-              <div className="text-center py-12 border border-dashed border-slate-200 rounded-xl">
-                <Building className="w-8 h-8 text-slate-300 mx-auto mb-3" />
-                <p className="text-xs text-slate-500">No provisioned agency ad accounts yet.</p>
+              <div className="text-center py-16 border border-dashed border-slate-200 rounded-3xl bg-slate-50/50">
+                <Building className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                <p className="text-xs text-slate-500 font-medium">No provisioned agency ad accounts yet.</p>
                 <Link href="/app/application">
                   <a className="inline-flex items-center gap-1.5 text-xs text-primary font-bold hover:underline mt-3">
                     Submit Application <ArrowUpRight className="w-3.5 h-3.5" />
@@ -839,10 +858,10 @@ export default function ClientDashboard() {
         {/* RIGHT: Dedicated Executive Concierge & Payment Verification Logs */}
         <div className="lg:col-span-4 space-y-6">
           {/* Assigned Dedicated Account Executive Card */}
-          <div className="rounded-2xl border border-slate-200 bg-gradient-to-b from-[#229ED9]/10 via-white to-slate-50 p-6 relative overflow-hidden shadow-lg shadow-slate-200/50">
+          <div className="rounded-3xl border border-slate-200/80 bg-gradient-to-b from-[#229ED9]/10 via-white to-slate-50/90 p-6 relative overflow-hidden shadow-sm backdrop-blur-md">
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-black uppercase tracking-widest text-[#229ED9]">Dedicated VIP Concierge</span>
-              <span className="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              <span className="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> Online Now
               </span>
             </div>
@@ -861,11 +880,11 @@ export default function ClientDashboard() {
               </div>
             </div>
 
-            <div className="bg-white/80 rounded-xl p-3 border border-slate-200/80 mb-4 text-[10px] text-slate-600 space-y-1.5">
+            <div className="bg-white/90 rounded-2xl p-3.5 border border-slate-200/80 mb-4 text-[10px] text-slate-600 space-y-1.5 shadow-2xs">
               <div className="flex items-center gap-1.5 text-slate-800 font-bold">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Direct Agency Escalation Route
               </div>
-              <p className="text-slate-500 leading-relaxed">
+              <p className="text-slate-500 leading-relaxed font-medium">
                 Assigned exclusively to your account for BM invitations, pixel whitelisting, daily limit scaling, and rapid fund clearance.
               </p>
             </div>
@@ -874,7 +893,7 @@ export default function ClientDashboard() {
               href={TELEGRAM_SUPPORT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-[#229ED9]/25 cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-[#229ED9]/25 cursor-pointer"
             >
               <SiTelegram className="w-4 h-4" /> Message Account Manager
             </a>
