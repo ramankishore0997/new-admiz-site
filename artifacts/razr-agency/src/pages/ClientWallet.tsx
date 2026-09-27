@@ -298,7 +298,7 @@ export default function ClientWallet() {
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black uppercase tracking-widest mb-3">
-                <Wallet className="w-3.5 h-3.5 text-emerald-600" /> Capital Management & Escrow
+                <Wallet className="w-3.5 h-3.5 text-emerald-600" /> Capital & Treasury Management
               </div>
               <h1 className="text-3xl font-black tracking-tight uppercase text-slate-900">
                 Wallet <span className="text-emerald-600">& Treasury</span>
@@ -333,8 +333,8 @@ export default function ClientWallet() {
           </div>
         </div>
 
-        {/* 4 Key Treasury Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* 3 Key Treasury Metric Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* 1. Available Balance */}
           <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/70 to-white p-6 shadow-sm flex flex-col justify-between">
             <div>
@@ -399,23 +399,6 @@ export default function ClientWallet() {
               ) : (
                 "0 pending requests"
               )}
-            </div>
-          </div>
-
-          {/* 4. Escrow Capital Guarantee */}
-          <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 shadow-md flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Escrow Security</span>
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div className="text-xl font-black tracking-tight">100% Protected</div>
-              <p className="text-[11px] text-slate-300 font-medium mt-1 leading-snug">
-                Unspent budget is fully refundable or transferable between accounts anytime.
-              </p>
-            </div>
-            <div className="pt-3 mt-3 border-t border-slate-700/80 text-[10px] text-slate-400 font-mono">
-              #AGY-2026-HK-PRIME
             </div>
           </div>
         </div>
