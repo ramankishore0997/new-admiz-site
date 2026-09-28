@@ -233,6 +233,165 @@ router.post("/bm-orders/buy", authenticate, async (req: AuthenticatedRequest, re
   }
 });
 
+const RECEIVING_WALLET = "0x5e094e9Fc46FF77D638682CcB50b6D3b6BFbd2d0";
+const TRON_WALLET = "TTfpa75gZowYgmvJHeYqzfBBRMV9WP8k9w";
+const SUPPORTED_NETWORKS = ["bsc", "eth", "polygon", "arbitrum", "optimism", "tron"];
+const EVM_TX_REGEX = /^0x[a-fA-F0-9]{64}$/;
+const TRON_TX_REGEX = /^[a-fA-F0-9]{64}$/;
+
+/**
+ * POST /api/bm-orders/buy-direct
+ * Client purchases a Business Manager by direct crypto payment (no wallet balance deposit needed)
+ */
+router.post("/bm-orders/buy-direct", authenticate, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const userId = req.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { packageId, quantity: rawQuantity = 1, network, txHash, screenshotUrl, note } = req.body || {};
+
+    if (!packageId) {
+      return res.status(400).json({ error: "Package ID is required." });
+    }
+
+    const pkg = BM_CATALOG.find((p) => p.id === packageId);
+    if (!pkg) {
+      return res.status(404).json({ error: "Business Manager package not found." });
+    }
+
+    // Validate quantity
+    const parsedQty = parseInt(String(rawQuantity), 10);
+    const quantity = Math.max(1, Math.min(500, Number.isNaN(parsedQty) ? 1 : parsedQty));
+    const totalPrice = Number((pkg.price * quantity).toFixed(2));
+
+    // Validate network
+    const cleanNetwork = String(network || "").toLowerCase().trim();
+    if (!cleanNetwork || !SUPPORTED_NETWORKS.includes(cleanNetwork)) {
+      return res.status(400).json({ error: `Selected network must be one of: ${SUPPORTED_NETWORKS.join(", ")}` });
+    }
+
+    // Validate TXID
+    const cleanTxHash = String(txHash || "").trim();
+    const isTron = cleanNetwork === "tron";
+    if (!cleanTxHash || (isTron ? !TRON_TX_REGEX.test(cleanTxHash) : !EVM_TX_REGEX.test(cleanTxHash))) {
+      return res.status(400).json({
+        error: isTron
+          ? "Invalid Tron Transaction Hash. Please provide a valid 64-character hex hash."
+          : "Invalid EVM Transaction Hash. Please provide a valid 66-character hex hash starting with 0x.",
+      });
+    }
+
+    // Validate screenshot
+    const cleanScreenshot = String(screenshotUrl || "").trim();
+    if (!cleanScreenshot) {
+      return res.status(400).json({ error: "Payment confirmation screenshot is required." });
+    }
+    const screenshotMatch = /^data:image\/(png|jpe?g|webp);base64,([A-Za-z0-9+/=]+)$/.exec(cleanScreenshot);
+    if (!screenshotMatch) {
+      return res.status(400).json({ error: "Payment screenshot must be a valid PNG, JPEG, or WEBP image." });
+    }
+    const approxBytes = Math.floor((screenshotMatch[2].length * 3) / 4);
+    if (approxBytes > 5 * 1024 * 1024) {
+      return res.status(400).json({ error: "Payment screenshot must not exceed 5 MB." });
+    }
+
+    // Check duplicate TXID
+    const [existingTx] = await db
+      .select({ id: paymentsTable.id })
+      .from(paymentsTable)
+      .where(eq(paymentsTable.txHash, cleanTxHash))
+      .limit(1);
+
+    if (existingTx) {
+      return res.status(400).json({ error: "This Transaction Hash (TXID) has already been submitted." });
+    }
+
+    // Generate IDs
+    const stamp = Date.now().toString(36).toUpperCase();
+    const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+    const orderId = `BMO-${new Date().getFullYear()}-${stamp}${rand}`;
+    const payOrderId = `PAY-BM-${Date.now()}-${rand}`;
+
+    // Record direct payment in payments ledger (marked PAID to balance the ledger against the BM order)
+    await db.insert(paymentsTable).values({
+      orderId: payOrderId,
+      userId,
+      amount: String(totalPrice),
+      network: cleanNetwork,
+      txHash: cleanTxHash,
+      screenshotUrl: cleanScreenshot,
+      status: "PAID",
+      note: `Direct BM Purchase: ${quantity}x ${pkg.name} (#${orderId})${note ? ` - ${String(note).trim()}` : ""}`,
+    });
+
+    // Record BM Order
+    const [order] = await db
+      .insert(bmOrdersTable)
+      .values({
+        orderId,
+        userId,
+        bmPackageId: pkg.id,
+        bmPackageName: pkg.name,
+        platform: pkg.platform,
+        quantity,
+        unitPrice: String(pkg.price),
+        price: String(totalPrice),
+        currency: "USDT",
+        status: "PENDING_DELIVERY",
+        deliveryNotes: `Direct Crypto Payment via ${cleanNetwork.toUpperCase()} (TXID: ${cleanTxHash})`,
+      })
+      .returning();
+
+    // In-app notification
+    await db.insert(notificationsTable).values({
+      userId,
+      title: "Direct Business Manager Order Placed 🎯",
+      message: `Your direct order for ${quantity}x ${pkg.name} (#${orderId}) for $${totalPrice} USDT has been submitted. Our team is generating and whitelisting your invite links.`,
+    });
+
+    // Telegram admin alert
+    const [user] = await db
+      .select({ email: usersTable.email, username: usersTable.username, telegramHandle: usersTable.telegramHandle })
+      .from(usersTable)
+      .where(eq(usersTable.id, userId))
+      .limit(1);
+
+    const clientEmail = user?.email || `User #${userId}`;
+    const tgHandle = user?.telegramHandle ? `@${user.telegramHandle}` : "Not provided";
+
+    void telegramNotify.sendTelegramMessage(
+      `🚨 NEW DIRECT CRYPTO BUSINESS MANAGER ORDER!\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `• Order ID: ${orderId}\n` +
+      `• Payment Ref: ${payOrderId}\n` +
+      `• Package: ${pkg.name}\n` +
+      `• Quantity: ${quantity} Line(s)\n` +
+      `• Total Paid: $${totalPrice} USDT\n` +
+      `• Payment Method: 💎 Direct USDT (${cleanNetwork.toUpperCase()})\n` +
+      `• TXID: ${cleanTxHash}\n` +
+      `• Client: ${clientEmail} (${user?.username || "Client"})\n` +
+      `• Telegram: ${tgHandle}\n` +
+      `• Status: ⏳ Pending Admin Invite Link\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `👉 Go to Admin Panel -> BM Orders to assign invite link.`
+    );
+
+    const newBalance = await getUserAvailableBalance(userId);
+
+    return res.status(201).json({
+      success: true,
+      order: {
+        ...order,
+        inviteLink: null,
+      },
+      newBalance,
+      message: `Direct payment submitted! Order for ${quantity}x ${pkg.name} is placed. Admin will dispatch your invite link shortly.`,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 /**
  * GET /api/bm-orders/my
  * List client's BM orders
