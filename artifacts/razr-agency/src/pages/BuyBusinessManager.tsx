@@ -64,6 +64,23 @@ interface BmOrder {
 
 const STATIC_CATALOG: BmPackage[] = [
   {
+    id: "meta-bm3-business-manager",
+    name: "Meta BM3 Business Manager",
+    platform: "Meta Ads (Facebook & IG)",
+    price: 3,
+    category: "meta",
+    badge: "BM3 Special",
+    description: "Active BM3 Business Manager configured with 3 ad accounts limit capacity and direct admin invite.",
+    features: [
+      "3 Ad Account Creation Capacity (BM3)",
+      "Direct Admin Role Invitation Link",
+      "Pixel, Domain & Asset Sharing Ready",
+      "Clean Compliance Trust Rating",
+      "Rapid Replacement Protection SLA"
+    ],
+    stockReady: 25,
+  },
+  {
     id: "meta-standard-agency-bm",
     name: "Meta Standard Agency BM",
     platform: "Meta Ads (Facebook & IG)",
