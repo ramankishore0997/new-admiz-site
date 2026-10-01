@@ -20,9 +20,15 @@ import {
   ShieldCheck,
   Building2,
   ShoppingBag,
-  Wallet
+  Wallet,
+  ExternalLink
 } from "lucide-react";
+import { SiTelegram } from "react-icons/si";
 import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
+import TelegramFloatingButton from "@/components/TelegramFloatingButton";
+import { PAYMENT_CONFIG } from "@/config/payment";
+
+const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl || "https://t.me/RazrMarketing";
 
 interface MenuItem {
   name: string;
@@ -120,10 +126,32 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         ))}
       </nav>
 
-
+      {/* 24/7 Dedicated Telegram Concierge Card */}
+      <div className="my-2 p-3.5 rounded-2xl bg-gradient-to-br from-[#229ED9]/15 to-[#229ED9]/5 border border-[#229ED9]/30 text-slate-900 space-y-2 relative z-10 shadow-sm">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-black uppercase tracking-wider text-[#229ED9] flex items-center gap-1.5">
+            <SiTelegram className="w-3.5 h-3.5" /> Telegram Concierge
+          </span>
+          <span className="flex h-2 w-2 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+        </div>
+        <p className="text-[11px] text-slate-600 font-medium leading-snug">
+          Need instant limit increases, fast deposit approvals or emergency support?
+        </p>
+        <a
+          href={TELEGRAM_SUPPORT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+        >
+          <SiTelegram className="w-3 h-3" /> Message on Telegram
+        </a>
+      </div>
 
       {/* Quick Setup Guide Card */}
-      <div className="my-4 p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white space-y-2 relative z-10 shadow-lg shadow-slate-900/10">
+      <div className="my-2 p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white space-y-2 relative z-10 shadow-lg shadow-slate-900/10">
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1">
             <Sparkles className="w-3 h-3" /> Quick Guide
@@ -183,12 +211,23 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           />
           <span className="text-sm font-black tracking-widest text-slate-900">RAZR</span>
         </Link>
-        <button
-          onClick={() => setIsMobileOpen(true)}
-          className="p-2 rounded bg-slate-100 border border-slate-200 text-slate-700"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <a
+            href={TELEGRAM_SUPPORT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#229ED9] text-white text-[10px] font-bold"
+          >
+            <SiTelegram className="w-3.5 h-3.5" />
+            <span>Support</span>
+          </a>
+          <button
+            onClick={() => setIsMobileOpen(true)}
+            className="p-2 rounded bg-slate-100 border border-slate-200 text-slate-700"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
       </header>
 
       {/* Sidebar - Desktop */}
@@ -238,6 +277,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         isOpen={isGuideOpen}
         onClose={() => setIsGuideOpen(false)}
       />
+
+      {/* Global Floating Telegram Quick-Help Pill & Popover */}
+      <TelegramFloatingButton />
     </div>
   );
 }

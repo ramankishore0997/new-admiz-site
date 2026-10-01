@@ -19,7 +19,9 @@ import {
   Headphones,
   Check
 } from "lucide-react";
+import { SiTelegram } from "react-icons/si";
 import { useAuth } from "@/hooks/useAuth";
+import { PAYMENT_CONFIG } from "@/config/payment";
 
 interface CaseProof {
   niche: string;
@@ -30,7 +32,7 @@ interface CaseProof {
   status: string;
 }
 
-const VERIFIED_PROOFS: CaseProof[] = [
+const CASE_PROOFS: CaseProof[] = [
   {
     niche: "DTC Apparel & E-Commerce",
     spend: "$142,500 / mo",
@@ -165,7 +167,7 @@ export default function ClientGuarantee() {
                 <Award className="w-4 h-4" /> Real-World Client Verification
               </div>
               <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900 mt-1">
-                Verified Performance Across All Verticals
+                Validated Performance Across All Verticals
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 Proof of continuous scale, cheap CPMs, and zero downtime across multiple ad sectors on our agency infrastructure.
@@ -174,7 +176,7 @@ export default function ClientGuarantee() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {VERIFIED_PROOFS.map((proof, idx) => (
+            {CASE_PROOFS.map((proof, idx) => (
               <div
                 key={idx}
                 className="p-5 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-3 flex flex-col justify-between"
@@ -311,12 +313,12 @@ export default function ClientGuarantee() {
 
             <div className="flex flex-wrap items-center gap-3 shrink-0">
               <a
-                href="https://t.me/razragency"
+                href={PAYMENT_CONFIG.telegramSupportUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/25"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-[#229ED9]/25 cursor-pointer"
               >
-                <Headphones className="w-4 h-4" /> Contact VIP Partner Desk
+                <SiTelegram className="w-4 h-4" /> Contact VIP Partner Desk
               </a>
               <Link href="/app/support">
                 <a className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 text-xs font-black uppercase tracking-widest transition-all">
