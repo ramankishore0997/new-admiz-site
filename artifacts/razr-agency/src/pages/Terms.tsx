@@ -39,7 +39,7 @@ const SECTIONS = [
   },
   {
     title: "10. Governing Law",
-    body: "These terms are governed by the laws of the Hong Kong Special Administrative Region of the People's Republic of China. Any disputes will be resolved through arbitration or in the appropriate courts of Hong Kong jurisdiction.",
+    body: "These terms are governed by the laws of England and Wales. Any disputes will be resolved through arbitration or in the appropriate courts of the United Kingdom jurisdiction.",
   },
   {
     title: "11. Contact",

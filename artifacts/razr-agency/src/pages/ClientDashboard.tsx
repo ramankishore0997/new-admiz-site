@@ -687,14 +687,14 @@ export default function ClientDashboard() {
                 </span>
               </div>
               <p className="text-[11px] text-slate-600 mt-0.5 font-medium">
-                RAZR Global Media International Ltd (CR: 3318942) · Unlimited Free Replacements · Whitelisted Enterprise ASN Routing
+                RAZR Global Media International Ltd (UK: 14829104) · Unlimited Free Replacements · Whitelisted Enterprise ASN Routing
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-left md:text-right">
-              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Governed Under HK Law</div>
-              <div className="text-xs font-mono font-black text-emerald-700">#AGY-2026-HK-PRIME</div>
+              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Governed Under UK Law</div>
+              <div className="text-xs font-mono font-black text-emerald-700">#AGY-2026-UK-PRIME</div>
             </div>
           </div>
         </div>

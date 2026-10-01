@@ -149,10 +149,10 @@ export default function ClientGuarantee() {
               <Building2 className="w-6 h-6" />
             </div>
             <h3 className="text-base font-black uppercase tracking-tight text-slate-900">
-              Hong Kong Governing Law
+              United Kingdom Governing Law
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Backed by registered legal entity RAZR Global Media International Ltd (CR No. 3318942, Two IFC Central) under Hong Kong SAR commercial standards.
+              Backed by registered legal entity RAZR Global Media International Ltd (UK Company No. 14829104, 30 St Mary Axe, London) under UK commercial standards.
             </p>
           </div>
         </div>
@@ -219,7 +219,7 @@ export default function ClientGuarantee() {
                 RAZR Institutional SLA vs. Traditional Sellers
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Why enterprise media buyers and high-spending agencies choose our Hong Kong infrastructure over informal brokers.
+                Why enterprise media buyers and high-spending agencies choose our UK infrastructure over informal brokers.
               </p>
             </div>
             <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold shrink-0">
@@ -284,7 +284,7 @@ export default function ClientGuarantee() {
                   <td className="px-6 py-4 font-bold text-emerald-700 bg-emerald-50/30">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span>Registered Hong Kong Entity (CR: 3318942)</span>
+                      <span>Registered United Kingdom Entity (UK: 14829104)</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-slate-500">❌ Unregulated anonymous individual accounts</td>

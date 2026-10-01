@@ -213,14 +213,14 @@ export default function ClientSettings() {
               #{user?.id ? `CLI-${user.id.toString().padStart(4, "0")}` : "CLI-8821"}
             </div>
             <div className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" /> Identity Verified
+              <CheckCircle2 className="w-3 h-3" /> Identity Confirmed
             </div>
           </div>
 
           <div className="p-5 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-1.5">
             <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tax Exemption Status</div>
             <div className="text-base font-black text-emerald-700 font-mono">0% Ad VAT Active</div>
-            <div className="text-[10px] text-slate-500 font-medium">Hong Kong SAR Cap. 112</div>
+            <div className="text-[10px] text-slate-500 font-medium">UK Export Standard</div>
           </div>
 
           <div className="p-5 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-1.5">
@@ -411,10 +411,10 @@ export default function ClientSettings() {
 
               <div className="rounded-3xl border border-slate-200 bg-white p-6 space-y-2 shadow-sm text-xs text-slate-600">
                 <div className="font-bold text-slate-900 uppercase text-[11px] flex items-center gap-1.5">
-                  <Building className="w-4 h-4 text-emerald-600" /> Hong Kong Registered Entity
+                  <Building className="w-4 h-4 text-emerald-600" /> United Kingdom Registered Entity
                 </div>
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  RAZR Global Media International Ltd (CR No. 3318942). Level 19, Two IFC, Central, Hong Kong SAR.
+                  RAZR Global Media International Ltd (Company No. 14829104). 30 St Mary Axe, City of London, London EC3A 8EP, United Kingdom.
                 </p>
               </div>
             </div>

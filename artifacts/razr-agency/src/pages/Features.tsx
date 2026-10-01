@@ -662,7 +662,7 @@ export default function Features() {
           <SectionHeader
             no="07"
             kicker="Support & Service"
-            title={<>Real humans. <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">Hong Kong HQ.</span> Fast replies.</>}
+            title={<>Real humans. <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">London HQ.</span> Fast replies.</>}
             subtitle="The post-purchase experience most agencies skip — it's the whole point for us."
           />
 

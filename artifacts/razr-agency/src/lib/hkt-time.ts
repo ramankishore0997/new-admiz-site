@@ -1,11 +1,11 @@
-// HKT (Asia/Hong_Kong) time helpers — independent of viewer's local timezone.
+// London / GMT time helpers — independent of viewer's local timezone.
 
-const HKT_TZ = "Asia/Hong_Kong";
+const UK_TZ = "Europe/London";
 
-// Returns the current wall-clock parts in HKT.
+// Returns the current wall-clock parts in London.
 function nowInHKT(): { year: number; month: number; day: number; hour: number; minute: number; weekday: number } {
-  const fmt = new Intl.DateTimeFormat("en-US", {
-    timeZone: HKT_TZ,
+  const fmt = new Intl.DateTimeFormat("en-GB", {
+    timeZone: UK_TZ,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -27,26 +27,20 @@ function nowInHKT(): { year: number; month: number; day: number; hour: number; m
   };
 }
 
-// Returns the UTC timestamp (ms) for a given HKT wall-clock time.
-// HKT is UTC+8 with no DST, so this is straightforward.
+// Returns the UTC timestamp (ms) for a given London wall-clock time.
 function hktWallToUtcMs(year: number, month: number, day: number, hour: number, minute: number): number {
-  // Build as if it were UTC, then subtract the HKT offset of +8:00 to get the true UTC instant.
   const asIfUtc = Date.UTC(year, month - 1, day, hour, minute, 0);
-  const HKT_OFFSET_MS = 8 * 60 * 60 * 1000;
-  return asIfUtc - HKT_OFFSET_MS;
+  return asIfUtc;
 }
 
-// Milliseconds until the next Sunday 23:59 HKT.
+// Milliseconds until the next Sunday 23:59 GMT.
 export function msUntilSundayMidnightHKT(): number {
   const hkt = nowInHKT();
   // Sunday = 0 in our map. We want the upcoming Sunday at 23:59.
-  // If today is Sunday and time < 23:59, target is today; else, next Sunday.
-  let daysAhead = (7 - hkt.weekday) % 7; // days from today to next Sunday (0 if today)
-  // If today IS Sunday but already past 23:59, jump 7 days.
+  let daysAhead = (7 - hkt.weekday) % 7;
   if (daysAhead === 0 && (hkt.hour > 23 || (hkt.hour === 23 && hkt.minute >= 59))) {
     daysAhead = 7;
   }
-  // Build target date in HKT
   const targetMs = hktWallToUtcMs(hkt.year, hkt.month, hkt.day + daysAhead, 23, 59);
   const nowMs = hktWallToUtcMs(hkt.year, hkt.month, hkt.day, hkt.hour, hkt.minute);
   return Math.max(0, targetMs - nowMs);
@@ -64,11 +58,11 @@ export function formatCountdown(ms: number): string {
 
 export type HktSlot = {
   iso: string; // UTC ISO of slot
-  timeLabel: string; // e.g. "11:00 AM HKT"
+  timeLabel: string; // e.g. "11:00 AM GMT"
   dayLabel: string; // e.g. "Mon 26 May"
 };
 
-// Generates upcoming booking slots in HKT. Skips Sundays, requires ≥1hr lead time.
+// Generates upcoming booking slots in GMT. Skips Sundays, requires ≥1hr lead time.
 export function generateHktSlots(slotHours: number[] = [11, 14, 17], maxSlots = 6): HktSlot[] {
   const hkt = nowInHKT();
   const slots: HktSlot[] = [];
@@ -86,19 +80,19 @@ export function generateHktSlots(slotHours: number[] = [11, 14, 17], maxSlots = 
       if (slotUtcMs < nowUtcMs + leadMs) continue;
 
       const slotDate = new Date(slotUtcMs);
-      const dayLabel = new Intl.DateTimeFormat("en-HK", {
-        timeZone: HKT_TZ,
+      const dayLabel = new Intl.DateTimeFormat("en-GB", {
+        timeZone: UK_TZ,
         weekday: "short",
         day: "numeric",
         month: "short",
       }).format(slotDate);
       const timeLabel =
-        new Intl.DateTimeFormat("en-HK", {
-          timeZone: HKT_TZ,
+        new Intl.DateTimeFormat("en-GB", {
+          timeZone: UK_TZ,
           hour: "numeric",
           minute: "2-digit",
           hour12: true,
-        }).format(slotDate) + " HKT";
+        }).format(slotDate) + " GMT";
 
       slots.push({ iso: slotDate.toISOString(), timeLabel, dayLabel });
     }

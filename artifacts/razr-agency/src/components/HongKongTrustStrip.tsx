@@ -18,21 +18,15 @@ export default function HongKongTrustStrip() {
           <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
 
           <div className="relative grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 md:gap-10 items-center p-5 md:p-7">
-            {/* LEFT — Hong Kong HQ badge */}
+            {/* LEFT — United Kingdom HQ badge */}
             <div className="flex items-center gap-4">
               <div className="relative shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl overflow-hidden border border-slate-300 shadow-[0_10px_30px_-10px_rgba(15,23,42,0.15)]">
-                <div className="absolute inset-0 bg-[#DE2910] flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="w-7 h-7 md:w-8 md:h-8 text-white" fill="currentColor" aria-hidden="true">
-                    <path d="M12 2.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" />
-                    <path d="M4.5 8l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z" />
-                    <path d="M19.5 8l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z" />
-                    <path d="M6 17l.6 1.7 1.7.6-1.7.6L6 21.6l-.6-1.7-1.7-.6 1.7-.6z" />
-                    <path d="M18 17l.6 1.7 1.7.6-1.7.6L18 21.6l-.6-1.7-1.7-.6 1.7-.6z" />
-                  </svg>
+                <div className="absolute inset-0 bg-[#012169] flex items-center justify-center">
+                  <Globe className="w-7 h-7 md:w-8 md:h-8 text-white" />
                 </div>
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-primary mb-1">Hong Kong HQ</div>
+                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-primary mb-1">United Kingdom HQ</div>
                 <div className="text-base md:text-lg font-black uppercase tracking-tight leading-tight">
                   Trusted by <span className="text-primary">5,000+</span> Advertisers Worldwide
                 </div>

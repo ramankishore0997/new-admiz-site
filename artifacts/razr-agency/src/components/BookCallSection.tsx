@@ -42,7 +42,7 @@ export default function BookCallSection() {
             </h2>
 
             <p className="text-base md:text-lg text-slate-600 leading-relaxed mb-7">
-              Pick a 15-minute slot in HKT. We'll review your current spend, account setup, and recommend the right tier — no pitch, no pressure.
+              Pick a 15-minute slot in UK / GMT time. We'll review your current spend, account setup, and recommend the right tier — no pitch, no pressure.
             </p>
 
             <ul className="space-y-2.5">
@@ -76,7 +76,7 @@ export default function BookCallSection() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <Calendar className="w-4 h-4 text-primary" />
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Pick a Time (HKT)</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Pick a Time (GMT / London)</span>
                     </div>
                     <h3 className="text-xl md:text-2xl font-black uppercase tracking-tighter leading-tight">
                       Available this week

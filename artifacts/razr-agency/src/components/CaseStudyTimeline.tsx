@@ -37,13 +37,13 @@ export default function CaseStudyTimeline() {
 
       <div className="container mx-auto px-4 max-w-7xl relative">
         <div className="text-center mb-16">
-          <div className="text-[10px] font-black uppercase tracking-[0.25em] text-primary mb-3">Case Study · Hong Kong D2C Skincare Brand</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.25em] text-primary mb-3">Case Study · UK D2C Skincare Brand</div>
           <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-[0.95] mb-5">
             $2k to $52k/day in <br />
             <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">6 months.</span>
           </h2>
           <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-            Same offer. Same creative. Different infrastructure. Here's how the curve looked for one of our Hong Kong clients.
+            Same offer. Same creative. Different infrastructure. Here's how the curve looked for one of our UK clients.
           </p>
         </div>
 
@@ -107,10 +107,10 @@ export default function CaseStudyTimeline() {
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center text-white font-black">R</div>
                 <div>
                   <div className="text-sm font-bold text-slate-900">Rohan M.</div>
-                  <div className="text-xs text-slate-500">Founder · Hong Kong D2C Skincare ($8M ARR)</div>
+                  <div className="text-xs text-slate-500">Founder · UK D2C Skincare ($8M ARR)</div>
                 </div>
               </div>
-              <a href={buildWaLink("case-study", { caseName: "Hong Kong D2C Skincare ($8M ARR)", source: "case-study-timeline" })} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary hover:text-emerald-700 transition-colors">
+              <a href={buildWaLink("case-study", { caseName: "UK D2C Skincare ($8M ARR)", source: "case-study-timeline" })} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary hover:text-emerald-700 transition-colors">
                 Get the same setup <ArrowUpRight className="w-3.5 h-3.5" />
               </a>
             </div>

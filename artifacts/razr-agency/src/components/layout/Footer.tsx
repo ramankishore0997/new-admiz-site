@@ -70,7 +70,7 @@ export default function Footer() {
                   razr<span className="text-orange-500">.marketing</span>
                 </span>
                 <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mt-1">
-                  RAZR Global Media International Ltd · Hong Kong HQ
+                  RAZR Global Media International Ltd · United Kingdom HQ
                 </span>
               </div>
             </div>
@@ -80,13 +80,13 @@ export default function Footer() {
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] font-bold text-slate-800 uppercase tracking-wider">
                 <span>RAZR Global Media International Limited</span>
                 <span className="text-slate-300">|</span>
-                <span className="text-emerald-700 font-mono">CR No. 3318942</span>
+                <span className="text-emerald-700 font-mono">Company No. 14829104</span>
                 <span className="text-slate-300">|</span>
-                <span className="text-emerald-700 font-mono">BRN: 76192840-000-08-26-A</span>
+                <span className="text-emerald-700 font-mono">Registered in England &amp; Wales</span>
               </div>
               <p className="text-[11px] text-slate-500 max-w-2xl mx-auto leading-relaxed">
-                Registered Office: Level 19, Two International Finance Centre (Two IFC), 8 Finance Street, Central, Hong Kong SAR.
-                Direct Tier-1 Agency Line-of-Credit allocation & programmatic infrastructure governed under Hong Kong SAR Commercial Ordinances.
+                Registered Office: 30 St Mary Axe (The Gherkin), City of London, London EC3A 8EP, United Kingdom.
+                Direct Tier-1 Agency Line-of-Credit allocation &amp; programmatic infrastructure governed under United Kingdom Commercial Standards.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4 pt-1 text-[10px] font-bold text-slate-600">
                 <a href="mailto:billing@razr.marketing" className="hover:text-emerald-600 transition-colors">Finance: billing@razr.marketing</a>
@@ -104,7 +104,7 @@ export default function Footer() {
           </div>
           <div className="w-full flex flex-col md:flex-row justify-between items-center mt-8 text-xs font-medium tracking-widest text-muted-foreground uppercase gap-4">
             <span className="inline-flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-primary" /> Two IFC, Central, Hong Kong SAR · &copy; {new Date().getFullYear()} RAZR Global Media International Ltd.
+              <MapPin className="w-3.5 h-3.5 text-primary" /> 30 St Mary Axe, London, United Kingdom · &copy; {new Date().getFullYear()} RAZR Global Media International Ltd.
             </span>
             <span className="inline-flex items-center gap-1.5 text-primary">
               <Globe2 className="w-3.5 h-3.5" /> DELIVERING WORLDWIDE · PERFORMANCE WITHOUT COMPROMISE

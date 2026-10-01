@@ -84,7 +84,7 @@ export default function About() {
                   Built by media buyers who spent years running aggressive campaigns. We hit the same walls everyone does: random $50 daily limits, arbitrary restrictions, and campaigns stalling just as they became profitable.
                 </p>
                 <p>
-                  Headquartered in <strong className="text-slate-900 font-normal">Hong Kong</strong>, we operate as a global infrastructure provider — supplying agency-grade advertising accounts to clients in 40+ countries across Asia, Europe, the Middle East, and the Americas.
+                  Headquartered in <strong className="text-slate-900 font-normal">London, United Kingdom</strong>, we operate as a global infrastructure provider — supplying agency-grade advertising accounts to clients in 40+ countries across Europe, North America, the Middle East, and Asia.
                 </p>
                 <p>
                   The problem wasn't our strategy or creatives. The problem was <strong className="text-slate-900 font-normal">infrastructure</strong>. Standard self-serve Business Managers are built for local bakeries, not performance marketers spending 5-figures a day.
@@ -242,27 +242,27 @@ export default function About() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-7 space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase tracking-widest">
-                  🏢 Global Headquarters & Corporate Entity
+                  🏢 Global Headquarters &amp; Corporate Entity
                 </div>
                 <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-slate-900">
-                  Institutional Reliability Powered by Hong Kong SAR
+                  Institutional Reliability Powered by United Kingdom Standards
                 </h2>
                 <p className="text-sm md:text-base text-slate-600 leading-relaxed">
-                  <strong className="text-slate-900">RAZR Global Media International Limited</strong> is incorporated under the Hong Kong SAR Companies Ordinance (CR No. 3318942 / BRN: 76192840). 
+                  <strong className="text-slate-900">RAZR Global Media International Limited</strong> is incorporated in England and Wales under the UK Companies Act 2006 (Company No. 14829104). 
                   Our international corporate structure ensures our clients benefit from institutional-grade contracts, multi-sig escrow capital protection, and direct Tier-1 agency agreements with global advertising networks.
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-xs font-mono">
                   <div className="p-3 rounded-xl bg-white border border-slate-200">
                     <div className="text-[9px] text-slate-400 uppercase font-sans font-bold">Entity Type</div>
-                    <div className="text-slate-900 font-bold mt-0.5">Limited by Shares</div>
+                    <div className="text-slate-900 font-bold mt-0.5">Private Limited (Ltd)</div>
                   </div>
                   <div className="p-3 rounded-xl bg-white border border-slate-200">
                     <div className="text-[9px] text-slate-400 uppercase font-sans font-bold">Registry Number</div>
-                    <div className="text-emerald-700 font-bold mt-0.5">CR: 3318942</div>
+                    <div className="text-emerald-700 font-bold mt-0.5">UK No: 14829104</div>
                   </div>
                   <div className="p-3 rounded-xl bg-white border border-slate-200 col-span-2 sm:col-span-1">
                     <div className="text-[9px] text-slate-400 uppercase font-sans font-bold">Head Office</div>
-                    <div className="text-slate-900 font-bold mt-0.5">Two IFC, Central</div>
+                    <div className="text-slate-900 font-bold mt-0.5">City of London</div>
                   </div>
                 </div>
               </div>
@@ -270,13 +270,13 @@ export default function About() {
               <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-6 space-y-3 shadow-md">
                 <div className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center justify-between">
                   <span>Registered Corporate Address</span>
-                  <span className="text-emerald-600 font-mono text-[10px]">VERIFIED</span>
+                  <span className="text-emerald-600 font-mono text-[10px]">ACTIVE</span>
                 </div>
                 <div className="text-xs font-mono text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                   RAZR Global Media International Limited<br />
-                  Level 19, Two International Finance Centre<br />
-                  8 Finance Street, Central<br />
-                  Hong Kong SAR
+                  30 St Mary Axe (The Gherkin)<br />
+                  City of London, London EC3A 8EP<br />
+                  United Kingdom
                 </div>
                 <div className="pt-2 text-[10px] text-slate-500 flex flex-col gap-1">
                   <div><strong>Legal Inquiries:</strong> legal@razr.marketing</div>

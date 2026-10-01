@@ -10,8 +10,8 @@ const BAR_HEIGHT_PX = 40;
 
 // Slots-left model is decoupled from viewer timezone: it follows the HKT weekday.
 function computeSlotsLeft(): number {
-  const hktWeekdayStr = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Hong_Kong", weekday: "short" }).format(new Date());
-  const hktHourStr = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Hong_Kong", hour: "2-digit", hour12: false }).format(new Date());
+  const hktWeekdayStr = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", weekday: "short" }).format(new Date());
+  const hktHourStr = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", hour12: false }).format(new Date());
   const weekdayMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
   const day = weekdayMap[hktWeekdayStr] ?? 1;
   const hour = Number(hktHourStr) || 0;

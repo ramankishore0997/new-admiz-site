@@ -144,7 +144,7 @@ export default function Contact() {
                 />
               </div>
 
-              {/* Hong Kong Global Headquarters */}
+              {/* United Kingdom Global Headquarters */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -158,16 +158,16 @@ export default function Contact() {
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-black uppercase tracking-wider text-slate-900">Hong Kong Global Headquarters</span>
-                      <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono">CR: 3318942</span>
+                      <span className="text-sm font-black uppercase tracking-wider text-slate-900">United Kingdom Global Headquarters</span>
+                      <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono">UK: 14829104</span>
                     </div>
                     <div className="text-xs font-semibold text-slate-700">RAZR Global Media International Limited</div>
                     <div className="text-[11px] text-slate-500 leading-relaxed font-mono">
-                      Level 19, Two International Finance Centre (Two IFC)<br />
-                      8 Finance Street, Central, Hong Kong SAR
+                      30 St Mary Axe (The Gherkin)<br />
+                      City of London, London EC3A 8EP, United Kingdom
                     </div>
                     <div className="text-[10px] text-emerald-700 font-bold pt-1">
-                      Desk Hours: 09:00 – 23:00 HKT (GMT+8) · 24/7 Priority Emergency Coverage
+                      Desk Hours: 08:00 – 22:00 GMT · 24/7 Priority Emergency Coverage
                     </div>
                   </div>
                 </div>

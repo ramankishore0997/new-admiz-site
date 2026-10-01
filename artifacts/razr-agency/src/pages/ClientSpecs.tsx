@@ -64,7 +64,7 @@ const ACCOUNT_TIERS: AccountTier[] = [
     trustScore: "99.4/100 (VIP Auction Bracket)",
     spendLimit: "$5,000/day to Uncapped",
     inventoryCount: 14,
-    bmType: "Verified Hong Kong / US Enterprise BM",
+    bmType: "UK / US Tier-1 Enterprise BM",
     region: "Worldwide Targeting (0% Ad Tax)",
     taxRate: "0% (Zero Billing Tax)",
     handoverTime: "2 to 4 Hours",
@@ -604,7 +604,7 @@ export default function ClientSpecs() {
             </div>
 
             <div className="flex items-center gap-2 shrink-0 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-              <RefreshCw className="w-3 h-3 text-emerald-600 animate-spin" style={{ animationDuration: "12s" }} /> Auto-syncing with Hong Kong & US Vault
+              <RefreshCw className="w-3 h-3 text-emerald-600 animate-spin" style={{ animationDuration: "12s" }} /> Auto-syncing with UK &amp; US Vault
             </div>
           </div>
         </div>
@@ -1015,7 +1015,7 @@ export default function ClientSpecs() {
             <ShieldCheck className="w-7 h-7 text-emerald-600 shrink-0" />
             <div>
               <div className="font-bold text-slate-900 uppercase">100% Guaranteed Tier-1 Enterprise Allocation</div>
-              <div>Every account issued is fully pre-warmed, whitelisted, and backed by our Hong Kong Agency Service Level Agreement.</div>
+              <div>Every account issued is fully pre-warmed, whitelisted, and backed by our United Kingdom Agency Service Level Agreement.</div>
             </div>
           </div>
           <Link href="/app/guarantee">
