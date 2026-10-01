@@ -28,6 +28,8 @@ export interface WalletConfig {
 
 export const PAYMENT_CONFIG = {
   telegramSupportUrl: "https://t.me/RazrMarketing",
+  whatsappNumber: "+44 7473 951923",
+  whatsappSupportUrl: "https://wa.me/447473951923?text=Hello%20Razr%20Support,%20I%20need%20assistance",
   wallets: MANUAL_PAYMENT_NETWORKS.map((n) => ({
     id: n.id,
     name: n.name,

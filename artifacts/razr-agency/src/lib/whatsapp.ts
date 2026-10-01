@@ -1,7 +1,8 @@
 import { getAttributionLabel } from "./utm";
 
 export const TELEGRAM_URL = "https://t.me/RazrMarketing";
-export const WHATSAPP_NUMBER = ""; // deprecated — use TELEGRAM_URL
+export const WHATSAPP_NUMBER = "+44 7473 951923";
+export const WHATSAPP_URL = "https://wa.me/447473951923?text=Hello%20Razr%20Support,%20I%20need%20assistance";
 
 export type WaIntent =
   | "general"
@@ -23,9 +24,14 @@ type IntentExtras = {
   source?: string;
 };
 
-// All contact links now route to Telegram
-// Intent + extras kept for API compatibility with existing call-sites
 export function buildWaLink(_intent: WaIntent = "general", _extras: IntentExtras = {}): string {
   void getAttributionLabel(); // retain utm import, no-op
   return TELEGRAM_URL;
+}
+
+export function buildDirectWhatsAppLink(customMsg?: string): string {
+  if (customMsg) {
+    return `https://wa.me/447473951923?text=${encodeURIComponent(customMsg)}`;
+  }
+  return WHATSAPP_URL;
 }

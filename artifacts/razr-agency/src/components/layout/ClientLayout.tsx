@@ -21,13 +21,15 @@ import {
   Building2,
   ShoppingBag,
   Wallet,
-  ExternalLink
+  ExternalLink,
+  Headphones
 } from "lucide-react";
-import { SiTelegram } from "react-icons/si";
+import { SiTelegram, SiWhatsapp } from "react-icons/si";
 import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
 import { PAYMENT_CONFIG } from "@/config/payment";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl || "https://t.me/RazrMarketing";
+const WHATSAPP_SUPPORT_URL = PAYMENT_CONFIG.whatsappSupportUrl || "https://wa.me/447473951923?text=Hello%20Razr%20Support,%20I%20need%20assistance";
 
 interface MenuItem {
   name: string;
@@ -125,28 +127,38 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         ))}
       </nav>
 
-      {/* 24/7 Dedicated Telegram Concierge Card */}
-      <div className="my-2 p-3.5 rounded-2xl bg-gradient-to-br from-[#229ED9]/15 to-[#229ED9]/5 border border-[#229ED9]/30 text-slate-900 space-y-2 relative z-10 shadow-sm">
+      {/* 24/7 Dedicated Concierge Support Card (Telegram & WhatsApp) */}
+      <div className="my-2 p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700/60 text-white space-y-2.5 relative z-10 shadow-md">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase tracking-wider text-[#229ED9] flex items-center gap-1.5">
-            <SiTelegram className="w-3.5 h-3.5" /> Telegram Concierge
+          <span className="text-[10px] font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+            <Headphones className="w-3.5 h-3.5" /> 24/7 Live Concierge
           </span>
           <span className="flex h-2 w-2 relative">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
         </div>
-        <p className="text-[11px] text-slate-600 font-medium leading-snug">
-          Need instant limit increases, fast deposit approvals or emergency support?
+        <p className="text-[11px] text-slate-300 font-medium leading-snug">
+          Need instant limit boosts, deposit approvals or urgent account help?
         </p>
-        <a
-          href={TELEGRAM_SUPPORT_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
-        >
-          <SiTelegram className="w-3 h-3" /> Message on Telegram
-        </a>
+        <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+          <a
+            href={TELEGRAM_SUPPORT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+          >
+            <SiTelegram className="w-3.5 h-3.5" /> Telegram
+          </a>
+          <a
+            href={WHATSAPP_SUPPORT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+          >
+            <SiWhatsapp className="w-3.5 h-3.5" /> WhatsApp
+          </a>
+        </div>
       </div>
 
       {/* Quick Setup Guide Card */}
@@ -215,10 +227,19 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             href={TELEGRAM_SUPPORT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#229ED9] text-white text-[10px] font-bold"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#229ED9] text-white text-[10px] font-bold"
+            title="Telegram Support"
           >
             <SiTelegram className="w-3.5 h-3.5" />
-            <span>Support</span>
+          </a>
+          <a
+            href={WHATSAPP_SUPPORT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#25D366] text-white text-[10px] font-bold"
+            title="WhatsApp Support"
+          >
+            <SiWhatsapp className="w-3.5 h-3.5" />
           </a>
           <button
             onClick={() => setIsMobileOpen(true)}

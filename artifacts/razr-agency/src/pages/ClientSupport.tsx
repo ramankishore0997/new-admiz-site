@@ -13,11 +13,12 @@ import {
   ArrowLeft,
   LifeBuoy
 } from "lucide-react";
-import { SiTelegram } from "react-icons/si";
+import { SiTelegram, SiWhatsapp } from "react-icons/si";
 import { PAYMENT_CONFIG } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
+const WHATSAPP_SUPPORT_URL = PAYMENT_CONFIG.whatsappSupportUrl || "https://wa.me/447473951923?text=Hello%20Razr%20Support,%20I%20need%20assistance";
 
 export default function ClientSupport() {
   const { toast } = useToast();
@@ -126,18 +127,26 @@ export default function ClientSupport() {
         </div>
 
         {!activeTicket && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <a
               href={TELEGRAM_SUPPORT_URL}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-[10px] font-black uppercase tracking-wider rounded-lg cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-[10px] font-black uppercase tracking-wider rounded-lg cursor-pointer shadow-sm"
             >
-              <SiTelegram className="w-3.5 h-3.5" /> Telegram VIP Chat
+              <SiTelegram className="w-3.5 h-3.5" /> Telegram VIP
+            </a>
+            <a
+              href={WHATSAPP_SUPPORT_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white text-[10px] font-black uppercase tracking-wider rounded-lg cursor-pointer shadow-sm"
+            >
+              <SiWhatsapp className="w-3.5 h-3.5" /> WhatsApp Support
             </a>
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-[10px] font-black uppercase tracking-wider rounded-lg cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-[10px] font-black uppercase tracking-wider rounded-lg cursor-pointer"
             >
               <PlusCircle className="w-3.5 h-3.5 text-primary" /> Open Ticket
             </button>
