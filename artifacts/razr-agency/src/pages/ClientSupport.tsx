@@ -307,43 +307,7 @@ export default function ClientSupport() {
             </div>
           </div>
         ) : (
-          <div className="lg:col-span-12 space-y-6">
-            {/* VIP Fast Telegram Support Card */}
-            <div className="rounded-3xl border border-[#229ED9]/30 bg-gradient-to-r from-[#229ED9]/10 via-[#229ED9]/5 to-white p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-[#229ED9] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#229ED9]/30">
-                  <SiTelegram className="w-7 h-7" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-black uppercase text-slate-900 tracking-tight">
-                      Fastest Support: 1-on-1 Telegram Concierge
-                    </h3>
-                    <span className="flex h-2 w-2 relative">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      Live
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-600 mt-1">
-                    Tickets take 1–4 hours for review. For instant response under 5 minutes, chat with your dedicated account director on Telegram.
-                  </p>
-                </div>
-              </div>
-
-              <a
-                href={TELEGRAM_SUPPORT_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-[#229ED9]/25 shrink-0 cursor-pointer"
-              >
-                <SiTelegram className="w-4 h-4" />
-                <span>Message Telegram Direct</span>
-              </a>
-            </div>
-
+          <div className="lg:col-span-12">
             <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-6">
               <h2 className="text-sm font-black uppercase tracking-tight text-slate-900 mb-6">Open Support Requests</h2>
 

@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 import { SiTelegram } from "react-icons/si";
 import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
-import TelegramFloatingButton from "@/components/TelegramFloatingButton";
 import { PAYMENT_CONFIG } from "@/config/payment";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl || "https://t.me/RazrMarketing";
@@ -277,9 +276,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         isOpen={isGuideOpen}
         onClose={() => setIsGuideOpen(false)}
       />
-
-      {/* Global Floating Telegram Quick-Help Pill & Popover */}
-      <TelegramFloatingButton />
     </div>
   );
 }

@@ -336,43 +336,6 @@ export default function ClientWallet() {
           </div>
         </div>
 
-        {/* Telegram Fast Deposit & Treasury Support Line */}
-        <div className="rounded-3xl border border-[#229ED9]/30 bg-gradient-to-r from-[#229ED9]/10 via-[#229ED9]/5 to-white p-5 md:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#229ED9] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#229ED9]/30">
-              <SiTelegram className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900">
-                  Instant Deposit Clearance & Treasury Concierge
-                </span>
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  Online
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 mt-0.5">
-                Sent USDT and want instant credit within 2 minutes? Send your TXID directly to our treasury desk on Telegram.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <a
-              href={PAYMENT_CONFIG.telegramSupportUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-[#229ED9]/20 cursor-pointer"
-            >
-              <SiTelegram className="w-4 h-4" />
-              <span>Ping Treasury on Telegram</span>
-            </a>
-          </div>
-        </div>
-
         {/* 3 Key Treasury Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* 1. Available Balance */}

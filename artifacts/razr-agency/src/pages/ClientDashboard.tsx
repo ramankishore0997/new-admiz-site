@@ -517,45 +517,6 @@ export default function ClientDashboard() {
         </div>
       </div>
 
-      {/* Dedicated VIP Telegram Concierge Assistance Bar */}
-      <div className="mb-8 rounded-3xl border border-[#229ED9]/30 bg-gradient-to-r from-[#229ED9]/10 via-[#229ED9]/5 to-white p-5 md:p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#229ED9] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#229ED9]/30">
-              <SiTelegram className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900">
-                  Dedicated VIP Account Manager Assigned
-                </span>
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  Online
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 mt-0.5">
-                Need instant spend limit increases, custom BM setups, or fast balance clearance? Message your dedicated manager.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <a
-              href={TELEGRAM_SUPPORT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-[#229ED9]/20 cursor-pointer"
-            >
-              <SiTelegram className="w-4 h-4" />
-              <span>Chat on Telegram</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
       {/* Next Action Dynamic Hero Card */}
       <div className="mb-8">
         <NextActionHero
@@ -1153,22 +1114,6 @@ export default function ClientDashboard() {
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Telegram Help helper */}
-                  <div className="p-3 rounded-xl bg-[#229ED9]/10 border border-[#229ED9]/20 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <SiTelegram className="w-4 h-4 text-[#229ED9] shrink-0" />
-                      <span className="text-[11px] font-medium">Need immediate manual clearance or payment help?</span>
-                    </div>
-                    <a
-                      href={TELEGRAM_SUPPORT_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#229ED9] hover:underline font-bold text-[11px] shrink-0 flex items-center gap-1"
-                    >
-                      Chat on Telegram →
-                    </a>
                   </div>
 
                   {/* Move to Step 2 Form */}
