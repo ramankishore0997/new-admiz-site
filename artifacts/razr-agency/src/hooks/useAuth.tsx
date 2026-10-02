@@ -87,44 +87,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Local Demo Mock Users for seamless testing without database
+// Clean initial state for client users
 export const MOCK_CLIENT_USER: User = {
   id: 1,
-  email: "demo@razr.marketing",
-  username: "ApexAgency",
-  companyName: "Apex Media International LLC",
-  telegramHandle: "ApexMediaOps",
+  email: "client@razr.marketing",
+  username: "Client",
+  companyName: "Agency Partner LLC",
+  telegramHandle: "agency_lead",
   role: "CLIENT",
-  balance: 14850,
-  adAccounts: [
-    {
-      id: "ACT-META-90182",
-      platform: "Meta (Facebook & Instagram)",
-      status: "ACTIVE",
-      spendLimit: "Unlimited ($50k/day Whitelisted)",
-      balance: 6200,
-      dateApplied: "2026-09-18"
-    },
-    {
-      id: "ACT-GOOG-44910",
-      platform: "Google Search & PMax Direct",
-      status: "ACTIVE",
-      spendLimit: "Unlimited Line",
-      balance: 8650,
-      dateApplied: "2026-09-22"
-    }
-  ],
-  deposits: [
-    {
-      id: "DEP-8841",
-      amount: 10000,
-      crypto: "USDT (TRC20)",
-      address: "TYDnyKbgjfhqwe8792hjs8dhkjwq...",
-      txHash: "7b82f91048b284e91823901bca7281903",
-      date: "2026-09-29",
-      status: "COMPLETED"
-    }
-  ],
+  balance: 0,
+  adAccounts: [],
+  deposits: [],
   applicationFees: []
 };
 
@@ -244,14 +217,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 3. Fallback for any credentials on localhost
     const tempUser: User = {
       id: Date.now(),
-      email: cleanEmail || "tester@razr.marketing",
-      username: cleanEmail.split("@")[0] || "Trader",
+      email: cleanEmail || "client@razr.marketing",
+      username: cleanEmail.split("@")[0] || "Client",
       companyName: "Agency Partner LLC",
       telegramHandle: "agency_lead",
       role: cleanEmail.includes("admin") ? "SUPER_ADMIN" : "CLIENT",
-      balance: 5000,
-      adAccounts: MOCK_CLIENT_USER.adAccounts,
-      deposits: MOCK_CLIENT_USER.deposits,
+      balance: 0,
+      adAccounts: [],
+      deposits: [],
       applicationFees: []
     };
     setUser(tempUser);
@@ -302,7 +275,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       companyName: companyName || "My Brand",
       telegramHandle: telegramHandle || "support",
       role: "CLIENT",
-      balance: 1000,
+      balance: 0,
       adAccounts: [],
       deposits: [],
       applicationFees: []
