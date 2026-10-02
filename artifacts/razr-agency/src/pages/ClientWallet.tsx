@@ -354,7 +354,6 @@ export default function ClientWallet() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* 1. Available Balance */}
           <SpotlightCard tone="aurora" className="p-6 flex flex-col justify-between relative overflow-hidden">
-            <BorderBeam size={180} duration={8} colorFrom="#8B5CF6" colorTo="#06B6D4" />
             <div>
               <div className="flex items-center justify-between text-zinc-400 mb-3">
                 <span className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent">Available Balance</span>

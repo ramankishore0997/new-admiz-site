@@ -495,7 +495,6 @@ export default function ClientDashboard() {
         tone="violet-cyan"
         className="p-8 mb-8 backdrop-blur-xl relative overflow-hidden"
       >
-        <BorderBeam duration={7} colorFrom="#8B5CF6" colorTo="#06B6D4" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -570,8 +569,6 @@ export default function ClientDashboard() {
           tone="violet-cyan"
           className="p-6 flex flex-col justify-between hover:shadow-[0_12px_35px_-8px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
         >
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
-          <BorderBeam size={160} duration={8} colorFrom="#8B5CF6" colorTo="#06B6D4" />
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Available Ad Balance</span>
@@ -823,7 +820,6 @@ export default function ClientDashboard() {
         <div className="lg:col-span-4 space-y-6">
           {/* Assigned Dedicated Account Executive Card */}
           <SpotlightCard tone="violet-cyan" className="p-6 relative overflow-hidden shadow-sm backdrop-blur-md">
-            <BorderBeam duration={9} colorFrom="#8B5CF6" colorTo="#06B6D4" />
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Dedicated VIP Concierge</span>
               <span className="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">
