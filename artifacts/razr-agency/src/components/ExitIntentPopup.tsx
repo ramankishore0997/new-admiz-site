@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Gift, Clock, ArrowRight, CheckCircle2 } from "lucide-react";
+import { X, Gift, Clock, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { SiTelegram } from "react-icons/si";
 import { buildWaLink } from "@/lib/whatsapp";
 
@@ -11,36 +11,34 @@ const ACTIVATION_DELAY_MS = 12_000;
 export default function ExitIntentPopup() {
   const [open, setOpen] = useState(false);
   const [armed, setArmed] = useState(false);
-  const firedRef = useRef(false); // one-shot guard for this page load
+  const firedRef = useRef(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
 
-  // Arm after delay if not recently suppressed
   useEffect(() => {
     try {
       const shownAt = localStorage.getItem(SHOWN_KEY);
       if (shownAt) {
         const hours = (Date.now() - Number(shownAt)) / (1000 * 60 * 60);
         if (hours < SUPPRESS_HOURS) {
-          firedRef.current = true; // pre-suppress for this session too
+          firedRef.current = true;
           return;
         }
       }
     } catch {
-      // storage unavailable — still arm
+      // storage unavailable
     }
     const t = setTimeout(() => setArmed(true), ACTIVATION_DELAY_MS);
     return () => clearTimeout(t);
   }, []);
 
-  // Trigger listeners
   useEffect(() => {
     if (!armed || firedRef.current) return;
 
     const trigger = () => {
       if (firedRef.current) return;
-      firedRef.current = true; // one-shot — no re-trigger this session
+      firedRef.current = true;
       setOpen(true);
       try {
         localStorage.setItem(SHOWN_KEY, String(Date.now()));
@@ -71,20 +69,17 @@ export default function ExitIntentPopup() {
     };
   }, [armed]);
 
-  // Modal a11y: focus trap, escape, scroll lock, focus restore
   useEffect(() => {
     if (!open) return;
 
     lastFocusedRef.current = (document.activeElement as HTMLElement) ?? null;
 
-    // Lock body scroll
     const prevOverflow = document.body.style.overflow;
     const prevPaddingRight = document.body.style.paddingRight;
     const scrollbarW = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = "hidden";
     if (scrollbarW > 0) document.body.style.paddingRight = `${scrollbarW}px`;
 
-    // Initial focus on close button (least pushy)
     requestAnimationFrame(() => closeBtnRef.current?.focus());
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -130,7 +125,7 @@ export default function ExitIntentPopup() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md"
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
           onClick={close}
           role="dialog"
           aria-modal="true"
@@ -145,45 +140,45 @@ export default function ExitIntentPopup() {
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-xl"
           >
-            <div className="absolute -inset-1 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 rounded-3xl blur-2xl opacity-50 pointer-events-none" />
+            <div className="absolute -inset-1 bg-gradient-to-br from-violet-600 via-indigo-600 to-cyan-500 rounded-3xl blur-2xl opacity-40 pointer-events-none" />
 
-            <div className="relative rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/60 backdrop-blur-2xl p-7 md:p-10 overflow-hidden">
-              <div className="absolute -top-24 -right-24 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-teal-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative rounded-3xl border border-zinc-800 bg-[#060608] shadow-2xl backdrop-blur-2xl p-7 md:p-10 overflow-hidden">
+              <div className="absolute -top-24 -right-24 w-72 h-72 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
               <button
                 ref={closeBtnRef}
                 onClick={close}
                 aria-label="Close popup"
-                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors z-10"
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors z-10 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
 
               <div className="relative">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-400/60 bg-amber-50 mb-5">
-                  <Gift className="w-3.5 h-3.5 text-amber-600" />
-                  <span className="text-[10px] font-black tracking-[0.2em] text-amber-700 uppercase">
-                    Wait — Exclusive Offer
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/30 bg-violet-950/40 mb-5">
+                  <Gift className="w-3.5 h-3.5 text-violet-400" />
+                  <span className="text-[10px] font-black tracking-[0.2em] text-violet-300 uppercase">
+                    Wait — Exclusive Allocation
                   </span>
                 </div>
 
-                <h2 id="exit-popup-title" className="text-3xl md:text-4xl font-black uppercase tracking-tighter leading-[0.95] mb-4 text-slate-900">
-                  Don't leave <span className="font-light italic text-slate-600">empty-handed.</span>
+                <h2 id="exit-popup-title" className="text-3xl md:text-4xl font-black uppercase tracking-tight leading-[0.95] mb-4 bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
+                  Don't leave <span className="font-light italic text-cyan-300">behind.</span>
                 </h2>
 
-                <p className="text-base text-slate-700 leading-relaxed mb-6">
-                  Claim a <span className="text-slate-900 font-black">priority onboarding slot</span> this week — skip the waitlist, get activated same-day, and lock your account before slots fill up.
+                <p className="text-sm md:text-base text-zinc-300 leading-relaxed mb-6">
+                  Claim a <span className="text-white font-black">priority agency account allocation</span> this week — skip the review queue, get live same-day, and scale with zero limit caps.
                 </p>
 
                 <ul className="space-y-2.5 mb-7">
                   {[
-                    "Priority onboarding slot — skip the waitlist",
-                    "Same-day activation guaranteed",
-                    "Free 15-min onboarding call with our team",
+                    "Priority agency allocation — zero queue wait time",
+                    "Instant same-day setup and pixel binding",
+                    "Dedicated 1-on-1 strategy onboarding channel",
                   ].map((b, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm text-slate-800">
-                      <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                    <li key={i} className="flex items-center gap-3 text-xs md:text-sm text-zinc-200">
+                      <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
                       {b}
                     </li>
                   ))}
@@ -195,23 +190,23 @@ export default function ExitIntentPopup() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={close}
-                    className="group relative inline-flex items-center justify-center gap-2 flex-1 px-6 py-4 rounded-2xl bg-emerald-600 text-white font-black text-sm uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-[0_10px_40px_rgba(5,150,105,0.3)]"
+                    className="group relative inline-flex items-center justify-center gap-2 flex-1 px-6 py-4 rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white font-black text-xs md:text-sm uppercase tracking-widest hover:opacity-95 hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(124,58,237,0.3)]"
                   >
-                    <SiTelegram className="text-xl" />
-                    Claim My Slot
+                    <SiTelegram className="text-lg" />
+                    Claim Allocation Now
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </a>
                   <button
                     onClick={close}
-                    className="px-6 py-4 rounded-2xl border border-slate-300 text-slate-600 text-xs font-bold uppercase tracking-widest hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                    className="px-6 py-4 rounded-2xl border border-zinc-800 text-zinc-400 text-xs font-bold uppercase tracking-widest hover:bg-zinc-900 hover:text-white transition-colors cursor-pointer"
                   >
                     No thanks
                   </button>
                 </div>
 
-                <div className="mt-5 flex items-center justify-center gap-2 text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+                <div className="mt-5 flex items-center justify-center gap-2 text-[10px] uppercase tracking-wider text-zinc-500 font-bold">
                   <Clock className="w-3 h-3" />
-                  Offer expires Sunday 11:59 PM HKT
+                  Allocation active for current session
                 </div>
               </div>
             </div>

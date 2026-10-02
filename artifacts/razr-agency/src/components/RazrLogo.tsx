@@ -50,8 +50,8 @@ export default function RazrLogo({
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       {LogoImg}
-      <span className="flex items-center leading-none select-none font-black tracking-tight" style={{ fontSize, color: textPrimary }}>
-        <span className="text-slate-900 font-extrabold tracking-tight">razr</span>
+      <span className="flex items-center leading-none select-none font-black tracking-tight" style={{ fontSize }}>
+        <span className="text-white font-extrabold tracking-tight">razr</span>
         <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent font-bold">.marketing</span>
       </span>
     </span>

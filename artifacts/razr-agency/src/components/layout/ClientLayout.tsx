@@ -6,22 +6,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   FileText,
-  Bell,
   HelpCircle,
-  User,
   Settings,
   LogOut,
   Menu,
   X,
   Sparkles,
   ChevronRight,
-  Zap,
   BookOpen,
   ShieldCheck,
-  Building2,
   ShoppingBag,
   Wallet,
-  ExternalLink,
   Headphones
 } from "lucide-react";
 import { SiTelegram, SiWhatsapp } from "react-icons/si";
@@ -76,12 +71,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white border-r border-slate-200 p-5 relative">
+    <div className="flex flex-col h-full bg-[#060608] border-r border-zinc-800 p-5 relative">
       {/* Glow effect */}
-      <div className="absolute top-10 left-10 w-24 h-24 bg-emerald-200/40 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute top-10 left-10 w-24 h-24 bg-violet-500/10 rounded-full blur-2xl pointer-events-none" />
 
       {/* Brand logo */}
-      <div className="flex items-center gap-3 mb-6 pb-5 border-b border-slate-200 relative z-10">
+      <div className="flex items-center gap-3 mb-6 pb-5 border-b border-zinc-800/80 relative z-10">
         <Link href="/">
           <RazrLogo size={32} />
         </Link>
@@ -91,7 +86,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <nav className="flex-1 space-y-6 relative z-10 overflow-y-auto pr-1">
         {CLIENT_MENU_SECTIONS.map((section) => (
           <div key={section.title} className="space-y-1.5">
-            <div className="px-3 text-[9px] font-black uppercase tracking-widest text-slate-400">
+            <div className="px-3 text-[9px] font-black uppercase tracking-widest bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent">
               {section.title}
             </div>
             {section.items.map((item) => {
@@ -103,21 +98,21 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     onClick={() => setIsMobileOpen(false)}
                     className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 ${
                       isActive
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                        ? "bg-gradient-to-r from-violet-600/20 via-indigo-600/20 to-cyan-500/20 text-white border border-violet-500/40 shadow-sm"
+                        : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Icon className={`w-4 h-4 ${isActive ? "text-emerald-600" : "text-slate-400"}`} />
+                      <Icon className={`w-4 h-4 ${isActive ? "text-cyan-400" : "text-zinc-500"}`} />
                       <span>{item.name}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       {item.badge && (
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider bg-violet-950/60 text-cyan-300 border border-violet-500/30">
                           {item.badge}
                         </span>
                       )}
-                      {isActive && <ChevronRight className="w-3.5 h-3.5 text-emerald-600" />}
+                      {isActive && <ChevronRight className="w-3.5 h-3.5 text-cyan-400" />}
                     </div>
                   </a>
                 </Link>
@@ -127,26 +122,26 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         ))}
       </nav>
 
-      {/* 24/7 Dedicated Concierge Support Card (Telegram & WhatsApp) */}
-      <div className="my-2 p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700/60 text-white space-y-2.5 relative z-10 shadow-md">
+      {/* 24/7 Dedicated Concierge Support Card */}
+      <div className="my-2 p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-white space-y-2.5 relative z-10 shadow-lg">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-            <Headphones className="w-3.5 h-3.5" /> 24/7 Live Concierge
+          <span className="text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent flex items-center gap-1.5">
+            <Headphones className="w-3.5 h-3.5 text-cyan-400" /> 24/7 Live Concierge
           </span>
           <span className="flex h-2 w-2 relative">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
         </div>
-        <p className="text-[11px] text-slate-300 font-medium leading-snug">
-          Need instant limit boosts, deposit approvals or urgent account help?
+        <p className="text-[11px] text-zinc-400 font-medium leading-snug">
+          Instant limit boosts, deposit approvals & account setup.
         </p>
         <div className="grid grid-cols-2 gap-1.5 pt-0.5">
           <a
             href={TELEGRAM_SUPPORT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer"
           >
             <SiTelegram className="w-3.5 h-3.5" /> Telegram
           </a>
@@ -154,55 +149,52 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             href={WHATSAPP_SUPPORT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer"
           >
-            <SiWhatsapp className="w-3.5 h-3.5" /> WhatsApp
+            <SiWhatsapp className="w-3.5 h-3.5 text-emerald-400" /> WhatsApp
           </a>
         </div>
       </div>
 
       {/* Quick Setup Guide Card */}
-      <div className="my-2 p-3.5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white space-y-2 relative z-10 shadow-lg shadow-slate-900/10">
+      <div className="my-2 p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-white space-y-2 relative z-10">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1">
-            <Sparkles className="w-3 h-3" /> Quick Guide
+          <span className="text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-pink-400 to-amber-300 bg-clip-text text-transparent flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-amber-300" /> Quick Guide
           </span>
-          <span className="text-[9px] text-slate-400 font-bold">4 Steps</span>
+          <span className="text-[9px] text-zinc-500 font-bold">4 Steps</span>
         </div>
-        <p className="text-[11px] text-slate-300 font-medium leading-snug">
-          Need step-by-step guidance on applying, deposits & BM setup?
-        </p>
         <button
           type="button"
           onClick={() => {
             setIsGuideOpen(true);
             setIsMobileOpen(false);
           }}
-          className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+          className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#060608] hover:bg-zinc-900 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-zinc-800"
         >
-          <HelpCircle className="w-3.5 h-3.5" /> Open Step Guide
+          <HelpCircle className="w-3.5 h-3.5 text-cyan-400" /> Open Step Guide
         </button>
       </div>
 
       {/* Bottom Profile / Logout */}
-      <div className="pt-4 border-t border-slate-200 space-y-4 relative z-10">
+      <div className="pt-4 border-t border-zinc-800 space-y-4 relative z-10">
         {user && (
           <div className="flex items-center gap-3 px-2">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center text-xs font-black text-white shadow-md">
+            <div className="w-9 h-9 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-xs font-black text-cyan-400">
               {user.username.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold text-slate-900 truncate">{user.username}</div>
-              <div className="text-[9px] text-slate-500 truncate">{user.email}</div>
+              <div className="text-xs font-bold text-white truncate">{user.username}</div>
+              <div className="text-[9px] text-zinc-500 truncate">{user.email}</div>
             </div>
           </div>
         )}
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 transition-colors"
         >
-          <LogOut className="w-4 h-4 text-red-500" />
+          <LogOut className="w-4 h-4 text-rose-400" />
           <span>Log Out</span>
         </button>
       </div>
@@ -210,24 +202,24 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row relative">
+    <div className="min-h-screen bg-black text-foreground flex flex-col md:flex-row relative">
       {/* Mobile Header */}
-      <header className="md:hidden flex items-center justify-between p-4 bg-white border-b border-slate-200 sticky top-0 z-40">
+      <header className="md:hidden flex items-center justify-between p-4 bg-[#060608] border-b border-zinc-800 sticky top-0 z-40">
         <Link href="/" className="flex items-center gap-2">
           <img
             src="/logo.png"
             alt="Razr Marketing"
-            style={{ height: 48, width: "auto" }}
-            className="object-contain"
+            style={{ height: 44, width: "auto" }}
+            className="object-contain drop-shadow"
           />
-          <span className="text-sm font-black tracking-widest text-slate-900">RAZR</span>
+          <span className="text-sm font-black tracking-widest text-white">RAZR</span>
         </Link>
         <div className="flex items-center gap-2">
           <a
             href={TELEGRAM_SUPPORT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#229ED9] text-white text-[10px] font-bold"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-cyan-500 text-white text-[10px] font-bold"
             title="Telegram Support"
           >
             <SiTelegram className="w-3.5 h-3.5" />
@@ -236,14 +228,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             href={WHATSAPP_SUPPORT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#25D366] text-white text-[10px] font-bold"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-[10px] font-bold"
             title="WhatsApp Support"
           >
-            <SiWhatsapp className="w-3.5 h-3.5" />
+            <SiWhatsapp className="w-3.5 h-3.5 text-emerald-400" />
           </a>
           <button
             onClick={() => setIsMobileOpen(true)}
-            className="p-2 rounded bg-slate-100 border border-slate-200 text-slate-700"
+            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -265,7 +257,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileOpen(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             />
             {/* Drawer */}
             <motion.div
@@ -278,7 +270,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <SidebarContent />
               <button
                 onClick={() => setIsMobileOpen(false)}
-                className="absolute top-4 right-[-48px] p-2.5 rounded-full bg-white border border-slate-200 text-slate-700 shadow-lg"
+                className="absolute top-4 right-[-48px] p-2.5 rounded-full bg-zinc-900 border border-zinc-800 text-white shadow-lg"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -288,7 +280,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 min-h-screen relative p-6 md:p-8 overflow-y-auto">
+      <main className="flex-1 min-w-0 min-h-screen relative p-6 md:p-8 overflow-y-auto bg-black">
         {children}
       </main>
 

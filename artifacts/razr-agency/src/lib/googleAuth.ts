@@ -1,4 +1,4 @@
-﻿export const GOOGLE_CLIENT_ID =
+export const GOOGLE_CLIENT_ID =
   import.meta.env.VITE_GOOGLE_CLIENT_ID ||
   "955281194717-n5j3vds7cn9rm5jk3f5flcrgjqvg17aq.apps.googleusercontent.com";
 
@@ -15,8 +15,7 @@ export function parseGoogleJwt(token: string): {
   email?: string;
   name?: string;
   picture?: string;
-  sub?: string;
-  email_verified?: boolean;
+  [key: string]: any;
 } | null {
   try {
     const base64Url = token.split(".")[1];

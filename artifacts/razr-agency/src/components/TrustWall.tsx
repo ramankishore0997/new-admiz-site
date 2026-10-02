@@ -6,7 +6,7 @@ const ITEMS = [
   { icon: Headphones, label: "24/7 Live Support" },
   { icon: Building2, label: "Agency-Level Access" },
   { icon: Zap, label: "1-Hour Activation" },
-  { icon: ShieldCheck, label: "Verified Access" },
+  { icon: ShieldCheck, label: "Guaranteed Access" },
   { icon: Globe2, label: "Global Coverage" },
   { icon: Award, label: "Top-Rated Provider" },
   { icon: Sparkles, label: "Premium Infrastructure" },
@@ -14,9 +14,9 @@ const ITEMS = [
 
 export default function TrustWall() {
   return (
-    <section className="relative w-full overflow-hidden py-14 border-y border-slate-200 bg-gradient-to-b from-background via-slate-50 to-background">
-      <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+    <section className="relative w-full overflow-hidden py-14 border-y border-zinc-800 bg-black">
+      <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
 
       <motion.div
         className="flex whitespace-nowrap items-center gap-10 md:gap-14"
@@ -28,11 +28,11 @@ export default function TrustWall() {
           return (
             <div
               key={i}
-              className="flex items-center gap-3 px-6 py-3 rounded-full border border-slate-200 bg-white shadow-sm shrink-0 hover:border-primary/40 hover:bg-primary/[0.04] transition-colors"
+              className="flex items-center gap-3 px-6 py-3 rounded-full border border-zinc-800 bg-[#060608] shadow-lg shrink-0 hover:border-cyan-500/40 hover:bg-zinc-950 transition-all"
             >
-              <Icon className="w-4 h-4 text-primary" />
-              <span className="text-sm font-bold uppercase tracking-wider text-slate-800">{item.label}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+              <Icon className="w-4 h-4 text-cyan-400" />
+              <span className="text-sm font-bold uppercase tracking-wider text-zinc-200">{item.label}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
             </div>
           );
         })}

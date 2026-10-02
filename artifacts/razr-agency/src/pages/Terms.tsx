@@ -1,4 +1,5 @@
 import PageWrapper from "@/components/layout/PageWrapper";
+import { SpotlightCard } from "@/components/ui/SpotlightCard";
 
 const SECTIONS = [
   {
@@ -7,35 +8,35 @@ const SECTIONS = [
   },
   {
     title: "2. Services Provided",
-    body: "Razr Marketing provides premium Meta (Facebook & Instagram) and Google agency advertising accounts, including account provisioning, Business Manager access, billing setup, and ongoing technical support. We offer both Whitehat (policy-compliant) and Blackhat (aggressive vertical) account options.",
+    body: "Razr Marketing provides agency advertising accounts across Meta (Facebook & Instagram) and Google ecosystem, including account provisioning, Business Manager access, corporate billing lines, and continuous technical uptime management.",
   },
   {
     title: "3. Client Responsibilities",
-    body: "You are responsible for ensuring all advertising content complies with applicable laws and the policies of the platforms you advertise on. You must not use our accounts for illegal activities, fraud, intellectual property infringement, or any purpose that could harm our infrastructure or other clients.",
+    body: "You are responsible for ensuring all advertising content complies with applicable laws and the policies of the platforms you advertise on. You must not use our accounts for illegal activities, fraud, unauthorized IP infringement, or any purpose that could harm our corporate infrastructure.",
   },
   {
     title: "4. Account Usage",
-    body: "Accounts provided are for your use only and may not be resold, transferred, or shared without our written consent. You must follow our operational guidelines regarding scaling, payment methods, and creative compliance.",
+    body: "Accounts provided are for your business use only and may not be resold or transferred without our written consent. You must follow our operational guidelines regarding scaling velocity, payment methods, and compliance protocols.",
   },
   {
-    title: "5. Lifetime Replacement Policy",
-    body: "We provide free lifetime replacements for accounts that fail without policy violation by you. Remaining ad balances are transferred to replacement accounts where technically possible. This replacement guarantee is our primary form of service guarantee.",
+    title: "5. Lifetime Replacement Guarantee",
+    body: "We provide prompt lifetime replacements for accounts that encounter unexpected restrictions without policy violations by you. Remaining ad balance allocations are automatically transferred to your replacement infrastructure.",
   },
   {
     title: "6. Payment & Billing",
-    body: "All service fees must be paid in advance. We accept bank transfers, USDT, and other payment methods communicated at the time of order. Setup fees are non-refundable once account provisioning has begun.",
+    body: "All service fees must be settled in advance. We accept bank transfers, USDT/Crypto, and direct methods communicated at onboarding. Setup allocations are non-refundable once infrastructure configuration has started.",
   },
   {
     title: "7. Limitation of Liability",
-    body: "Razr Marketing is not liable for indirect, incidental, or consequential damages including lost ad spend, lost revenue, or business interruption. Our total liability is limited to the amount you paid for the affected service in the preceding 30 days.",
+    body: "Razr Marketing is not liable for indirect, incidental, or consequential damages including external platform ad auction outcomes or business interruption. Total liability is limited strictly to the fees paid for the affected service in the preceding 30 days.",
   },
   {
     title: "8. Platform Policy Changes",
-    body: "Meta and Google may change their advertising policies at any time. We work to adapt our infrastructure quickly but cannot guarantee continuous service if external platforms make sweeping changes affecting agency accounts.",
+    body: "External platform algorithms and policies may shift. We adapt our enterprise routing and whitelisted bins continuously to maintain seamless scaling uptime.",
   },
   {
     title: "9. Termination",
-    body: "We reserve the right to terminate service to any client who violates these terms, abuses our support, or engages in activities that damage our infrastructure or relationships with platform providers.",
+    body: "We reserve the right to suspend or terminate services to any client who breaches these terms or conducts activities hazardous to our institutional corporate framework.",
   },
   {
     title: "10. Governing Law",
@@ -43,30 +44,39 @@ const SECTIONS = [
   },
   {
     title: "11. Contact",
-    body: "For any questions about these Terms of Service, contact us via Telegram @RazrMarketing or email scale@razr.marketing.",
+    body: "For questions about these Terms of Service, contact our team via Telegram @RazrMarketing, WhatsApp +44 7473 951923, or email scale@razr.marketing.",
   },
 ];
 
 export default function Terms() {
   return (
     <PageWrapper>
-      <section className="pt-28 pb-16 relative">
+      <section className="pt-28 pb-20 relative bg-black">
         <div className="container mx-auto px-4 max-w-4xl">
-          <span className="text-xs font-bold tracking-[0.2em] text-primary uppercase mb-6 block">Legal</span>
-          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
-            Terms of <span className="text-primary">Service</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-950/40 text-[10px] font-black uppercase tracking-widest text-cyan-300 mb-6">
+            Institutional Legal Framework
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tight text-white mb-4">
+            Terms of <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Service</span>
           </h1>
-          <p className="text-muted-foreground text-lg mb-10">
-            Last updated: June 27, 2026 — razr.marketing
+          <p className="text-zinc-400 text-sm md:text-base mb-12">
+            Last updated: October 2026 — RAZR Global Media International Limited (London, UK)
           </p>
 
-          <div className="space-y-10">
-            {SECTIONS.map((s) => (
-              <div key={s.title} className="border-l-2 border-slate-200 pl-6 md:pl-8 hover:border-primary transition-colors">
-                <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-4">{s.title}</h2>
-                <p className="text-muted-foreground leading-relaxed text-[15px] md:text-base">{s.body}</p>
-              </div>
-            ))}
+          <div className="space-y-6">
+            {SECTIONS.map((s, idx) => {
+              const tones = ["aurora", "cyber", "sunset", "neon"] as const;
+              return (
+                <SpotlightCard key={s.title} tone={tones[idx % tones.length]} className="p-6 md:p-8">
+                  <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-white mb-3">
+                    {s.title}
+                  </h2>
+                  <p className="text-zinc-300 leading-relaxed text-sm md:text-[15px]">
+                    {s.body}
+                  </p>
+                </SpotlightCard>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Wallet,
   FileText,
   Clock,
   CheckCircle2,
@@ -10,12 +9,10 @@ import {
   Sparkles,
   ChevronDown,
   ChevronUp,
-  ExternalLink,
-  ShieldCheck,
   PlusCircle,
   HelpCircle,
-  PlayCircle
 } from "lucide-react";
+import { SpotlightCard } from "@/components/ui/SpotlightCard";
 
 interface OnboardingRoadmapProps {
   walletBalance: number;
@@ -66,7 +63,7 @@ export default function OnboardingRoadmap({
         <button
           type="button"
           onClick={onOpenDeposit}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 hover:scale-105 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-violet-600/30 cursor-pointer"
         >
           <PlusCircle className="w-3.5 h-3.5" /> Deposit Funds
         </button>
@@ -82,9 +79,9 @@ export default function OnboardingRoadmap({
       isActive: currentStep === 2,
       action: !isStep2Done ? (
         <Link href="/app/application">
-          <a className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer">
-            <FileText className="w-3.5 h-3.5" /> Apply for Account
-          </a>
+          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-black hover:bg-zinc-900 text-white text-xs font-black uppercase tracking-wider transition-all border border-zinc-800 cursor-pointer">
+            <FileText className="w-3.5 h-3.5 text-cyan-400" /> Apply for Account
+          </span>
         </Link>
       ) : null,
     },
@@ -100,9 +97,9 @@ export default function OnboardingRoadmap({
       isActive: currentStep === 3,
       action: isStep2Done && !isStep3Done ? (
         <Link href="/app/application">
-          <a className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold uppercase tracking-wider">
-            <Clock className="w-3.5 h-3.5 text-amber-600 animate-spin" style={{ animationDuration: "8s" }} /> Track Review
-          </a>
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-violet-950/60 text-cyan-300 border border-violet-500/30 text-xs font-bold uppercase tracking-wider cursor-pointer">
+            <Clock className="w-3.5 h-3.5 text-cyan-400 animate-spin" style={{ animationDuration: "8s" }} /> Track Review
+          </span>
         </Link>
       ) : null,
     },
@@ -116,33 +113,34 @@ export default function OnboardingRoadmap({
       isActive: currentStep === 4,
       action: isStep3Done && !isStep4Done ? (
         <Link href="/app/application">
-          <a className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider shadow-md">
+          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 hover:scale-105 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-violet-600/30 cursor-pointer">
             Claim Account Access <ArrowRight className="w-3.5 h-3.5" />
-          </a>
+          </span>
         </Link>
       ) : null,
     },
   ];
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm space-y-6 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-600/5 rounded-full blur-3xl pointer-events-none" />
-
+    <SpotlightCard tone="violet-cyan" className="p-6 md:p-8 space-y-6 shadow-2xl backdrop-blur-xl">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-black uppercase tracking-widest">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> Onboarding Roadmap
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-950/60 border border-violet-500/30 text-cyan-300 text-[10px] font-black uppercase tracking-widest">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> Onboarding Roadmap
             </span>
-            <span className="text-xs font-bold text-slate-500">
+            <span className="text-xs font-bold text-zinc-400">
               {completedSteps} of 4 Completed ({progressPct}%)
             </span>
           </div>
-          <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-slate-900">
-            How to Get Your Ad Account <span className="text-emerald-600">& Start Scaling</span>
+          <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-white">
+            How to Get Your Ad Account &{" "}
+            <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
+              Start Scaling
+            </span>
           </h2>
-          <p className="text-xs text-slate-600 mt-0.5">
+          <p className="text-xs text-zinc-400 mt-0.5">
             Follow these 4 simple steps to provision and launch your agency ad lines.
           </p>
         </div>
@@ -152,16 +150,16 @@ export default function OnboardingRoadmap({
             <button
               type="button"
               onClick={onOpenGuide}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-black hover:bg-zinc-900 text-zinc-200 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer border border-zinc-800"
             >
-              <HelpCircle className="w-3.5 h-3.5 text-slate-600" /> Step Guide
+              <HelpCircle className="w-3.5 h-3.5 text-cyan-400" /> Step Guide
             </button>
           )}
 
           <button
             type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 cursor-pointer transition-colors"
+            className="p-2 rounded-xl border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900 cursor-pointer transition-colors"
             title={isCollapsed ? "Expand Roadmap" : "Collapse Roadmap"}
           >
             {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
@@ -171,12 +169,12 @@ export default function OnboardingRoadmap({
 
       {/* Progress Bar */}
       <div className="relative z-10">
-        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+        <div className="w-full bg-black h-2.5 rounded-full overflow-hidden border border-zinc-800">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progressPct}%` }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
+            className="h-full bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400 rounded-full"
           />
         </div>
       </div>
@@ -195,14 +193,11 @@ export default function OnboardingRoadmap({
               const isCurrent = step.isActive;
 
               return (
-                <div
+                <SpotlightCard
                   key={step.num}
-                  className={`rounded-2xl p-5 flex flex-col justify-between border transition-all ${
-                    isCompleted
-                      ? "bg-emerald-50/50 border-emerald-200 shadow-xs"
-                      : isCurrent
-                      ? "bg-white border-slate-900 shadow-md ring-2 ring-slate-900/5"
-                      : "bg-slate-50/60 border-slate-200 opacity-80"
+                  tone={isCurrent ? "cyber" : isCompleted ? "emerald" : "default"}
+                  className={`p-5 flex flex-col justify-between transition-all ${
+                    isCurrent ? "ring-1 ring-cyan-500/40" : ""
                   }`}
                 >
                   <div className="space-y-3">
@@ -211,22 +206,22 @@ export default function OnboardingRoadmap({
                       <div
                         className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black ${
                           isCompleted
-                            ? "bg-emerald-600 text-white shadow-xs"
+                            ? "bg-gradient-to-r from-violet-600 to-cyan-500 text-white"
                             : isCurrent
-                            ? "bg-slate-900 text-white shadow-xs"
-                            : "bg-slate-200 text-slate-600"
+                            ? "bg-cyan-400 text-black ring-2 ring-cyan-500/50"
+                            : "bg-zinc-900 text-zinc-500"
                         }`}
                       >
-                        {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : step.num}
+                        {isCompleted ? <CheckCircle2 className="w-4 h-4 text-white" /> : step.num}
                       </div>
 
                       <span
                         className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
                           isCompleted
-                            ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                            ? "bg-emerald-950/60 text-emerald-400 border-emerald-500/30"
                             : isCurrent
-                            ? "bg-blue-50 text-blue-700 border-blue-200 animate-pulse"
-                            : "bg-slate-100 text-slate-500 border-slate-200"
+                            ? "bg-violet-950/60 text-cyan-300 border-violet-500/30 animate-pulse"
+                            : "bg-black text-zinc-600 border-zinc-800"
                         }`}
                       >
                         {isCompleted ? "Completed" : isCurrent ? "Active Step" : "Upcoming"}
@@ -234,22 +229,22 @@ export default function OnboardingRoadmap({
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-black uppercase tracking-tight text-slate-900">
+                      <h3 className="text-sm font-black uppercase tracking-tight text-white">
                         {step.title}
                       </h3>
-                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
                         {step.desc}
                       </p>
                     </div>
                   </div>
 
                   {step.action && <div className="pt-4 mt-2">{step.action}</div>}
-                </div>
+                </SpotlightCard>
               );
             })}
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </SpotlightCard>
   );
 }

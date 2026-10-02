@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Activity, DollarSign, Target, TrendingUp } from "lucide-react";
+import { ArrowUpRight, Activity, DollarSign, Target, TrendingUp, Sparkles } from "lucide-react";
 
 const baseData = [
   { time: "00:00", spend: 1200 },
@@ -14,11 +14,11 @@ const baseData = [
 ];
 
 const FEED = [
-  { time: "now", text: "CBO - Broad - US scaling +18%", color: "text-primary" },
-  { time: "2s", text: "New conversion: $89.40 ROAS", color: "text-emerald-600" },
-  { time: "8s", text: "Retargeting DPA refresh complete", color: "text-slate-700" },
-  { time: "14s", text: "Advantage+ exited learning phase", color: "text-amber-600" },
-  { time: "21s", text: "Daily budget increased: $4k → $6k", color: "text-primary" },
+  { time: "now", text: "CBO - Broad - US scaling +18%", color: "text-cyan-400" },
+  { time: "2s", text: "New conversion: $89.40 ROAS", color: "text-emerald-400" },
+  { time: "8s", text: "Retargeting DPA refresh complete", color: "text-violet-300" },
+  { time: "14s", text: "Advantage+ exited learning phase", color: "text-amber-400" },
+  { time: "21s", text: "Daily budget increased: $4k → $6k", color: "text-cyan-400" },
 ];
 
 export default function CommandCenter({ className = "" }: { className?: string }) {
@@ -48,23 +48,23 @@ export default function CommandCenter({ className = "" }: { className?: string }
   }, []);
 
   return (
-    <div className={`w-full max-w-3xl rounded-xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 overflow-hidden ${className}`}>
+    <div className={`w-full max-w-3xl rounded-3xl border border-zinc-800 bg-[#060608] shadow-2xl backdrop-blur-xl overflow-hidden ${className}`}>
       {/* Header */}
-      <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50/60">
+      <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between bg-black">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
-            <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
+            <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+            <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+            <div className="w-2.5 h-2.5 rounded-full bg-cyan-500/80" />
           </div>
-          <span className="ml-4 text-xs font-medium text-muted-foreground uppercase tracking-widest">BM: Atlas Global</span>
+          <span className="ml-4 text-xs font-mono font-medium text-zinc-400 uppercase tracking-widest">BM: Atlas Global</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
           </span>
-          <span className="text-xs text-slate-700">Live</span>
+          <span className="text-xs bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent font-black uppercase tracking-wider">Live</span>
         </div>
       </div>
 
@@ -72,65 +72,66 @@ export default function CommandCenter({ className = "" }: { className?: string }
       <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
         {/* Metrics Grid */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <motion.div key={spend} initial={{ opacity: 0.7 }} animate={{ opacity: 1 }} className="p-2.5 sm:p-4 rounded-lg bg-slate-50 border border-slate-200 relative overflow-hidden">
+          <motion.div key={spend} initial={{ opacity: 0.7 }} animate={{ opacity: 1 }} className="p-2.5 sm:p-4 rounded-2xl bg-black border border-zinc-800 relative overflow-hidden">
             <div className="flex items-center gap-1 sm:gap-1.5 mb-1">
-              <DollarSign className="w-3 h-3 text-slate-500 shrink-0" />
-              <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider truncate">Spend</div>
+              <DollarSign className="w-3 h-3 text-zinc-500 shrink-0" />
+              <div className="text-[9px] sm:text-[10px] text-zinc-400 uppercase tracking-wider truncate font-bold">Spend</div>
             </div>
-            <div className="text-base sm:text-2xl font-bold text-slate-900 tabular-nums truncate">${spend.toLocaleString()}</div>
-            <div className="text-[9px] sm:text-[10px] text-emerald-600 flex items-center gap-0.5 mt-1">
+            <div className="text-base sm:text-2xl font-black bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent tabular-nums truncate font-mono">${spend.toLocaleString()}</div>
+            <div className="text-[9px] sm:text-[10px] text-emerald-400 flex items-center gap-0.5 mt-1 font-bold">
               <ArrowUpRight className="w-3 h-3 shrink-0" /> +12.4%
             </div>
           </motion.div>
-          <div className="p-2.5 sm:p-4 rounded-lg bg-slate-50 border border-slate-200">
+          <div className="p-2.5 sm:p-4 rounded-2xl bg-black border border-zinc-800">
             <div className="flex items-center gap-1 sm:gap-1.5 mb-1">
-              <Target className="w-3 h-3 text-slate-500 shrink-0" />
-              <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider">ROAS</div>
+              <Target className="w-3 h-3 text-zinc-500 shrink-0" />
+              <div className="text-[9px] sm:text-[10px] text-zinc-400 uppercase tracking-wider font-bold">ROAS</div>
             </div>
-            <div className="text-base sm:text-2xl font-bold text-primary tabular-nums">{roas.toFixed(2)}x</div>
-            <div className="text-[9px] sm:text-[10px] text-emerald-600 flex items-center gap-0.5 mt-1">
+            <div className="text-base sm:text-2xl font-black text-cyan-300 tabular-nums font-mono">{roas.toFixed(2)}x</div>
+            <div className="text-[9px] sm:text-[10px] text-cyan-400 flex items-center gap-0.5 mt-1 font-bold">
               <ArrowUpRight className="w-3 h-3 shrink-0" /> Live
             </div>
           </div>
-          <div className="p-2.5 sm:p-4 rounded-lg bg-slate-50 border border-slate-200">
+          <div className="p-2.5 sm:p-4 rounded-2xl bg-black border border-zinc-800">
             <div className="flex items-center gap-1 sm:gap-1.5 mb-1">
-              <TrendingUp className="w-3 h-3 text-slate-500 shrink-0" />
-              <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider truncate">Conv.</div>
+              <TrendingUp className="w-3 h-3 text-zinc-500 shrink-0" />
+              <div className="text-[9px] sm:text-[10px] text-zinc-400 uppercase tracking-wider truncate font-bold">Conv.</div>
             </div>
-            <div className="text-base sm:text-2xl font-bold text-slate-900 tabular-nums truncate">{convs.toLocaleString()}</div>
-            <div className="text-[9px] sm:text-[10px] text-slate-500 mt-1">No limit</div>
+            <div className="text-base sm:text-2xl font-black text-white tabular-nums truncate font-mono">{convs.toLocaleString()}</div>
+            <div className="text-[9px] sm:text-[10px] text-zinc-500 mt-1 font-bold">No limit</div>
           </div>
         </div>
 
         {/* Chart */}
-        <div className="h-36 sm:h-44 w-full p-3 sm:p-4 rounded-lg bg-slate-50 border border-slate-200 relative">
-          <div className="absolute top-4 left-4 z-10 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Velocity · Live</div>
+        <div className="h-36 sm:h-44 w-full p-3 sm:p-4 rounded-2xl bg-black border border-zinc-800 relative">
+          <div className="absolute top-4 left-4 z-10 text-[10px] font-black text-zinc-400 uppercase tracking-widest">Velocity · Live</div>
           <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-500" />
             </span>
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider">Streaming</span>
+            <span className="text-[10px] text-cyan-400 uppercase tracking-wider font-bold">Streaming</span>
           </div>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
+                  <stop offset="50%" stopColor="#06b6d4" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <Tooltip contentStyle={{ backgroundColor: "#ffffff", border: "1px solid rgba(226,232,240,1)", fontSize: 11 }} itemStyle={{ color: "#0f172a" }} />
-              <Area type="monotone" dataKey="spend" stroke="hsl(160, 84%, 39%)" strokeWidth={2} fillOpacity={1} fill="url(#colorSpend)" isAnimationActive={false} />
+              <Tooltip contentStyle={{ backgroundColor: "#060608", border: "1px solid #27272a", borderRadius: "12px", color: "#fff", fontSize: 11 }} itemStyle={{ color: "#06b6d4" }} />
+              <Area type="monotone" dataKey="spend" stroke="#06b6d4" strokeWidth={2} fillOpacity={1} fill="url(#colorSpend)" isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
         {/* Live Activity Feed */}
-        <div className="rounded-lg bg-slate-50 border border-slate-200 p-3">
+        <div className="rounded-2xl bg-black border border-zinc-800 p-3.5">
           <div className="flex items-center gap-1.5 mb-2.5">
-            <Activity className="w-3 h-3 text-primary" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Live Activity</span>
+            <Activity className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Live Activity</span>
           </div>
           <div className="space-y-1.5 h-16 overflow-hidden relative">
             {FEED.map((f, i) => {
@@ -142,7 +143,7 @@ export default function CommandCenter({ className = "" }: { className?: string }
                   transition={{ duration: 0.5, ease: "easeOut" }}
                   className="absolute top-0 left-0 right-0 flex items-center gap-2 text-[11px]"
                 >
-                  <span className="text-slate-400 tabular-nums shrink-0 w-8">{f.time}</span>
+                  <span className="text-zinc-500 tabular-nums shrink-0 w-8 font-mono">{f.time}</span>
                   <span className={`w-1 h-1 rounded-full bg-current ${f.color} shrink-0`} />
                   <span className={`${f.color} font-medium`}>{f.text}</span>
                 </motion.div>

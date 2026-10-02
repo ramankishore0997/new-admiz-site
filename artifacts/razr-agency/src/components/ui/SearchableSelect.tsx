@@ -43,32 +43,32 @@ export default function SearchableSelect({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-left text-slate-900 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors cursor-pointer flex items-center justify-between gap-2 ${buttonClassName}`}
+        className={`w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-left text-white outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-colors cursor-pointer flex items-center justify-between gap-2 ${buttonClassName}`}
       >
-        <span className={`truncate ${selected ? "text-slate-900" : "text-slate-400"}`}>
+        <span className={`truncate ${selected ? "text-white font-medium" : "text-zinc-400"}`}>
           {selected ? selected.label : placeholder}
         </span>
-        <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-4 h-4 text-zinc-400 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
-        <div className="absolute z-30 mt-2 w-full bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
-          <div className="p-2 border-b border-slate-100">
+        <div className="absolute z-30 mt-2 w-full bg-[#060608] border border-zinc-800 rounded-xl shadow-2xl backdrop-blur-xl overflow-hidden">
+          <div className="p-2 border-b border-zinc-800">
             <div className="relative">
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-2.5 w-4 h-4 text-zinc-400" />
               <input
                 autoFocus
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={placeholder}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-900 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+                className="w-full bg-black border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-zinc-500 outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50"
               />
             </div>
           </div>
           <ul className="max-h-60 overflow-y-auto py-1">
             {filtered.length === 0 && (
-              <li className="px-4 py-3 text-sm text-slate-400">No match found</li>
+              <li className="px-4 py-3 text-sm text-zinc-400">No match found</li>
             )}
             {filtered.map((o) => (
               <li key={o.value}>
@@ -79,10 +79,10 @@ export default function SearchableSelect({
                     setOpen(false);
                     setQuery("");
                   }}
-                  className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-primary/5 flex items-center justify-between gap-2"
+                  className="w-full text-left px-4 py-2.5 text-sm text-zinc-200 hover:bg-zinc-900/80 hover:text-white flex items-center justify-between gap-2 transition-colors cursor-pointer"
                 >
                   <span className="truncate">{o.label}</span>
-                  {o.value === value && <Check className="w-4 h-4 text-primary shrink-0" />}
+                  {o.value === value && <Check className="w-4 h-4 text-cyan-400 shrink-0" />}
                 </button>
               </li>
             ))}

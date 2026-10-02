@@ -32,7 +32,7 @@ const ADMIN_MENU: MenuItem[] = [
   { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "BM Orders", href: "/admin/bm-orders", icon: ShoppingBag },
   { name: "Live Chat", href: "/admin/live-chat", icon: MessageCircle },
-  { name: "Payments Verification", href: "/admin/payments", icon: DollarSign },
+  { name: "Payments Approval", href: "/admin/payments", icon: DollarSign },
   { name: "Applications", href: "/admin/applications", icon: ClipboardList },
   { name: "Ad Accounts", href: "/admin/accounts", icon: Server },
   { name: "Client Docs", href: "/admin/documents", icon: FileDown },
@@ -54,65 +54,65 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white border-r border-slate-200 p-6 relative">
+    <div className="flex flex-col h-full bg-[#060608] border-r border-zinc-800/80 p-6 relative">
       {/* Glow effect */}
-      <div className="absolute top-10 left-10 w-24 h-24 bg-emerald-200/40 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute top-10 left-10 w-32 h-32 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Brand logo */}
-      <div className="flex items-center gap-3 mb-10 pb-6 border-b border-slate-200 relative z-10">
+      <div className="flex items-center gap-3 mb-8 pb-5 border-b border-zinc-800/80 relative z-10">
         <Link href="/" className="flex items-center gap-2">
           <RazrLogo size={32} />
-          <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full ml-1">
+          <span className="text-[10px] font-black uppercase tracking-widest text-cyan-300 bg-violet-500/10 border border-violet-500/30 px-2.5 py-0.5 rounded-full ml-1">
             Ops
           </span>
         </Link>
       </div>
 
       {/* Menu links */}
-      <nav className="flex-1 space-y-1.5 relative z-10">
+      <nav className="flex-1 space-y-1.5 relative z-10 overflow-y-auto pr-1">
         {ADMIN_MENU.map((item) => {
           const isActive = location === item.href;
           const Icon = item.icon;
           return (
             <Link key={item.name} href={item.href}>
-              <a
+              <span
                 onClick={() => setIsMobileOpen(false)}
-                className={`flex items-center justify-between px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 ${
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25"
-                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                    ? "bg-gradient-to-r from-violet-600/20 to-cyan-600/20 text-white border border-violet-500/40 shadow-lg shadow-violet-500/10"
+                    : "text-zinc-400 hover:text-white hover:bg-black/60"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? "text-cyan-300" : "text-zinc-500"}`} />
                   <span>{item.name}</span>
                 </div>
-                {isActive && <ChevronRight className="w-3.5 h-3.5" />}
-              </a>
+                {isActive && <ChevronRight className="w-3.5 h-3.5 text-cyan-300" />}
+              </span>
             </Link>
           );
         })}
       </nav>
 
       {/* Bottom Profile / Logout */}
-      <div className="pt-6 border-t border-slate-200 space-y-4 relative z-10">
+      <div className="pt-5 border-t border-zinc-800 space-y-4 relative z-10">
         {user && (
           <div className="flex items-center gap-3 px-2">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center text-xs font-black text-white shadow-md">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-r from-violet-600/30 to-cyan-600/30 border border-violet-500/40 flex items-center justify-center text-xs font-black text-cyan-300">
               {user.username.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold text-slate-900 truncate">{user.username}</div>
-              <div className="text-[8px] font-black uppercase tracking-widest text-emerald-600 mt-0.5">{user.role}</div>
+              <div className="text-xs font-bold text-white truncate">{user.username}</div>
+              <div className="text-[8px] font-black uppercase tracking-widest text-cyan-400 mt-0.5">{user.role}</div>
             </div>
           </div>
         )}
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 transition-colors cursor-pointer"
         >
-          <LogOut className="w-4 h-4 text-red-500" />
+          <LogOut className="w-4 h-4 text-rose-400" />
           <span>Log Out</span>
         </button>
       </div>
@@ -120,21 +120,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row relative">
+    <div className="min-h-screen bg-black text-white flex flex-col md:flex-row relative">
       {/* Mobile Header */}
-      <header className="md:hidden flex items-center justify-between p-4 bg-white border-b border-slate-200 sticky top-0 z-40">
+      <header className="md:hidden flex items-center justify-between p-4 bg-[#060608] border-b border-zinc-800 sticky top-0 z-40">
         <Link href="/" className="flex items-center gap-2">
           <img
             src="/logo.png"
             alt="Razr Marketing"
-            style={{ height: 48, width: "auto" }}
-            className="object-contain"
+            style={{ height: 44, width: "auto" }}
+            className="object-contain drop-shadow"
           />
-          <span className="text-sm font-black tracking-widest text-slate-900">RAZR OPS</span>
+          <span className="text-sm font-black tracking-widest text-white">RAZR OPS</span>
         </Link>
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="p-2 rounded bg-slate-100 border border-slate-200 text-slate-700"
+          className="p-2 rounded-xl bg-black border border-zinc-800 text-zinc-300 hover:text-white cursor-pointer"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -155,7 +155,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileOpen(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             />
             {/* Drawer */}
             <motion.div
@@ -168,7 +168,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <SidebarContent />
               <button
                 onClick={() => setIsMobileOpen(false)}
-                className="absolute top-4 right-[-48px] p-2.5 rounded-full bg-white border border-slate-200 text-slate-700 shadow-lg"
+                className="absolute top-4 right-[-48px] p-2.5 rounded-full bg-[#060608] border border-zinc-800 text-white shadow-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -178,7 +178,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 min-h-screen relative p-6 md:p-8 overflow-y-auto bg-slate-50">
+      <main className="flex-1 min-w-0 min-h-screen relative p-6 md:p-8 overflow-y-auto bg-black">
         {children}
       </main>
     </div>

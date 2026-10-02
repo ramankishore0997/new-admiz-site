@@ -7,18 +7,14 @@ import { useAuth } from "@/hooks/useAuth";
 import RazrLogo from "@/components/RazrLogo";
 
 const navLinks = [
-  { name: "Home", href: "/", icon: Home },
   { name: "Features", href: "/features", icon: Sparkles },
   { name: "Solutions", href: "/solutions", icon: Layers },
-  { name: "Accounts", href: "/agency-accounts", icon: Briefcase },
+  { name: "Agency Lines", href: "/agency-accounts", icon: Briefcase },
   { name: "Process", href: "/how-it-works", icon: Workflow },
-  { name: "Run Ads", href: "/advertise", icon: Megaphone },
-  { name: "About", href: "/about", icon: Building2 },
-  { name: "FAQ", href: "/faq", icon: HelpCircle },
   { name: "Contact", href: "/contact", icon: MessageCircle },
 ];
 
-// ─────────── Magnetic CTA Button ───────────
+// ─────────── Multi-Color Magnetic CTA Button ───────────
 function MagneticCTA() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
@@ -46,15 +42,14 @@ function MagneticCTA() {
       onMouseMove={onMove}
       onMouseLeave={onLeave}
       style={{ x, y }}
-      className="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-600 text-white text-xs font-black uppercase tracking-widest overflow-hidden group cursor-pointer shadow-lg shadow-emerald-600/25"
+      className="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-violet-600 via-cyan-500 to-emerald-500 text-white text-xs font-black uppercase tracking-widest overflow-hidden group cursor-pointer shadow-[0_0_25px_rgba(139,92,246,0.35)] hover:shadow-[0_0_35px_rgba(6,182,212,0.5)] transition-all"
     >
       <motion.span
         aria-hidden
         className="absolute inset-y-0 -left-full w-1/2 bg-gradient-to-r from-transparent via-white/60 to-transparent skew-x-12"
         animate={{ x: ["0%", "300%"] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
       />
-      <span className="absolute inset-0 bg-gradient-to-r from-emerald-700 via-emerald-500 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <span className="relative">{user ? "Dashboard" : "Get Access"}</span>
       <ArrowRight className="relative w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
     </motion.a>
@@ -67,11 +62,11 @@ export default function Navbar() {
 
   const dynamicLinks = user
     ? [
-        ...navLinks.filter((l) => l.name !== "Contact" && l.name !== "Run Ads"),
+        ...navLinks,
         { name: "Dashboard", href: "/app/dashboard", icon: Briefcase },
       ]
     : [
-        ...navLinks.filter((l) => l.name !== "Run Ads"),
+        ...navLinks,
         { name: "Login", href: "/login", icon: Lock },
       ];
   const [isScrolled, setIsScrolled] = useState(false);
@@ -84,7 +79,7 @@ export default function Navbar() {
   const spotYs = useSpring(spotY, { stiffness: 120, damping: 20 });
   const spotMask = useTransform(
     [spotXs, spotYs],
-    ([x, y]) => `radial-gradient(220px circle at ${x}px ${y}px, rgba(5,150,105,0.10), transparent 70%)`
+    ([x, y]) => `radial-gradient(220px circle at ${x}px ${y}px, rgba(139,92,246,0.25), transparent 70%)`
   );
 
   const { scrollYProgress } = useScroll();
@@ -108,13 +103,13 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Scroll progress bar */}
+      {/* Multi-Color Scroll progress bar */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-600 via-emerald-400 to-teal-400 z-[60] origin-left"
+        className="fixed top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400 z-[60] origin-left shadow-[0_0_12px_rgba(6,182,212,0.8)]"
         style={{ scaleX }}
       />
 
-      {/* Floating Glass Navbar */}
+      {/* Floating Deep Pitch Black Navbar */}
       <div
         className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none transition-all duration-500"
         style={{ top: isScrolled ? "12px" : "18px" }}
@@ -125,23 +120,21 @@ export default function Navbar() {
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className={`pointer-events-auto relative rounded-full border backdrop-blur-xl transition-all duration-700 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] ${
+          className={`pointer-events-auto relative rounded-full border backdrop-blur-2xl transition-all duration-700 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] ${
             isScrolled
-              ? "bg-white/95 border-slate-200 px-3 py-2 scale-[0.96] shadow-[0_12px_40px_-12px_rgba(15,23,42,0.18),0_0_0_1px_rgba(5,150,105,0.08)_inset]"
-              : "bg-white/80 border-slate-200/80 px-4 py-2.5 shadow-[0_10px_35px_-15px_rgba(15,23,42,0.15)]"
+              ? "bg-black/95 border-zinc-800 px-3 py-2 scale-[0.96] shadow-[0_15px_40px_-10px_rgba(0,0,0,0.9),0_0_0_1px_rgba(139,92,246,0.3)_inset]"
+              : "bg-black/90 border-zinc-800/90 px-4 py-2.5 shadow-[0_12px_35px_-12px_rgba(0,0,0,0.85)]"
           }`}
         >
           {/* Mouse spotlight overlay */}
           <motion.div
             aria-hidden
-            className="absolute inset-0 rounded-full pointer-events-none opacity-60"
+            className="absolute inset-0 rounded-full pointer-events-none opacity-50"
             style={{ background: spotMask }}
           />
-          {/* Soft inner ring */}
-          <div className="absolute inset-0 rounded-full ring-1 ring-inset ring-slate-900/5 pointer-events-none" />
 
           <div className="relative flex items-center gap-2">
-            {/* Logo */}
+            {/* Multi-Color Logo */}
             <Link href="/" className="flex items-center pl-2 pr-3 group">
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                 <RazrLogo size={36} />
@@ -149,7 +142,7 @@ export default function Navbar() {
             </Link>
 
             {/* Divider */}
-            <div className="hidden md:block w-px h-6 bg-slate-200" />
+            <div className="hidden md:block w-px h-6 bg-zinc-800" />
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-0.5">
@@ -168,19 +161,19 @@ export default function Navbar() {
                     {isHovered && !isActive && (
                       <motion.span
                         layoutId="nav-hover"
-                        className="absolute inset-0 rounded-full bg-slate-100"
+                        className="absolute inset-0 rounded-full bg-zinc-850"
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                       />
                     )}
-                    {/* Active pill */}
+                    {/* Active pill with multi-color border & glow */}
                     {isActive && (
                       <motion.span
                         layoutId="nav-active"
-                        className="absolute inset-0 rounded-full bg-emerald-50 border border-emerald-200 shadow-sm"
+                        className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-600/25 via-cyan-500/20 to-emerald-500/25 border border-cyan-400/60 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
                         transition={{ type: "spring", stiffness: 300, damping: 28 }}
                       />
                     )}
-                    <span className={`relative transition-colors ${isActive ? "text-emerald-700" : "text-slate-500 hover:text-slate-900"}`}>
+                    <span className={`relative transition-colors ${isActive ? "bg-gradient-to-r from-violet-300 via-cyan-300 to-emerald-300 bg-clip-text text-transparent font-extrabold" : "text-zinc-400 hover:text-white"}`}>
                       {link.name}
                     </span>
                   </Link>
@@ -189,17 +182,10 @@ export default function Navbar() {
             </nav>
 
             {/* Divider */}
-            <div className="hidden md:block w-px h-6 bg-slate-200 ml-1" />
+            <div className="hidden md:block w-px h-6 bg-zinc-800 ml-1" />
 
-            {/* Status + CTA */}
-            <div className="hidden md:flex items-center gap-3 pl-2 pr-1">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-                </span>
-                <span className="text-[9px] font-black tracking-wider text-emerald-700 uppercase">UK · Global Supply</span>
-              </div>
+            {/* Multi-Color CTA */}
+            <div className="hidden md:flex items-center pl-2 pr-1">
               <MagneticCTA />
             </div>
 
@@ -207,7 +193,7 @@ export default function Navbar() {
             <button
               onClick={() => setOpen(!open)}
               aria-label="Toggle menu"
-              className="md:hidden relative w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-200 transition-colors"
+              className="md:hidden relative w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300 hover:bg-zinc-800 transition-colors"
             >
               {open ? <X size={16} /> : <Menu size={16} />}
             </button>
@@ -223,14 +209,10 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="md:hidden fixed inset-0 z-40 bg-white/98 backdrop-blur-2xl pt-24 px-6 pb-8 overflow-y-auto"
+            className="md:hidden fixed inset-0 z-40 bg-black/98 backdrop-blur-2xl pt-24 px-6 pb-8 overflow-y-auto text-white"
           >
-            {/* Ambient glows */}
-            <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] bg-emerald-200/40 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-teal-200/40 rounded-full blur-[120px] pointer-events-none" />
-
             <div className="relative max-w-md mx-auto">
-              <div className="text-[10px] font-black tracking-[0.25em] text-slate-400 uppercase mb-6">Navigate</div>
+              <div className="text-[10px] font-black tracking-[0.25em] text-zinc-500 uppercase mb-6">Navigate</div>
               {/* Mobile Nav */}
               <nav className="flex flex-col gap-2 mb-8">
                 {dynamicLinks.map((link, i) => {
@@ -248,19 +230,19 @@ export default function Navbar() {
                         onClick={() => setOpen(false)}
                         className={`relative group flex items-center justify-between px-5 py-4 rounded-2xl border transition-all overflow-hidden ${
                           isActive
-                            ? "border-emerald-200 bg-emerald-50"
-                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                            ? "border-cyan-500/50 bg-gradient-to-r from-violet-600/20 via-cyan-500/20 to-emerald-500/20 shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+                            : "border-zinc-800/90 bg-[#060608] hover:border-zinc-700 hover:bg-zinc-950"
                         }`}
                       >
                         <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500 group-hover:text-slate-700"}`}>
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isActive ? "bg-violet-600/30 text-cyan-300 shadow-md" : "bg-zinc-900 text-zinc-400 group-hover:text-white"}`}>
                             <Icon className="w-4 h-4" />
                           </div>
-                          <span className={`text-base font-black uppercase tracking-tight ${isActive ? "text-emerald-700" : "text-slate-800"}`}>
+                          <span className={`text-base font-black uppercase tracking-tight ${isActive ? "bg-gradient-to-r from-violet-300 via-cyan-300 to-emerald-300 bg-clip-text text-transparent" : "text-zinc-300"}`}>
                             {link.name}
                           </span>
                         </div>
-                        <ArrowRight className={`w-4 h-4 transition-all ${isActive ? "text-emerald-600" : "text-slate-300 group-hover:translate-x-1 group-hover:text-slate-500"}`} />
+                        <ArrowRight className={`w-4 h-4 transition-all ${isActive ? "text-cyan-300" : "text-zinc-500 group-hover:translate-x-1 group-hover:text-zinc-300"}`} />
                       </Link>
                     </motion.div>
                   );
@@ -274,15 +256,14 @@ export default function Navbar() {
                   onClick={() => setOpen(false)}
                   className="relative block group rounded-2xl overflow-hidden"
                 >
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 rounded-2xl blur opacity-60" />
-                  <div className="relative bg-emerald-600 text-white py-5 text-center text-sm font-black uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-3">
+                  <div className="relative bg-gradient-to-r from-violet-600 via-cyan-500 to-emerald-500 text-white py-5 text-center text-sm font-black uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-violet-600/40">
                     {user ? "Dashboard" : "Get Access"} <ArrowRight className="w-4 h-4" />
                   </div>
                 </Link>
-                <div className="mt-5 flex items-center justify-center gap-2 text-xs text-slate-500">
+                <div className="mt-5 flex items-center justify-center gap-2 text-xs text-zinc-500">
                   <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-400" />
                   </span>
                   Team online · Avg response 12 min
                 </div>

@@ -80,7 +80,7 @@ export default function GoogleSignInButton({
       if (window.google?.accounts?.id && googleBtnRef.current) {
         setSdkLoaded(true);
         renderGoogleButton(googleBtnRef.current, {
-          theme: "outline",
+          theme: "filled_black",
           size: "large",
         });
         clearInterval(checkSdk);
@@ -144,10 +144,10 @@ export default function GoogleSignInButton({
           type="button"
           onClick={handleFallbackClick}
           disabled={isLoading}
-          className="w-full relative flex items-center justify-center gap-3 px-5 py-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer disabled:opacity-75"
+          className="w-full relative flex items-center justify-center gap-3 px-5 py-3 rounded-xl border border-zinc-800 bg-[#060608] hover:bg-zinc-900 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer disabled:opacity-75"
         >
           {isLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+            <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
           ) : (
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
               <path

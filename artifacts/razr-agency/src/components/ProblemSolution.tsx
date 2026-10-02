@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { X, Check, AlertTriangle, ShieldCheck } from "lucide-react";
 import { buildWaLink } from "@/lib/whatsapp";
-import SpotlightCard from "@/components/ui/SpotlightCard";
+import { SpotlightCard } from "@/components/ui/SpotlightCard";
+import { ShimmerButton } from "@/components/ui/ShimmerButton";
 
 const PAINS = [
   {
@@ -43,11 +44,7 @@ const GAINS = [
 
 export default function ProblemSolution() {
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden bg-slate-50 border-y border-slate-200">
-      {/* background glows */}
-      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-red-100/60 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-primary/[0.10] rounded-full blur-[140px] pointer-events-none" />
-
+    <section className="relative py-20 md:py-32 overflow-hidden bg-black text-white border-y border-zinc-900">
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <motion.div
@@ -57,13 +54,15 @@ export default function ProblemSolution() {
           transition={{ duration: 0.7 }}
           className="text-center max-w-3xl mx-auto mb-14 md:mb-20"
         >
-          <div className="text-[10px] font-black uppercase tracking-[0.25em] text-primary mb-3">The Difference</div>
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter leading-[0.95] mb-5">
+          <div className="text-[10px] font-black uppercase tracking-[0.25em] bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent mb-3">The Difference</div>
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter leading-[0.95] text-white mb-5">
             Stop fighting <br className="hidden sm:block" />
-            <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">the platform.</span>
+            <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(6,182,212,0.3)]">
+              the platform.
+            </span>
           </h2>
-          <p className="text-base md:text-xl text-slate-600 leading-relaxed">
-            Every advertiser hits the same walls. We built Razr to remove them — permanently.
+          <p className="text-base md:text-xl text-zinc-300 leading-relaxed">
+            Every advertiser hits the same walls. We built Razr to remove them — <span className="text-cyan-300 font-bold">permanently.</span>
           </p>
         </motion.div>
 
@@ -77,34 +76,36 @@ export default function ProblemSolution() {
             transition={{ duration: 0.7 }}
             className="h-full"
           >
-            <SpotlightCard tone="red" className="h-full p-6 md:p-8">
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-red-100/70 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="relative">
-              <div className="flex items-center gap-3 mb-6 pb-6 border-b border-red-100">
-                <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-black uppercase tracking-[0.2em] text-red-600/80">Status Quo</div>
-                  <div className="text-xl md:text-2xl font-black uppercase tracking-tight">Without Razr</div>
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                {PAINS.map((p, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="shrink-0 w-6 h-6 rounded-full bg-red-50 border border-red-200 flex items-center justify-center mt-0.5">
-                      <X className="w-3.5 h-3.5 text-red-600" strokeWidth={3} />
-                    </div>
-                    <div>
-                      <div className="font-bold text-slate-900 mb-1">{p.title}</div>
-                      <div className="text-sm text-slate-500 leading-relaxed">{p.body}</div>
-                    </div>
+            <SpotlightCard
+              tone="sunset"
+              enableSkewGradient={true}
+              className="h-full p-6 md:p-8 bg-[#080508] border-zinc-800"
+            >
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-6 pb-6 border-b border-rose-900/30">
+                  <div className="w-10 h-10 rounded-xl bg-rose-950/60 border border-rose-800/40 flex items-center justify-center text-rose-400 shadow-md">
+                    <AlertTriangle className="w-5 h-5" />
                   </div>
-                ))}
+                  <div>
+                    <div className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-400">Status Quo</div>
+                    <div className="text-xl md:text-2xl font-black uppercase tracking-tight text-white">Without Razr</div>
+                  </div>
+                </div>
+
+                <div className="space-y-5">
+                  {PAINS.map((p, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="shrink-0 w-6 h-6 rounded-full bg-rose-950/80 border border-rose-700/50 flex items-center justify-center mt-0.5">
+                        <X className="w-3.5 h-3.5 text-rose-400" strokeWidth={3} />
+                      </div>
+                      <div>
+                        <div className="font-bold text-white mb-1">{p.title}</div>
+                        <div className="text-sm text-zinc-400 leading-relaxed">{p.body}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
             </SpotlightCard>
           </motion.div>
 
@@ -116,34 +117,36 @@ export default function ProblemSolution() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="h-full"
           >
-            <SpotlightCard tone="emerald" className="h-full p-6 md:p-8">
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="relative">
-              <div className="flex items-center gap-3 mb-6 pb-6 border-b border-primary/20">
-                <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/40 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/90">The Upgrade</div>
-                  <div className="text-xl md:text-2xl font-black uppercase tracking-tight">With Razr</div>
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                {GAINS.map((g, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="shrink-0 w-6 h-6 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center mt-0.5">
-                      <Check className="w-3.5 h-3.5 text-primary" strokeWidth={3} />
-                    </div>
-                    <div>
-                      <div className="font-bold text-slate-900 mb-1">{g.title}</div>
-                      <div className="text-sm text-slate-600 leading-relaxed">{g.body}</div>
-                    </div>
+            <SpotlightCard
+              tone="aurora"
+              enableSkewGradient={true}
+              className="h-full p-6 md:p-8 bg-[#060608] border-zinc-800 shadow-2xl"
+            >
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-6 pb-6 border-b border-cyan-900/30">
+                  <div className="w-10 h-10 rounded-xl bg-violet-950/60 border border-violet-700/40 flex items-center justify-center text-cyan-300 shadow-md">
+                    <ShieldCheck className="w-5 h-5" />
                   </div>
-                ))}
+                  <div>
+                    <div className="text-[10px] font-black uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">The Upgrade</div>
+                    <div className="text-xl md:text-2xl font-black uppercase tracking-tight bg-gradient-to-r from-violet-300 via-cyan-300 to-emerald-300 bg-clip-text text-transparent">With Razr</div>
+                  </div>
+                </div>
+
+                <div className="space-y-5">
+                  {GAINS.map((g, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="shrink-0 w-6 h-6 rounded-full bg-violet-950/80 border border-violet-500/50 flex items-center justify-center mt-0.5">
+                        <Check className="w-3.5 h-3.5 text-cyan-300" strokeWidth={3} />
+                      </div>
+                      <div>
+                        <div className="font-bold text-white mb-1">{g.title}</div>
+                        <div className="text-sm text-zinc-300 leading-relaxed">{g.body}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
             </SpotlightCard>
           </motion.div>
         </div>
@@ -154,18 +157,21 @@ export default function ProblemSolution() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="text-center mt-12 md:mt-16"
+          className="text-center mt-12 md:mt-16 flex flex-col items-center"
         >
           <a
             href={buildWaLink("setup-access", { source: "problem-solution" })}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-emerald-600 text-white font-bold uppercase tracking-wider text-sm hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/25"
           >
-            Get Agency Access Now
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <ShimmerButton>
+              <span>Get Agency Access Now</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            </ShimmerButton>
           </a>
-          <div className="text-xs uppercase tracking-[0.2em] text-slate-500 mt-4">No setup fee • 1-hour activation</div>
+          <div className="text-xs uppercase tracking-[0.2em] bg-gradient-to-r from-violet-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent mt-4 font-bold">
+            Zero hidden fees • 1-hour fast activation
+          </div>
         </motion.div>
       </div>
     </section>

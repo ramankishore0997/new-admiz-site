@@ -21,7 +21,6 @@ import {
   Loader2,
   ExternalLink,
   Upload,
-  FileImage,
   Trash2,
   X,
   Clock,
@@ -30,12 +29,9 @@ import {
   Sparkles,
   RefreshCw,
   Zap,
-  Headphones,
-  Lock,
   Shield,
   CheckCircle2,
   ChevronRight,
-  HelpCircle,
   UserCheck
 } from "lucide-react";
 import { SiTelegram, SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
@@ -44,7 +40,8 @@ import { apiFetch } from "@/lib/api";
 import OnboardingRoadmap from "@/components/onboarding/OnboardingRoadmap";
 import NextActionHero from "@/components/onboarding/NextActionHero";
 import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
-import { playSuccessChime, playNotificationPop } from "@/lib/audioAlerts";
+import SpotlightCard from "@/components/ui/SpotlightCard";
+import { playSuccessChime } from "@/lib/audioAlerts";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
 
@@ -104,12 +101,10 @@ export default function ClientDashboard() {
   const [showGuideDrawer, setShowGuideDrawer] = useState(false);
 
   const MIN_WITHDRAWAL = 200;
-
   const MIN_DEPOSIT_FIRST = 10;
   const MIN_DEPOSIT_NEXT = 50;
   const MIN_LOAD = 50;
 
-  // Tiered service fee for ad-account topups: <$100 → 3%, $100–$1,000 → 2%, >$1,000 → 1.5%
   const getLoadFeeRate = (amount: number) => (amount < 100 ? 0.03 : amount <= 1000 ? 0.02 : 0.015);
   const getLoadFeePct = (amount: number) => Math.round(getLoadFeeRate(amount) * 1000) / 10;
 
@@ -160,7 +155,6 @@ export default function ClientDashboard() {
     }
   };
 
-  // Silent auto-refresh so status updates appear live without reloading
   useEffect(() => {
     const id = setInterval(() => {
       apiFetch<any[]>("/api/applications")
@@ -174,11 +168,7 @@ export default function ClientDashboard() {
   }, []);
 
   useEffect(() => {
-    // Load applications
     fetchApplications();
-
-    // Provisioned ad accounts come from the authenticated profile (/api/me)
-    // Load user manual payment history and BM orders
     fetchMyPayments();
     fetchMyWithdrawals();
     fetchMyBmOrders();
@@ -196,7 +186,6 @@ export default function ClientDashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     const validTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
     if (!validTypes.includes(file.type)) {
       toast({
@@ -207,7 +196,6 @@ export default function ClientDashboard() {
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         variant: "destructive",
@@ -414,21 +402,20 @@ export default function ClientDashboard() {
 
   const isFirstDeposit = myPayments.length === 0;
   const minDeposit = isFirstDeposit ? MIN_DEPOSIT_FIRST : MIN_DEPOSIT_NEXT;
-
   const adAccounts = user?.adAccounts ?? [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "APPROVED":
       case "PAID":
-        return "text-emerald-600 border-emerald-200 bg-emerald-50";
+        return "text-emerald-400 border-emerald-500/30 bg-emerald-500/10";
       case "REJECTED":
-        return "text-red-600 border-red-200 bg-red-50";
-      case "PENDING_VERIFICATION":
+        return "text-rose-400 border-rose-500/30 bg-rose-500/10";
+      case "PENDING_APPROVAL":
       case "UNDER_REVIEW":
-        return "text-amber-600 border-amber-200 bg-amber-50";
+        return "text-amber-400 border-amber-500/30 bg-amber-500/10";
       default:
-        return "text-slate-600 border-slate-200 bg-slate-100";
+        return "text-zinc-400 border-zinc-700 bg-zinc-900";
     }
   };
 
@@ -478,17 +465,20 @@ export default function ClientDashboard() {
   return (
     <ClientLayout>
       {/* Top Banner / Welcome Header */}
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-r from-emerald-50 via-white to-slate-50 p-8 mb-8">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-600/5 rounded-full blur-3xl pointer-events-none" />
+      <SpotlightCard
+        tone="violet-cyan"
+        className="p-8 mb-8 backdrop-blur-xl"
+      >
+        <div className="absolute top-0 right-0 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 text-xs font-bold uppercase tracking-widest mb-3">
-              <Building className="w-3.5 h-3.5" /> Client Operations Cockpit
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-950/40 border border-violet-500/30 text-cyan-300 text-xs font-bold uppercase tracking-widest mb-3">
+              <Building className="w-3.5 h-3.5 text-cyan-400" /> Client Operations Cockpit
             </div>
-            <h1 className="text-3xl font-black tracking-tight uppercase text-slate-900">
-              Welcome back, <span className="text-primary">{user?.username}</span>
+            <h1 className="text-3xl font-black tracking-tight uppercase text-white">
+              Welcome back, <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">{user?.username}</span>
             </h1>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-sm text-zinc-400 mt-1">
               {user?.companyName} · Telegram: @{user?.telegramHandle}
             </p>
           </div>
@@ -496,26 +486,26 @@ export default function ClientDashboard() {
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => setShowDepositModal(true)}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-[0_4px_20px_rgba(5,150,105,0.25)] cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-[0_4px_20px_rgba(139,92,246,0.25)] hover:scale-[1.02] cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" /> Add Funds (USDT)
             </button>
 
             <button
               onClick={openWithdrawModal}
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-900 text-xs font-black uppercase tracking-widest transition-all border border-slate-200 cursor-pointer"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-black hover:bg-zinc-900 text-white text-xs font-black uppercase tracking-widest transition-all border border-zinc-800 cursor-pointer"
             >
-              <ArrowDownToLine className="w-4 h-4" /> Withdraw
+              <ArrowDownToLine className="w-4 h-4 text-cyan-400" /> Withdraw
             </button>
 
             <Link href="/app/application">
-              <a className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-900 text-xs font-black uppercase tracking-widest transition-all border border-slate-200">
-                Apply New Account <ArrowUpRight className="w-4 h-4" />
-              </a>
+              <span className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-black hover:bg-zinc-900 text-white text-xs font-black uppercase tracking-widest transition-all border border-zinc-800 cursor-pointer">
+                Apply New Account <ArrowUpRight className="w-4 h-4 text-cyan-400" />
+              </span>
             </Link>
           </div>
         </div>
-      </div>
+      </SpotlightCard>
 
       {/* Next Action Dynamic Hero Card */}
       <div className="mb-8">
@@ -546,93 +536,102 @@ export default function ClientDashboard() {
         />
       </div>
 
-      {/* Grid Quick Stats Cards */}
+      {/* Grid Quick Stats Cards with Cursor Spotlight */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Wallet balance */}
-        <div className="relative group rounded-3xl overflow-hidden border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-sm hover:shadow-[0_12px_35px_-8px_rgba(5,150,105,0.12)] hover:-translate-y-0.5 transition-all duration-300 p-6 flex flex-col justify-between">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+        <SpotlightCard
+          tone="violet-cyan"
+          className="p-6 flex flex-col justify-between hover:shadow-[0_12px_35px_-8px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300"
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Available Ad Balance</span>
-              <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100/80 flex items-center justify-center shadow-2xs">
+              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Available Ad Balance</span>
+              <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-cyan-400 border border-violet-500/20 flex items-center justify-center">
                 <Wallet className="w-5 h-5" />
               </div>
             </div>
-            <div className="text-3xl font-black text-slate-900 font-mono tabular-nums">
+            <div className="text-3xl font-black bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent font-mono tabular-nums">
               ${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs text-emerald-700 font-bold mt-5 pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-between text-xs text-cyan-400 font-bold mt-5 pt-3 border-t border-zinc-800/80">
             <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5" /> 100% Commission-Free</span>
             <Link href="/app/wallet">
-              <a className="text-primary hover:underline flex items-center gap-1 text-[11px] font-black uppercase tracking-wider">
+              <span className="bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent hover:opacity-80 flex items-center gap-1 text-[11px] font-black uppercase tracking-wider cursor-pointer">
                 Manage Wallet →
-              </a>
+              </span>
             </Link>
           </div>
-        </div>
+        </SpotlightCard>
 
         {/* Ad accounts count */}
-        <div className="relative group rounded-3xl overflow-hidden border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-sm hover:shadow-[0_12px_35px_-8px_rgba(2,6,23,0.08)] hover:-translate-y-0.5 transition-all duration-300 p-6 flex flex-col justify-between">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500" />
+        <SpotlightCard
+          tone="cyber"
+          className="p-6 flex flex-col justify-between hover:shadow-[0_12px_35px_-8px_rgba(6,182,212,0.25)] hover:-translate-y-1 transition-all duration-300"
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-pink-500 via-violet-500 to-cyan-500" />
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Ad Lines</span>
-              <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100/80 flex items-center justify-center shadow-2xs">
+              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Active Ad Lines</span>
+              <div className="w-11 h-11 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5" />
               </div>
             </div>
-            <div className="text-3xl font-black text-slate-900 font-mono tabular-nums">
+            <div className="text-3xl font-black text-white font-mono tabular-nums">
               {adAccounts.filter((a: any) => a.status === "ACTIVE").length || 0}
             </div>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold mt-5 pt-3 border-t border-slate-100">
+          <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-bold mt-5 pt-3 border-t border-zinc-800/80">
             <span className="relative flex w-2 h-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full w-2 h-2 bg-emerald-500" />
             </span>
             <span>Enterprise whitelist line active</span>
           </div>
-        </div>
+        </SpotlightCard>
 
         {/* Live Application Tracker card */}
-        <div className="relative group rounded-3xl overflow-hidden border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-sm hover:shadow-[0_12px_35px_-8px_rgba(2,6,23,0.08)] hover:-translate-y-0.5 transition-all duration-300 p-6 flex flex-col justify-between">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500" />
+        <SpotlightCard
+          tone="amber"
+          className="p-6 flex flex-col justify-between hover:shadow-[0_12px_35px_-8px_rgba(245,158,11,0.2)] hover:-translate-y-1 transition-all duration-300"
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-pink-500 to-violet-500" />
           <div>
             <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <div className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
                 Application Pipeline {applications.length > 0 && (
-                  <span className="ml-1 text-emerald-700 font-mono font-bold">({applications.length})</span>
+                  <span className="ml-1 text-cyan-400 font-mono font-bold">({applications.length})</span>
                 )}
               </div>
-              <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full">
                 <span className="relative flex w-1.5 h-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-emerald-500" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-cyan-500" />
                 </span>
                 LIVE
               </span>
             </div>
             {appsError ? (
               <div>
-                <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5">
+                <div className="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2.5">
                   {appsError}
                 </div>
                 <button
                   onClick={fetchApplications}
-                  className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
+                  className="mt-2 text-[10px] font-black uppercase tracking-wider text-cyan-400 hover:underline cursor-pointer"
                 >
                   Retry
                 </button>
               </div>
             ) : isLoadingApps ? (
               <div className="flex items-center justify-center h-12">
-                <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
               </div>
             ) : activeApp ? (
               <div className="space-y-3 mt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black font-mono uppercase tracking-wider text-slate-900">
+                  <span className="text-xs font-black font-mono uppercase tracking-wider text-white">
                     {activeApp.publicId}
                   </span>
                   <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${getStatusColor(activeApp.status)}`}>
@@ -640,77 +639,82 @@ export default function ClientDashboard() {
                   </span>
                 </div>
                 <div>
-                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/60">
+                  <div className="w-full h-1.5 bg-black rounded-full overflow-hidden border border-zinc-800">
                     <div
-                      className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-500 rounded-full transition-all duration-500"
                       style={{ width: `${getStatusPercentage(activeApp.status)}%` }}
                     />
                   </div>
-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mt-1">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 mt-1">
                     <span>Progress</span>
-                    <span className="font-bold text-slate-700">{getStatusPercentage(activeApp.status)}%</span>
+                    <span className="font-bold text-zinc-300">{getStatusPercentage(activeApp.status)}%</span>
                   </div>
                 </div>
               </div>
             ) : (
               <div>
-                <div className="text-sm font-bold text-slate-700">No active application.</div>
+                <div className="text-sm font-bold text-zinc-300">No active application.</div>
                 <Link href="/app/application">
-                  <a className="inline-flex items-center gap-1.5 text-xs text-primary font-bold hover:underline mt-2">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-cyan-400 font-bold hover:underline mt-2 cursor-pointer">
                     Apply Now <ArrowUpRight className="w-3.5 h-3.5" />
-                  </a>
+                  </span>
                 </Link>
               </div>
             )}
           </div>
           {activeApp && (
-            <div className="text-[9px] text-slate-400 font-medium pt-3 mt-3 border-t border-slate-100 flex items-center justify-between">
+            <div className="text-[9px] text-zinc-400 font-medium pt-3 mt-3 border-t border-zinc-800/80 flex items-center justify-between">
               <span className="truncate max-w-[180px]">{getNextStep(activeApp.status)}</span>
               <span>{timeAgo(activeApp.updatedAt)}</span>
             </div>
           )}
-        </div>
+        </SpotlightCard>
       </div>
 
       {/* Enterprise SLA & Trust Assurance Strip */}
-      <div className="rounded-3xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50/90 via-teal-50/40 to-white backdrop-blur-md p-5 md:p-6 mb-8 shadow-sm">
+      <SpotlightCard
+        tone="violet-cyan"
+        className="p-5 md:p-6 mb-8 backdrop-blur-md shadow-sm border-violet-500/20"
+      >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-600/25">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-violet-600/25 font-black">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900">Institutional Agency Line Protection</span>
-                <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
-                  <Sparkles className="w-2.5 h-2.5" /> Tier-1 Architecture
+                <span className="text-xs font-black uppercase tracking-wider text-white">Institutional Agency Line Protection</span>
+                <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-cyan-950/80 text-cyan-300 border border-cyan-500/30 shadow-2xs">
+                  <Sparkles className="w-2.5 h-2.5 text-cyan-400" /> Tier-1 Architecture
                 </span>
               </div>
-              <p className="text-[11px] text-slate-600 mt-0.5 font-medium">
+              <p className="text-[11px] text-zinc-400 mt-0.5 font-medium">
                 RAZR Global Media International Ltd (UK: 14829104) · Unlimited Free Replacements · Whitelisted Enterprise ASN Routing
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-left md:text-right">
-              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Governed Under UK Law</div>
-              <div className="text-xs font-mono font-black text-emerald-700">#AGY-2026-UK-PRIME</div>
+              <div className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Governed Under UK Law</div>
+              <div className="text-xs font-mono font-black text-cyan-400">#AGY-2026-UK-PRIME</div>
             </div>
           </div>
         </div>
-      </div>
+      </SpotlightCard>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         {/* LEFT: Ad accounts & Applications */}
         <div className="lg:col-span-8 space-y-6">
-          <div className="rounded-3xl border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-sm p-6 md:p-8">
+          <SpotlightCard tone="violet-cyan" className="p-6 md:p-8 backdrop-blur-md shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
               <div>
-                <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">Your Provisioned Ad Accounts</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Whitelisted Enterprise Lines · Direct Agency Route</p>
+                <h2 className="text-lg font-black uppercase tracking-tight text-white">
+                  <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Your Provisioned Ad Accounts</span>
+                </h2>
+                <p className="text-xs text-zinc-400 mt-0.5">Whitelisted Enterprise Lines · Direct Agency Route</p>
               </div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider shadow-2xs">
-                <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" /> Active Agency Shield
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold uppercase tracking-wider shadow-2xs">
+                <BadgeCheck className="w-3.5 h-3.5 text-cyan-400" /> Active Agency Shield
               </div>
             </div>
 
@@ -720,9 +724,9 @@ export default function ClientDashboard() {
                   const getPlatformIcon = (platform: string) => {
                     const l = (platform || "").toLowerCase();
                     if (l.includes("meta") || l.includes("facebook")) return <SiMeta className="w-5 h-5 text-[#1877F2]" />;
-                    if (l.includes("google") || l.includes("youtube")) return <SiGoogleads className="w-5 h-5 text-yellow-500" />;
-                    if (l.includes("tiktok")) return <SiTiktok className="w-5 h-5 text-slate-900" />;
-                    return <Building className="w-5 h-5 text-primary" />;
+                    if (l.includes("google") || l.includes("youtube")) return <SiGoogleads className="w-5 h-5 text-yellow-400" />;
+                    if (l.includes("tiktok")) return <SiTiktok className="w-5 h-5 text-white" />;
+                    return <Building className="w-5 h-5 text-cyan-400" />;
                   };
 
                   const getPartnerBadge = (platform: string) => {
@@ -734,50 +738,54 @@ export default function ClientDashboard() {
                   };
 
                   return (
-                    <div key={acc.id} className="relative rounded-3xl overflow-hidden border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/90 p-6 hover:border-slate-300 hover:shadow-[0_12px_35px_-8px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between shadow-sm">
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500" />
+                    <SpotlightCard
+                      key={acc.id}
+                      tone="cyber"
+                      className="p-6 hover:shadow-[0_12px_35px_-8px_rgba(6,182,212,0.25)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between shadow-sm"
+                    >
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
                       <div>
                         {/* Top Platform & Partner Badge */}
                         <div className="flex items-start justify-between gap-2 mb-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+                            <div className="w-12 h-12 rounded-2xl bg-black border border-zinc-800 flex items-center justify-center shrink-0 shadow-2xs">
                               {getPlatformIcon(acc.platform)}
                             </div>
                             <div>
-                              <div className="text-xs text-slate-900 font-black uppercase tracking-wide">
+                              <div className="text-xs text-white font-black uppercase tracking-wide">
                                 {acc.name || acc.platform}
                               </div>
-                              <div className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 uppercase tracking-wider mt-0.5">
-                                <BadgeCheck className="w-3 h-3 text-emerald-600" /> {getPartnerBadge(acc.platform)}
+                              <div className="inline-flex items-center gap-1 text-[9px] font-bold text-cyan-400 uppercase tracking-wider mt-0.5">
+                                <BadgeCheck className="w-3 h-3 text-cyan-400" /> {getPartnerBadge(acc.platform)}
                               </div>
                             </div>
                           </div>
                           <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${
                             acc.status === "ACTIVE"
-                              ? "text-emerald-700 border-emerald-200 bg-emerald-50"
+                              ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
                               : acc.status === "APPROVED"
-                              ? "text-emerald-700 border-emerald-200 bg-emerald-50"
-                              : "text-amber-700 border-amber-200 bg-amber-50"
+                              ? "text-cyan-400 border-cyan-500/30 bg-cyan-500/10"
+                              : "text-amber-400 border-amber-500/30 bg-amber-500/10"
                           }`}>
                             {acc.status === "APPROVED" ? "APPROVED" : acc.status}
                           </span>
                         </div>
 
                         {/* Account ID / BM Access */}
-                        <div className="bg-slate-100/80 rounded-2xl p-3.5 border border-slate-200/70 space-y-2 mb-4">
+                        <div className="bg-black rounded-2xl p-3.5 border border-zinc-800 space-y-2 mb-4">
                           <div className="flex items-center justify-between text-[10px]">
-                            <span className="text-slate-500 font-bold uppercase tracking-wider">Account ID:</span>
-                            <span className="font-mono font-bold text-slate-900">{acc.accountId || "Provisioning..."}</span>
+                            <span className="text-zinc-400 font-bold uppercase tracking-wider">Account ID:</span>
+                            <span className="font-mono font-bold text-white">{acc.accountId || "Provisioning..."}</span>
                           </div>
-                          <div className="flex items-center justify-between text-[10px] pt-2 border-t border-slate-200/60">
-                            <span className="text-slate-500 font-bold uppercase tracking-wider">BM Access:</span>
+                          <div className="flex items-center justify-between text-[10px] pt-2 border-t border-zinc-800">
+                            <span className="text-zinc-400 font-bold uppercase tracking-wider">BM Access:</span>
                             {acc.status === "ACTIVE" && acc.businessPortfolioId ? (
-                              <span className="font-mono font-bold text-blue-700 flex items-center gap-1">
-                                <BadgeCheck className="w-3 h-3 text-emerald-600" /> BM: {acc.businessPortfolioId}
+                              <span className="font-mono font-bold text-cyan-400 flex items-center gap-1">
+                                <BadgeCheck className="w-3 h-3 text-cyan-400" /> BM: {acc.businessPortfolioId}
                               </span>
                             ) : (
-                              <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-flex items-center gap-1">
-                                <Clock className="w-2.5 h-2.5 text-amber-600" /> Pending Admin Assignment
+                              <span className="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 inline-flex items-center gap-1">
+                                <Clock className="w-2.5 h-2.5 text-amber-400" /> Pending Admin Assignment
                               </span>
                             )}
                           </div>
@@ -785,21 +793,21 @@ export default function ClientDashboard() {
 
                         {/* Health & Whitelist Indicators */}
                         <div className="grid grid-cols-2 gap-2 mb-4 text-[9px]">
-                          <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 flex items-center gap-1.5 text-emerald-800 font-bold">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center gap-1.5 text-cyan-300 font-bold">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                             <span>Health: 99.8% (Optimal)</span>
                           </div>
-                          <div className="p-2.5 rounded-xl bg-slate-100/90 border border-slate-200 flex items-center gap-1.5 text-slate-700 font-bold">
-                            <Shield className="w-3 h-3 text-slate-500" />
+                          <div className="p-2.5 rounded-xl bg-black border border-zinc-800 flex items-center gap-1.5 text-zinc-300 font-bold">
+                            <Shield className="w-3 h-3 text-zinc-400" />
                             <span>Clean HK/US ASN</span>
                           </div>
                         </div>
 
                         {/* Spend Limit & Balance */}
-                        <div className="flex items-center justify-between py-2.5 border-y border-slate-200/70 text-[10px] text-slate-600 font-bold mb-4">
-                          <span>Spend Limit: <strong className="text-slate-900">{acc.spendLimit || "Uncapped Line"}</strong></span>
+                        <div className="flex items-center justify-between py-2.5 border-y border-zinc-800 text-[10px] text-zinc-300 font-bold mb-4">
+                          <span>Spend Limit: <strong className="text-white">{acc.spendLimit || "Uncapped Line"}</strong></span>
                           <span>
-                            Ad Balance: <strong className="text-emerald-700 text-xs font-mono font-black">${(Number(acc.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
+                            Ad Balance: <strong className="text-cyan-400 text-xs font-mono font-black">${(Number(acc.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
                           </span>
                         </div>
                       </div>
@@ -809,7 +817,7 @@ export default function ClientDashboard() {
                         {(acc.status === "ACTIVE" || acc.status === "APPROVED") && (
                           <button
                             onClick={() => openLoadModal(acc)}
-                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer shadow-md shadow-emerald-600/20"
+                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer shadow-md shadow-violet-600/20"
                           >
                             <Wallet className="w-3.5 h-3.5" /> {acc.status === "APPROVED" && Number(acc.balance || 0) < 50 ? "Topup & Get BM Access" : "Load Fund"}
                           </button>
@@ -821,9 +829,9 @@ export default function ClientDashboard() {
                               setBmTarget(acc);
                               setShowBmModal(true);
                             }}
-                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-[9px] font-bold uppercase tracking-wider border border-slate-200 transition-colors cursor-pointer shadow-2xs"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-black hover:bg-zinc-900 text-zinc-300 text-[9px] font-bold uppercase tracking-wider border border-zinc-800 transition-colors cursor-pointer shadow-2xs"
                           >
-                            <UserCheck className="w-3 h-3 text-slate-500" /> BM Access
+                            <UserCheck className="w-3 h-3 text-zinc-400" /> BM Access
                           </button>
                           <button
                             onClick={() => {
@@ -831,60 +839,60 @@ export default function ClientDashboard() {
                               setReplacementSubmitted(false);
                               setShowReplacementModal(true);
                             }}
-                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-[9px] font-bold uppercase tracking-wider border border-slate-200 transition-colors cursor-pointer shadow-2xs"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-black hover:bg-zinc-900 text-zinc-300 text-[9px] font-bold uppercase tracking-wider border border-zinc-800 transition-colors cursor-pointer shadow-2xs"
                           >
-                            <RefreshCw className="w-3 h-3 text-slate-500" /> Replace SLA
+                            <RefreshCw className="w-3 h-3 text-zinc-400" /> Replace SLA
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </SpotlightCard>
                   );
                 })}
               </div>
             ) : (
-              <div className="text-center py-16 border border-dashed border-slate-200 rounded-3xl bg-slate-50/50">
-                <Building className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <p className="text-xs text-slate-500 font-medium">No provisioned agency ad accounts yet.</p>
+              <div className="text-center py-16 border border-dashed border-zinc-800 rounded-3xl bg-black">
+                <Building className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+                <p className="text-xs text-zinc-400 font-medium">No provisioned agency ad accounts yet.</p>
                 <Link href="/app/application">
-                  <a className="inline-flex items-center gap-1.5 text-xs text-primary font-bold hover:underline mt-3">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-cyan-400 font-bold hover:underline mt-3 cursor-pointer">
                     Submit Application <ArrowUpRight className="w-3.5 h-3.5" />
-                  </a>
+                  </span>
                 </Link>
               </div>
             )}
-          </div>
+          </SpotlightCard>
         </div>
 
-        {/* RIGHT: Dedicated Executive Concierge & Payment Verification Logs */}
+        {/* RIGHT: Dedicated VIP Concierge & Payment Approval Logs */}
         <div className="lg:col-span-4 space-y-6">
           {/* Assigned Dedicated Account Executive Card */}
-          <div className="rounded-3xl border border-slate-200/80 bg-gradient-to-b from-[#229ED9]/10 via-white to-slate-50/90 p-6 relative overflow-hidden shadow-sm backdrop-blur-md">
+          <SpotlightCard tone="violet-cyan" className="p-6 relative overflow-hidden shadow-sm backdrop-blur-md">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#229ED9]">Dedicated VIP Concierge</span>
-              <span className="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> Online Now
+              <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Dedicated VIP Concierge</span>
+              <span className="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" /> Online Now
               </span>
             </div>
 
             <div className="flex items-center gap-3.5 mb-4">
               <div className="relative">
-                <div className="w-12 h-12 rounded-2xl bg-[#229ED9] text-white flex items-center justify-center text-base font-black shadow-md shadow-[#229ED9]/30">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white flex items-center justify-center text-base font-black shadow-md shadow-violet-600/30">
                   AV
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-black" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Alex Vance</h3>
-                <p className="text-[11px] text-slate-500 font-semibold">Senior Agency Account Executive</p>
-                <p className="text-[9px] text-slate-400 font-mono mt-0.5">Response SLA: &lt; 3 mins</p>
+                <h3 className="text-sm font-black text-white uppercase tracking-tight">Alex Vance</h3>
+                <p className="text-[11px] text-zinc-400 font-semibold">Senior Agency Account Executive</p>
+                <p className="text-[9px] text-zinc-500 font-mono mt-0.5">Response SLA: &lt; 3 mins</p>
               </div>
             </div>
 
-            <div className="bg-white/90 rounded-2xl p-3.5 border border-slate-200/80 mb-4 text-[10px] text-slate-600 space-y-1.5 shadow-2xs">
-              <div className="flex items-center gap-1.5 text-slate-800 font-bold">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Direct Agency Escalation Route
+            <div className="bg-black rounded-2xl p-3.5 border border-zinc-800 mb-4 text-[10px] text-zinc-300 space-y-1.5 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-white font-bold">
+                <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" /> Direct Agency Escalation Route
               </div>
-              <p className="text-slate-500 leading-relaxed font-medium">
+              <p className="text-zinc-400 leading-relaxed font-medium">
                 Assigned exclusively to your account for BM invitations, pixel whitelisting, daily limit scaling, and rapid fund clearance.
               </p>
             </div>
@@ -893,59 +901,59 @@ export default function ClientDashboard() {
               href={TELEGRAM_SUPPORT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-[#229ED9]/25 cursor-pointer"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-violet-600/25 cursor-pointer"
             >
               <SiTelegram className="w-4 h-4" /> Message Account Manager
             </a>
-          </div>
+          </SpotlightCard>
 
           {/* User Submitted Manual Payment Logs */}
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-6">
-            <div className="flex items-center gap-2 mb-4 text-slate-500">
-              <History className="w-4 h-4" />
-              <span className="text-xs font-black uppercase tracking-wider">Manual Payment Verification Requests</span>
+          <SpotlightCard tone="default" className="shadow-xl p-6">
+            <div className="flex items-center gap-2 mb-4 text-zinc-400">
+              <History className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Manual Payment Approval Requests</span>
             </div>
             {paymentsError ? (
               <div>
-                <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5">
+                <div className="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2.5">
                   {paymentsError}
                 </div>
                 <button
                   onClick={fetchMyPayments}
-                  className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
+                  className="mt-2 text-[10px] font-black uppercase tracking-wider text-cyan-400 hover:underline cursor-pointer"
                 >
                   Retry
                 </button>
               </div>
             ) : isLoadingPayments ? (
               <div className="flex items-center justify-center py-6">
-                <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" />
               </div>
             ) : myPayments.length > 0 ? (
               <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
                 {myPayments.map((p: any) => (
-                  <div key={p.id} className="p-3 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                  <div key={p.id} className="p-3 rounded-xl border border-zinc-800 bg-black space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <div className="font-bold text-slate-900">${p.amount} USDT</div>
+                      <div className="font-bold text-white">${p.amount} USDT</div>
                       <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${
                         p.status === "PAID"
-                          ? "text-emerald-600 bg-emerald-50 border-emerald-200"
+                          ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
                           : p.status === "REJECTED"
-                          ? "text-red-600 bg-red-50 border-red-200"
-                          : "text-amber-600 bg-amber-50 border-amber-200"
+                          ? "text-rose-400 bg-rose-500/10 border-rose-500/20"
+                          : "text-amber-400 bg-amber-500/10 border-amber-500/20"
                       }`}>
-                        {p.status === "PENDING_VERIFICATION" ? "PENDING VERIFICATION" : p.status}
+                        {p.status === "PENDING_APPROVAL" ? "PENDING APPROVAL" : p.status}
                       </span>
                     </div>
-                    <div className="text-[10px] text-slate-500 flex justify-between">
-                      <span className="uppercase font-mono font-bold text-emerald-600">{p.network}</span>
+                    <div className="text-[10px] text-zinc-400 flex justify-between">
+                      <span className="uppercase font-mono font-bold text-cyan-400">{p.network}</span>
                       <span>{new Date(p.createdAt).toLocaleDateString()}</span>
                     </div>
-                    <div className="font-mono text-[9px] text-slate-600 truncate">
+                    <div className="font-mono text-[9px] text-zinc-400 truncate">
                       TXID: {p.txHash}
                     </div>
                     {p.rejectionReason && (
-                      <div className="text-[9px] text-red-600 italic">
+                      <div className="text-[9px] text-rose-400 italic">
                         Reason: {p.rejectionReason}
                       </div>
                     )}
@@ -953,9 +961,9 @@ export default function ClientDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 text-center py-6">No payment verification requests submitted yet.</p>
+              <p className="text-xs text-zinc-500 text-center py-6">No payment approval requests submitted yet.</p>
             )}
-          </div>
+          </SpotlightCard>
         </div>
       </div>
 
@@ -968,26 +976,26 @@ export default function ClientDashboard() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={resetModal}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl shadow-slate-200/60 z-10 max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-xl rounded-3xl border border-zinc-800 bg-[#060608] p-6 md:p-8 overflow-hidden shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 via-primary to-teal-500" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
               
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-emerald-600" /> Pay with USDT
+                  <h3 className="text-xl font-black uppercase tracking-tight text-white flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-cyan-400" /> Pay with USDT
                   </h3>
-                  <p className="text-xs text-slate-600 mt-1">Manual USDT payment verification system</p>
+                  <p className="text-xs text-zinc-400 mt-1">Manual USDT payment clearance system</p>
                 </div>
                 <button
                   onClick={resetModal}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -997,7 +1005,7 @@ export default function ClientDashboard() {
                 <div className="space-y-6">
                   {/* Step 1: Network Selection */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2.5">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2.5">
                       1. Select EVM Blockchain Network
                     </label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
@@ -1008,12 +1016,12 @@ export default function ClientDashboard() {
                           onClick={() => setSelectedNetwork(net)}
                           className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                             selectedNetwork.id === net.id
-                              ? "border-emerald-500 bg-emerald-50 text-slate-900 shadow-lg shadow-emerald-100"
-                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
+                              ? "border-cyan-500 bg-cyan-500/10 text-white shadow-lg shadow-cyan-500/10"
+                              : "border-zinc-800 bg-black text-zinc-400 hover:border-zinc-700 hover:text-white"
                           }`}
                         >
                           <div className="text-xs font-black uppercase">{net.name}</div>
-                          <div className="text-[9px] font-bold text-emerald-600 mt-1">{net.badge}</div>
+                          <div className="text-[9px] font-bold text-cyan-400 mt-1">{net.badge}</div>
                         </button>
                       ))}
                     </div>
@@ -1021,7 +1029,7 @@ export default function ClientDashboard() {
 
                   {/* Step 2: Amount input */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">
                       2. Payment Amount (USDT)
                     </label>
                     <div className="flex items-center gap-2">
@@ -1031,14 +1039,14 @@ export default function ClientDashboard() {
                           min={minDeposit}
                           value={depositAmount}
                           onChange={(e) => setDepositAmount(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm outline-none focus:border-primary/50 font-bold"
+                          className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-cyan-500/50 font-bold"
                           placeholder="Enter amount"
                         />
-                        <span className="absolute right-4 top-3 text-xs font-black uppercase text-emerald-600">USDT</span>
+                        <span className="absolute right-4 top-3 text-xs font-black uppercase text-cyan-400">USDT</span>
                       </div>
                       <button
                         onClick={() => handleCopy(depositAmount, "Payment Amount")}
-                        className="px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider transition-colors shrink-0 cursor-pointer"
+                        className="px-4 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-bold uppercase tracking-wider transition-colors shrink-0 cursor-pointer"
                       >
                         <Copy className="w-3.5 h-3.5 inline mr-1" /> Copy Amount
                       </button>
@@ -1053,8 +1061,8 @@ export default function ClientDashboard() {
                           onClick={() => setDepositAmount(String(val))}
                           className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
                             depositAmount === String(val)
-                              ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
-                              : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+                              ? "bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white border-transparent shadow-2xs font-black"
+                              : "bg-black text-zinc-400 border-zinc-800 hover:bg-zinc-900 hover:text-white"
                           }`}
                         >
                           ${val}
@@ -1062,7 +1070,7 @@ export default function ClientDashboard() {
                       ))}
                     </div>
 
-                    <p className="text-[9px] text-slate-400 mt-1.5">
+                    <p className="text-[9px] text-zinc-400 mt-1.5">
                       {isFirstDeposit
                         ? `First topup: minimum $${MIN_DEPOSIT_FIRST}. Zero commission — the full amount is credited to your main wallet.`
                         : `Minimum topup: $${MIN_DEPOSIT_NEXT}. Zero commission — the full amount is credited to your main wallet.`}
@@ -1070,42 +1078,42 @@ export default function ClientDashboard() {
                   </div>
 
                   {/* Warning banner */}
-                  <div className="flex items-start gap-2.5 text-xs text-amber-700 bg-amber-50 p-3.5 rounded-xl border border-amber-200 font-semibold">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                  <div className="flex items-start gap-2.5 text-xs text-amber-300 bg-amber-500/10 p-3.5 rounded-xl border border-amber-500/20 font-semibold">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
                     <p>Send USDT only on the selected <strong>{selectedNetwork.name}</strong> network.</p>
                   </div>
 
                   {/* Receiving Address & QR Code */}
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-4">
+                  <div className="rounded-2xl border border-zinc-800 bg-black p-5 space-y-4">
                     <div className="flex flex-col md:flex-row items-center gap-6">
-                      <div className="p-3 bg-white rounded-2xl border border-slate-200 shrink-0 shadow-lg">
+                      <div className="p-3 bg-white rounded-2xl border border-zinc-700 shrink-0 shadow-lg">
                         <QRCodeSVG value={selectedNetwork.address} size={130} level="H" includeMargin={false} />
                       </div>
 
                       <div className="space-y-3 flex-1 min-w-0 w-full">
                         <div>
-                          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">
                             Send exactly:
                           </div>
-                          <div className="text-2xl font-black text-slate-900 tracking-tight">
+                          <div className="text-2xl font-black bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent tracking-tight">
                             {depositAmount || "0"} USDT
                           </div>
-                          <div className="text-[9px] text-slate-400 mt-0.5">
+                          <div className="text-[9px] text-zinc-400 mt-0.5">
                             You'll be credited: ${(Number(depositAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} — full amount, no commission
                           </div>
                         </div>
 
                         <div>
-                          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">
                             Receiving Address:
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-[11px] font-mono text-emerald-700 break-all flex-1 selection:bg-emerald-500/30">
+                            <div className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-[11px] font-mono text-cyan-400 break-all flex-1 selection:bg-cyan-500/30">
                               {selectedNetwork.address}
                             </div>
                             <button
                               onClick={() => handleCopy(selectedNetwork.address, "Receiving Address")}
-                              className="p-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 transition-colors cursor-pointer shrink-0"
+                              className="p-2.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 transition-colors cursor-pointer shrink-0"
                               title="Copy Receiving Address"
                             >
                               <Copy className="w-4 h-4" />
@@ -1119,7 +1127,7 @@ export default function ClientDashboard() {
                   {/* Move to Step 2 Form */}
                   <button
                     onClick={() => setDepositStep(2)}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-violet-600/20 cursor-pointer"
                   >
                     Already made the payment? Submit Proof <ArrowUpRight className="w-4 h-4" />
                   </button>
@@ -1128,26 +1136,26 @@ export default function ClientDashboard() {
 
               {depositStep === 2 && (
                 <form onSubmit={handleSubmitPaymentProof} className="space-y-5">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
                     <button
                       type="button"
                       onClick={() => setDepositStep(1)}
-                      className="text-xs text-emerald-600 font-bold uppercase hover:underline cursor-pointer"
+                      className="text-xs text-cyan-400 font-bold uppercase hover:underline cursor-pointer"
                     >
                       ← Back to Details
                     </button>
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
                       Network: {selectedNetwork.name}
                     </span>
                   </div>
 
-                  <h4 className="text-base font-black uppercase tracking-tight text-slate-900">Submit Payment Proof</h4>
+                  <h4 className="text-base font-black uppercase tracking-tight text-white">Submit Payment Proof</h4>
 
                   {/* TXID Input */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                        Transaction Hash / TXID <span className="text-red-500">*</span>
+                      <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                        Transaction Hash / TXID <span className="text-rose-400">*</span>
                       </label>
                       <button
                         type="button"
@@ -1160,7 +1168,7 @@ export default function ClientDashboard() {
                             }
                           } catch {}
                         }}
-                        className="text-[10px] font-bold text-emerald-600 hover:underline cursor-pointer"
+                        className="text-[10px] font-bold text-cyan-400 hover:underline cursor-pointer"
                       >
                         Paste from Clipboard
                       </button>
@@ -1171,27 +1179,27 @@ export default function ClientDashboard() {
                       onChange={(e) => setTxHash(e.target.value)}
                       placeholder="0x..."
                       required
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs font-mono outline-none focus:border-primary/50"
+                      className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-xs font-mono outline-none focus:border-cyan-500/50"
                     />
-                    <p className="text-[10px] text-slate-500 mt-1">
+                    <p className="text-[10px] text-zinc-400 mt-1">
                       {selectedNetwork.id === "tron" ? "Tron hex format, 64 characters (no 0x prefix)" : "EVM hex format starting with 0x (66 characters)"}
                     </p>
                   </div>
 
                   {/* Payment Screenshot File Upload */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
-                      Payment Screenshot Proof <span className="text-red-500">*</span>
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
+                      Payment Screenshot Proof <span className="text-rose-400">*</span>
                     </label>
 
                     {screenshotBase64 ? (
-                      <div className="relative rounded-xl border border-emerald-200 bg-emerald-50 p-3 flex items-center justify-between gap-3">
+                      <div className="relative rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <img src={screenshotBase64} alt="Preview" className="w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0" />
+                          <img src={screenshotBase64} alt="Preview" className="w-12 h-12 rounded-lg object-cover border border-zinc-800 shrink-0" />
                           <div className="min-w-0">
-                            <div className="text-xs font-bold text-slate-900 truncate">{screenshotFileName || "screenshot.png"}</div>
-                            <div className="text-[9px] text-emerald-600 font-bold uppercase mt-0.5 flex items-center gap-1">
-                              <CheckCircle className="w-3 h-3" /> Image Uploaded & Verified
+                            <div className="text-xs font-bold text-white truncate">{screenshotFileName || "screenshot.png"}</div>
+                            <div className="text-[9px] text-cyan-400 font-bold uppercase mt-0.5 flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3" /> Image Uploaded & Ready
                             </div>
                           </div>
                         </div>
@@ -1201,17 +1209,17 @@ export default function ClientDashboard() {
                             setScreenshotBase64(null);
                             setScreenshotFileName("");
                           }}
-                          className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer shrink-0"
+                          className="p-2 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 transition-colors cursor-pointer shrink-0"
                           title="Remove image"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center p-6 rounded-xl border border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer text-center">
-                        <Upload className="w-7 h-7 text-emerald-600 mb-2" />
-                        <span className="text-xs font-bold text-slate-900">Click to Upload Payment Screenshot</span>
-                        <span className="text-[10px] text-slate-500 mt-1">PNG, JPG or WEBP (Max size 5MB)</span>
+                      <label className="flex flex-col items-center justify-center p-6 rounded-xl border border-dashed border-zinc-700 bg-black hover:bg-zinc-950 transition-colors cursor-pointer text-center">
+                        <Upload className="w-7 h-7 text-cyan-400 mb-2" />
+                        <span className="text-xs font-bold text-white">Click to Upload Payment Screenshot</span>
+                        <span className="text-[10px] text-zinc-400 mt-1">PNG, JPG or WEBP (Max size 5MB)</span>
                         <input
                           type="file"
                           accept="image/png, image/jpeg, image/jpg, image/webp"
@@ -1224,7 +1232,7 @@ export default function ClientDashboard() {
 
                   {/* Optional Note */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
                       Optional Payment Note
                     </label>
                     <textarea
@@ -1232,12 +1240,12 @@ export default function ClientDashboard() {
                       onChange={(e) => setPaymentNote(e.target.value)}
                       placeholder="Add any specific comments regarding your transfer..."
                       rows={2}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 outline-none focus:border-primary/50"
+                      className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-cyan-500/50"
                     />
                   </div>
 
                   {paymentError && (
-                    <div className="text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-200">
+                    <div className="text-xs text-rose-400 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">
                       {paymentError}
                     </div>
                   )}
@@ -1245,7 +1253,7 @@ export default function ClientDashboard() {
                   <button
                     type="submit"
                     disabled={isSubmittingProof}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-violet-600/20 cursor-pointer disabled:opacity-50"
                   >
                     {isSubmittingProof ? (
                       <><Loader2 className="w-4 h-4 animate-spin" /> Submitting Proof...</>
@@ -1258,33 +1266,33 @@ export default function ClientDashboard() {
 
               {depositStep === 3 && (
                 <div className="text-center py-6 space-y-6">
-                  <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600 shadow-[0_0_20px_rgba(217,119,6,0.15)]">
+                  <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
                     <Clock className="w-8 h-8" />
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-black uppercase tracking-tight text-slate-900">Payment Proof Submitted</h4>
-                    <p className="text-xs text-slate-600 mt-2 leading-relaxed max-w-md mx-auto">
-                      Payment proof submitted successfully. Your payment is pending verification by an administrator.
+                    <h4 className="text-lg font-black uppercase tracking-tight text-white">Payment Proof Submitted</h4>
+                    <p className="text-xs text-zinc-400 mt-2 leading-relaxed max-w-md mx-auto">
+                      Payment proof submitted successfully. Your payment is pending approval by an administrator.
                     </p>
                   </div>
 
                   {submittedPayment && (
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left text-xs space-y-2 font-mono">
+                    <div className="bg-black border border-zinc-800 rounded-xl p-4 text-left text-xs space-y-2 font-mono">
                       <div className="flex justify-between">
-                        <span className="text-slate-500">Order ID:</span>
-                        <span className="text-slate-900 font-bold">{submittedPayment.orderId}</span>
+                        <span className="text-zinc-400">Order ID:</span>
+                        <span className="text-white font-bold">{submittedPayment.orderId}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-500">Status:</span>
-                        <span className="text-amber-600 font-bold uppercase">{submittedPayment.status}</span>
+                        <span className="text-zinc-400">Status:</span>
+                        <span className="text-amber-400 font-bold uppercase">{submittedPayment.status}</span>
                       </div>
                     </div>
                   )}
 
                   <button
                     onClick={resetModal}
-                    className="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     Done & Close
                   </button>
@@ -1304,26 +1312,26 @@ export default function ClientDashboard() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[70] flex items-center justify-center p-4"
           >
-            <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setShowLoadModal(false)} />
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowLoadModal(false)} />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl shadow-slate-200/60 z-10"
+              className="relative w-full max-w-md rounded-3xl border border-zinc-800 bg-[#060608] p-6 md:p-8 overflow-hidden shadow-2xl z-10"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-500" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
               <div className="flex items-start justify-between mb-5">
                 <div>
-                  <h3 className="text-lg font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
-                    <Wallet className="w-5 h-5 text-emerald-600" /> Load Fund
+                  <h3 className="text-lg font-black uppercase tracking-tight text-white flex items-center gap-2">
+                    <Wallet className="w-5 h-5 text-cyan-400" /> Load Fund
                   </h3>
-                  <p className="text-xs text-slate-600 mt-1">
+                  <p className="text-xs text-zinc-400 mt-1">
                     {loadTarget.name || loadTarget.platform} · <span className="font-mono">{loadTarget.accountId}</span>
                   </p>
                 </div>
                 <button
                   onClick={() => setShowLoadModal(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1331,73 +1339,73 @@ export default function ClientDashboard() {
 
               <form onSubmit={handleLoadFunds} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                  <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
                     Amount to Load (USD)
                   </label>
                   <div className="relative">
-                    <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                    <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-zinc-500" />
                     <input
                       type="number"
                       min={MIN_LOAD}
                       value={loadAmount}
                       onChange={(e) => setLoadAmount(e.target.value)}
                       placeholder="Enter amount"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 text-slate-900 text-sm font-black outline-none focus:border-primary/50 transition-colors"
+                      className="w-full bg-black border border-zinc-800 rounded-xl pl-11 pr-4 py-3.5 text-white text-sm font-black outline-none focus:border-cyan-500/50 transition-colors"
                     />
                   </div>
-                  <p className="text-[9px] text-slate-400 mt-1.5">
+                  <p className="text-[9px] text-zinc-400 mt-1.5">
                     {loadTarget.status === "APPROVED"
                       ? `Minimum topup $${MIN_LOAD} required. Once topped up, an administrator will assign Business Manager access and activate the account.`
                       : `Loaded from your main wallet. Minimum $${MIN_LOAD} — tiered service fee added on top.`}
                   </p>
                   <div className="mt-3 grid grid-cols-3 gap-1.5">
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-center">
-                      <div className="text-[9px] font-black text-slate-900">$50–$99</div>
-                      <div className="text-[8px] font-black text-emerald-600">3% fee</div>
+                    <div className="rounded-lg border border-zinc-800 bg-black px-2 py-1.5 text-center">
+                      <div className="text-[9px] font-black text-white">$50–$99</div>
+                      <div className="text-[8px] font-black text-cyan-400">3% fee</div>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-center">
-                      <div className="text-[9px] font-black text-slate-900">$100–$1,000</div>
-                      <div className="text-[8px] font-black text-emerald-600">2% fee</div>
+                    <div className="rounded-lg border border-zinc-800 bg-black px-2 py-1.5 text-center">
+                      <div className="text-[9px] font-black text-white">$100–$1,000</div>
+                      <div className="text-[8px] font-black text-cyan-400">2% fee</div>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-center">
-                      <div className="text-[9px] font-black text-slate-900">$1,000+</div>
-                      <div className="text-[8px] font-black text-emerald-600">1.5% fee</div>
+                    <div className="rounded-lg border border-zinc-800 bg-black px-2 py-1.5 text-center">
+                      <div className="text-[9px] font-black text-white">$1,000+</div>
+                      <div className="text-[8px] font-black text-cyan-400">1.5% fee</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 text-xs">
+                <div className="rounded-xl border border-zinc-800 bg-black p-4 space-y-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-bold">Amount loaded</span>
-                    <span className="text-slate-900 font-black">${Number(loadAmount) || 0}</span>
+                    <span className="text-zinc-400 font-bold">Amount loaded</span>
+                    <span className="text-white font-black">${Number(loadAmount) || 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-bold">Service fee ({getLoadFeePct(Number(loadAmount) || 0)}%)</span>
-                    <span className="text-slate-900 font-black">${((Number(loadAmount) || 0) * getLoadFeeRate(Number(loadAmount) || 0)).toFixed(2)}</span>
+                    <span className="text-zinc-400 font-bold">Service fee ({getLoadFeePct(Number(loadAmount) || 0)}%)</span>
+                    <span className="text-white font-black">${((Number(loadAmount) || 0) * getLoadFeeRate(Number(loadAmount) || 0)).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between pt-2 border-t border-slate-200">
-                    <span className="text-slate-500 font-bold">Deducted from main wallet</span>
-                    <span className="text-emerald-700 font-black">${((Number(loadAmount) || 0) * (1 + getLoadFeeRate(Number(loadAmount) || 0))).toFixed(2)}</span>
+                  <div className="flex justify-between pt-2 border-t border-zinc-800">
+                    <span className="text-zinc-400 font-bold">Deducted from main wallet</span>
+                    <span className="text-cyan-400 font-black">${((Number(loadAmount) || 0) * (1 + getLoadFeeRate(Number(loadAmount) || 0))).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between pt-2 border-t border-slate-200">
-                    <span className="text-slate-500 font-bold">Main wallet available</span>
-                    <span className="text-slate-900 font-black">
+                  <div className="flex justify-between pt-2 border-t border-zinc-800">
+                    <span className="text-zinc-400 font-bold">Main wallet available</span>
+                    <span className="text-white font-black">
                       ${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                 </div>
 
                 {loadTarget.status === "APPROVED" && (
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-2">
-                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-emerald-700">
+                  <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-cyan-400">
                       <ShieldCheck className="w-4 h-4" /> What happens after topup
                     </div>
-                    <ul className="text-[10px] text-slate-600 space-y-1.5">
-                      <li><span className="font-black">1.</span> Funds credited instantly to your ad account</li>
-                      <li><span className="font-black">2.</span> Admin assigns your Business Manager access (within 24 hrs)</li>
-                      <li><span className="font-black">3.</span> Account fully activated for ad campaigns</li>
+                    <ul className="text-[10px] text-zinc-300 space-y-1.5">
+                      <li><span className="font-black text-white">1.</span> Funds credited instantly to your ad account</li>
+                      <li><span className="font-black text-white">2.</span> Admin assigns your Business Manager access (within 24 hrs)</li>
+                      <li><span className="font-black text-white">3.</span> Account fully activated for ad campaigns</li>
                     </ul>
-                    <div className="text-[9px] font-black text-emerald-700">
+                    <div className="text-[9px] font-black text-cyan-400">
                       Full refund if BM access is not assigned within 48 hrs.
                     </div>
                   </div>
@@ -1406,7 +1414,7 @@ export default function ClientDashboard() {
                 <button
                   type="submit"
                   disabled={isLoadingLoad}
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all shadow-[0_4px_20px_rgba(5,150,105,0.25)] cursor-pointer disabled:opacity-50"
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-violet-600/25 cursor-pointer disabled:opacity-50"
                 >
                   {isLoadingLoad ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Loading Funds...</>
@@ -1429,42 +1437,42 @@ export default function ClientDashboard() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowWithdrawModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl shadow-slate-200/60 z-10 max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-xl rounded-3xl border border-zinc-800 bg-[#060608] p-6 md:p-8 overflow-hidden shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 via-primary to-teal-500" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
 
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
-                    <ArrowDownToLine className="w-5 h-5 text-emerald-600" /> Withdraw USDT
+                  <h3 className="text-xl font-black uppercase tracking-tight text-white flex items-center gap-2">
+                    <ArrowDownToLine className="w-5 h-5 text-cyan-400" /> Withdraw USDT
                   </h3>
-                  <p className="text-xs text-slate-600 mt-1">Withdraw your available balance to your USDT wallet</p>
+                  <p className="text-xs text-zinc-400 mt-1">Withdraw your available balance to your USDT wallet</p>
                 </div>
                 <button
                   onClick={() => setShowWithdrawModal(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Available balance summary */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 flex items-center justify-between mb-5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Available Balance</span>
-                <span className="text-xl font-black text-slate-900 tabular-nums">
+              <div className="rounded-2xl border border-zinc-800 bg-black p-4 flex items-center justify-between mb-5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Available Balance</span>
+                <span className="text-xl font-black bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent tabular-nums">
                   ${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </span>
               </div>
 
               {(user?.balance ?? 0) < MIN_WITHDRAWAL ? (
-                <div className="flex items-start gap-2.5 text-xs text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-200 font-semibold">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                <div className="flex items-start gap-2.5 text-xs text-amber-300 bg-amber-500/10 p-4 rounded-xl border border-amber-500/20 font-semibold">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
                   <p>
                     Your available balance is below the <strong>${MIN_WITHDRAWAL} minimum withdrawal</strong>. You can add
                     more funds, then apply for a refund.
@@ -1472,28 +1480,28 @@ export default function ClientDashboard() {
                 </div>
               ) : submittedWithdrawal ? (
                 <div className="text-center py-6 space-y-6">
-                  <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600 shadow-[0_0_20px_rgba(217,119,6,0.15)]">
+                  <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
                     <Clock className="w-8 h-8" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-black uppercase tracking-tight text-slate-900">Withdrawal Request Submitted</h4>
-                    <p className="text-xs text-slate-600 mt-2 leading-relaxed max-w-md mx-auto">
+                    <h4 className="text-lg font-black uppercase tracking-tight text-white">Withdrawal Request Submitted</h4>
+                    <p className="text-xs text-zinc-400 mt-2 leading-relaxed max-w-md mx-auto">
                       Your withdrawal is pending administrator approval. You'll receive ${Number(submittedWithdrawal.amount || withdrawAmount).toLocaleString()} USDT at your address once approved.
                     </p>
                   </div>
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left text-xs space-y-2 font-mono">
+                  <div className="bg-black border border-zinc-800 rounded-xl p-4 text-left text-xs space-y-2 font-mono">
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Request ID:</span>
-                      <span className="text-slate-900 font-bold">{submittedWithdrawal.requestId}</span>
+                      <span className="text-zinc-400">Request ID:</span>
+                      <span className="text-white font-bold">{submittedWithdrawal.requestId}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Status:</span>
-                      <span className="text-amber-600 font-bold uppercase">{submittedWithdrawal.status}</span>
+                      <span className="text-zinc-400">Status:</span>
+                      <span className="text-amber-400 font-bold uppercase">{submittedWithdrawal.status}</span>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowWithdrawModal(false)}
-                    className="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     Done & Close
                   </button>
@@ -1501,46 +1509,46 @@ export default function ClientDashboard() {
               ) : (
                 <form onSubmit={handleWithdraw} className="space-y-5">
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">
                       Withdrawal Amount (USDT)
                     </label>
                     <div className="relative">
-                      <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                      <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-zinc-500" />
                       <input
                         type="number"
                         min={MIN_WITHDRAWAL}
                         step="0.01"
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-16 py-3.5 text-slate-900 text-sm font-black outline-none focus:border-primary/50 transition-colors"
+                        className="w-full bg-black border border-zinc-800 rounded-xl pl-11 pr-16 py-3.5 text-white text-sm font-black outline-none focus:border-cyan-500/50 transition-colors"
                         placeholder={`Minimum $${MIN_WITHDRAWAL}`}
                       />
-                      <span className="absolute right-4 top-3 text-xs font-black uppercase text-emerald-600">USDT</span>
+                      <span className="absolute right-4 top-3 text-xs font-black uppercase text-cyan-400">USDT</span>
                     </div>
-                    <p className="text-[9px] text-slate-400 mt-1.5">
+                    <p className="text-[9px] text-zinc-400 mt-1.5">
                       Minimum withdrawal: ${MIN_WITHDRAWAL} USDT.
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      Your USDT Payout Address <span className="text-red-500">*</span>
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">
+                      Your USDT Payout Address <span className="text-rose-400">*</span>
                     </label>
                     <input
                       type="text"
                       value={usdtAddress}
                       onChange={(e) => setUsdtAddress(e.target.value)}
                       placeholder="T... (TRON) or 0x... (EVM)"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 text-xs font-mono outline-none focus:border-primary/50 transition-colors"
+                      className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3.5 text-white text-xs font-mono outline-none focus:border-cyan-500/50 transition-colors"
                     />
-                    <p className="text-[9px] text-slate-400 mt-1.5">
+                    <p className="text-[9px] text-zinc-400 mt-1.5">
                       Funds will be sent to this address once the withdrawal is approved.
                     </p>
                   </div>
 
                   {withdrawError && (
-                    <div className="flex items-start gap-2.5 text-xs text-red-600 bg-red-50 p-3.5 rounded-xl border border-red-200 font-semibold">
-                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+                    <div className="flex items-start gap-2.5 text-xs text-rose-400 bg-rose-500/10 p-3.5 rounded-xl border border-rose-500/20 font-semibold">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
                       <p>{withdrawError}</p>
                     </div>
                   )}
@@ -1548,7 +1556,7 @@ export default function ClientDashboard() {
                   <button
                     type="submit"
                     disabled={isSubmittingWithdraw}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all shadow-[0_4px_20px_rgba(5,150,105,0.25)] cursor-pointer disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-violet-600/25 cursor-pointer disabled:opacity-50"
                   >
                     {isSubmittingWithdraw ? (
                       <><Loader2 className="w-4 h-4 animate-spin" /> Submitting Request...</>
@@ -1560,46 +1568,46 @@ export default function ClientDashboard() {
               )}
 
               {/* Withdrawal history */}
-              <div className="mt-6 pt-5 border-t border-slate-200">
-                <div className="flex items-center gap-2 mb-3 text-slate-500">
-                  <History className="w-4 h-4" />
-                  <span className="text-xs font-black uppercase tracking-wider">Withdrawal History</span>
+              <div className="mt-6 pt-5 border-t border-zinc-800">
+                <div className="flex items-center gap-2 mb-3 text-zinc-400">
+                  <History className="w-4 h-4 text-cyan-400" />
+                  <span className="text-xs font-black uppercase tracking-wider text-zinc-300">Withdrawal History</span>
                 </div>
                 {isLoadingWithdrawals ? (
                   <div className="flex items-center justify-center py-4">
-                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                    <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" />
                   </div>
                 ) : myWithdrawals.length > 0 ? (
                   <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
                     {myWithdrawals.map((w: any) => (
-                      <div key={w.id} className="p-3 rounded-xl border border-slate-200 bg-slate-50 space-y-1.5">
+                      <div key={w.id} className="p-3 rounded-xl border border-zinc-800 bg-black space-y-1.5">
                         <div className="flex items-center justify-between text-xs">
-                          <div className="font-bold text-slate-900">${Number(w.amount).toLocaleString()} USDT</div>
+                          <div className="font-bold text-white">${Number(w.amount).toLocaleString()} USDT</div>
                           <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${
                             w.status === "APPROVED"
-                              ? "text-emerald-600 bg-emerald-50 border-emerald-200"
+                              ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
                               : w.status === "REJECTED"
-                              ? "text-red-600 bg-red-50 border-red-200"
-                              : "text-amber-600 bg-amber-50 border-amber-200"
+                              ? "text-rose-400 bg-rose-500/10 border-rose-500/20"
+                              : "text-amber-400 bg-amber-500/10 border-amber-500/20"
                           }`}>
                             {w.status}
                           </span>
                         </div>
-                        <div className="font-mono text-[9px] text-slate-600 truncate">
+                        <div className="font-mono text-[9px] text-zinc-400 truncate">
                           {w.usdtAddress}
                         </div>
-                        <div className="text-[9px] text-slate-500 flex justify-between">
+                        <div className="text-[9px] text-zinc-500 flex justify-between">
                           <span className="font-mono">{w.requestId}</span>
                           <span>{new Date(w.createdAt).toLocaleDateString()}</span>
                         </div>
                         {w.rejectionReason && (
-                          <div className="text-[9px] text-red-600 italic">Reason: {w.rejectionReason}</div>
+                          <div className="text-[9px] text-rose-400 italic">Reason: {w.rejectionReason}</div>
                         )}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400 text-center py-4">No withdrawal requests yet.</p>
+                  <p className="text-xs text-zinc-500 text-center py-4">No withdrawal requests yet.</p>
                 )}
               </div>
             </motion.div>
@@ -1616,30 +1624,30 @@ export default function ClientDashboard() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowBmModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl shadow-slate-200/60 z-10"
+              className="relative w-full max-w-lg rounded-3xl border border-zinc-800 bg-[#060608] p-6 md:p-8 overflow-hidden shadow-2xl z-10"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-emerald-600" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
               <div className="flex items-start justify-between mb-5">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-bold uppercase tracking-wider mb-2">
-                    <UserCheck className="w-3.5 h-3.5" /> Direct BM Provisioning
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-950/60 border border-violet-500/30 text-cyan-300 text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <UserCheck className="w-3.5 h-3.5 text-cyan-400" /> Direct BM Provisioning
                   </div>
-                  <h3 className="text-lg font-black uppercase tracking-tight text-slate-900">
+                  <h3 className="text-lg font-black uppercase tracking-tight text-white">
                     Business Manager Access Details
                   </h3>
-                  <p className="text-xs text-slate-600 mt-0.5 font-medium">
+                  <p className="text-xs text-zinc-400 mt-0.5 font-medium">
                     {bmTarget.name || bmTarget.platform} · <span className="font-mono">{bmTarget.accountId}</span>
                   </p>
                 </div>
                 <button
                   onClick={() => setShowBmModal(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1647,41 +1655,41 @@ export default function ClientDashboard() {
 
               {bmTarget.status === "ACTIVE" && bmTarget.businessPortfolioId ? (
                 <div className="space-y-4 text-xs">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 font-mono">
+                  <div className="rounded-xl border border-zinc-800 bg-black p-4 space-y-2 font-mono">
                     <div className="flex justify-between items-center text-[11px]">
-                      <span className="text-slate-500 font-bold uppercase">Account ID:</span>
-                      <span className="text-slate-900 font-bold">{bmTarget.accountId || "Provisioning..."}</span>
+                      <span className="text-zinc-400 font-bold uppercase">Account ID:</span>
+                      <span className="text-white font-bold">{bmTarget.accountId || "Provisioning..."}</span>
                     </div>
-                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
-                      <span className="text-slate-500 font-bold uppercase">Assigned BM Portfolio:</span>
-                      <span className="text-blue-700 font-bold">{bmTarget.businessPortfolioId}</span>
+                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-zinc-800">
+                      <span className="text-zinc-400 font-bold uppercase">Assigned BM Portfolio:</span>
+                      <span className="text-cyan-400 font-bold">{bmTarget.businessPortfolioId}</span>
                     </div>
-                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
-                      <span className="text-slate-500 font-bold uppercase">Allocation Status:</span>
-                      <span className="text-emerald-700 font-bold uppercase">ACTIVE (CONNECTED)</span>
+                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-zinc-800">
+                      <span className="text-zinc-400 font-bold uppercase">Allocation Status:</span>
+                      <span className="text-emerald-400 font-bold uppercase">ACTIVE (CONNECTED)</span>
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4 space-y-2">
-                    <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-blue-900">
-                      <ShieldCheck className="w-4 h-4 text-blue-700" /> How to Accept & Manage Access
+                  <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-cyan-300">
+                      <ShieldCheck className="w-4 h-4 text-cyan-400" /> How to Accept & Manage Access
                     </div>
-                    <ol className="text-[11px] text-slate-700 space-y-2 list-decimal list-inside">
+                    <ol className="text-[11px] text-zinc-300 space-y-2 list-decimal list-inside">
                       <li>Open your Meta / Google Business Manager settings.</li>
                       <li>Check the <strong>"Requests / Partners"</strong> tab to accept the agency partnership link.</li>
                       <li>Assign your Media Buyers or Assets (Pixels / Catalogs / Pages) directly with Admin privileges.</li>
                     </ol>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 flex items-center justify-between">
-                    <div className="text-[10px] text-slate-600">
+                  <div className="rounded-xl border border-zinc-800 bg-black p-3 flex items-center justify-between">
+                    <div className="text-[10px] text-zinc-400">
                       Need an immediate BM re-invite or custom pixel binding?
                     </div>
                     <a
                       href={TELEGRAM_SUPPORT_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[10px] font-black text-[#229ED9] hover:underline uppercase shrink-0"
+                      className="inline-flex items-center gap-1 text-[10px] font-black text-cyan-400 hover:underline uppercase shrink-0"
                     >
                       Ask Concierge <ExternalLink className="w-3 h-3" />
                     </a>
@@ -1689,46 +1697,46 @@ export default function ClientDashboard() {
 
                   <button
                     onClick={() => setShowBmModal(false)}
-                    className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
+                    className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
                   >
                     Close Access Window
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4 text-xs">
-                  <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-4 space-y-2">
-                    <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-amber-900">
-                      <Clock className="w-4 h-4 text-amber-700" /> Pending Admin BM Assignment
+                  <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-amber-300">
+                      <Clock className="w-4 h-4 text-amber-400" /> Pending Admin BM Assignment
                     </div>
-                    <p className="text-[11px] text-amber-900/90 leading-relaxed font-medium">
-                      Your application has been received. The administration team has not assigned your Business Manager access yet. Once the admin team assigns your agency BM line from the backend, your verified BM Portfolio ID and invite steps will appear here.
+                    <p className="text-[11px] text-zinc-300 leading-relaxed font-medium">
+                      Your application has been received. The administration team has not assigned your Business Manager access yet. Once the admin team assigns your agency BM line from the backend, your allocated BM Portfolio ID and invite steps will appear here.
                     </p>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2.5">
+                  <div className="rounded-xl border border-zinc-800 bg-black p-4 space-y-2.5">
                     <div className="flex justify-between items-center text-[11px]">
-                      <span className="text-slate-500 font-bold uppercase">Account Status:</span>
-                      <span className="text-amber-700 font-bold uppercase">{bmTarget.status || "PENDING"}</span>
+                      <span className="text-zinc-400 font-bold uppercase">Account Status:</span>
+                      <span className="text-amber-400 font-bold uppercase">{bmTarget.status || "PENDING"}</span>
                     </div>
-                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
-                      <span className="text-slate-500 font-bold uppercase">BM Access:</span>
-                      <span className="text-slate-600 font-bold">Awaiting Backend Assignment</span>
+                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-zinc-800">
+                      <span className="text-zinc-400 font-bold uppercase">BM Access:</span>
+                      <span className="text-zinc-400 font-bold">Awaiting Backend Assignment</span>
                     </div>
-                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-slate-200">
-                      <span className="text-slate-500 font-bold uppercase">Next Step:</span>
-                      <span className="text-slate-800 font-semibold">Admin will link your whitelisted line shortly</span>
+                    <div className="flex justify-between items-center text-[11px] pt-2 border-t border-zinc-800">
+                      <span className="text-zinc-400 font-bold uppercase">Next Step:</span>
+                      <span className="text-zinc-300 font-semibold">Admin will link your whitelisted line shortly</span>
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 flex items-center justify-between">
-                    <div className="text-[10px] text-slate-600">
+                  <div className="rounded-xl border border-zinc-800 bg-black p-3 flex items-center justify-between">
+                    <div className="text-[10px] text-zinc-400">
                       Need faster priority allocation or have questions?
                     </div>
                     <a
                       href={TELEGRAM_SUPPORT_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[10px] font-black text-[#229ED9] hover:underline uppercase shrink-0"
+                      className="inline-flex items-center gap-1 text-[10px] font-black text-cyan-400 hover:underline uppercase shrink-0"
                     >
                       Contact VIP Desk <ExternalLink className="w-3 h-3" />
                     </a>
@@ -1736,7 +1744,7 @@ export default function ClientDashboard() {
 
                   <button
                     onClick={() => setShowBmModal(false)}
-                    className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
+                    className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
                   >
                     Close Window
                   </button>
@@ -1756,30 +1764,30 @@ export default function ClientDashboard() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowReplacementModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl shadow-slate-200/60 z-10"
+              className="relative w-full max-w-lg rounded-3xl border border-zinc-800 bg-[#060608] p-6 md:p-8 overflow-hidden shadow-2xl z-10"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-emerald-600" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
               <div className="flex items-start justify-between mb-5">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider mb-2">
-                    <ShieldCheck className="w-3.5 h-3.5" /> 100% Zero-Fee Guarantee
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" /> 100% Zero-Fee Guarantee
                   </div>
-                  <h3 className="text-lg font-black uppercase tracking-tight text-slate-900">
+                  <h3 className="text-lg font-black uppercase tracking-tight text-white">
                     Instant Account Replacement SLA
                   </h3>
-                  <p className="text-xs text-slate-600 mt-0.5 font-medium">
+                  <p className="text-xs text-zinc-400 mt-0.5 font-medium">
                     {replacementTarget.name || replacementTarget.platform} · <span className="font-mono">{replacementTarget.accountId}</span>
                   </p>
                 </div>
                 <button
                   onClick={() => setShowReplacementModal(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1787,38 +1795,38 @@ export default function ClientDashboard() {
 
               {replacementSubmitted ? (
                 <div className="text-center py-6 space-y-4">
-                  <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto text-emerald-600">
+                  <div className="w-14 h-14 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mx-auto text-cyan-400">
                     <CheckCircle2 className="w-7 h-7" />
                   </div>
                   <div>
-                    <h4 className="text-base font-black uppercase text-slate-900">Replacement Ticket Queued</h4>
-                    <p className="text-xs text-slate-600 mt-1 max-w-sm mx-auto leading-relaxed">
+                    <h4 className="text-base font-black uppercase text-white">Replacement Ticket Queued</h4>
+                    <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto leading-relaxed">
                       Your replacement request has been prioritized under Tier-1 SLA. A fresh ad account will be allocated within 24 hours with your remaining balance automatically transferred.
                     </p>
                   </div>
                   <button
                     onClick={() => setShowReplacementModal(false)}
-                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     Done
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4 text-xs">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                  <div className="rounded-xl border border-zinc-800 bg-black p-4 space-y-2">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
                       Tier-1 Replacement Coverage
                     </div>
-                    <p className="text-[11px] text-slate-700 leading-relaxed">
+                    <p className="text-[11px] text-zinc-300 leading-relaxed">
                       Under RAZR Agency Line protection, any account experiencing algorithm restrictions or spending issues is eligible for an instant <strong>0-fee replacement</strong> with 100% balance migration.
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
                       Select Issue Category
                     </label>
-                    <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-slate-900 text-xs font-bold outline-none">
+                    <select className="w-full bg-black border border-zinc-800 rounded-xl px-3.5 py-3 text-white text-xs font-bold outline-none">
                       <option>Algorithm Policy Flag / Restriction</option>
                       <option>Daily Spend Limit Scale Request</option>
                       <option>Pixel / Domain Re-association Request</option>
@@ -1827,13 +1835,13 @@ export default function ClientDashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
                       Optional Incident Notes
                     </label>
                     <textarea
                       placeholder="Provide campaign details or screenshot references if needed..."
                       rows={2}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 outline-none"
+                      className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-xs text-white placeholder:text-zinc-500 outline-none"
                     />
                   </div>
 
@@ -1850,7 +1858,7 @@ export default function ClientDashboard() {
                       }, 800);
                     }}
                     disabled={isSubmittingReplacement}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all shadow-[0_4px_15px_rgba(5,150,105,0.25)] cursor-pointer disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-violet-600/25 cursor-pointer disabled:opacity-50"
                   >
                     {isSubmittingReplacement ? (
                       <><Loader2 className="w-4 h-4 animate-spin" /> Routing to Queue...</>

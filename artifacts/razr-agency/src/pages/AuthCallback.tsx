@@ -10,7 +10,7 @@ export default function AuthCallback() {
   const [, setLocation] = useLocation();
   const { setSessionUser } = useAuth();
   const { toast } = useToast();
-  const [statusText, setStatusText] = useState("Verifying Google credentials...");
+  const [statusText, setStatusText] = useState("Authenticating Google credentials...");
   const [hasError, setHasError] = useState(false);
   const syncInProgress = useRef(false);
 
@@ -82,7 +82,6 @@ export default function AuthCallback() {
         if (session && session.user) {
           await syncAndRedirect(session);
         } else {
-          // Listen for onAuthStateChange
           const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
             if (currentSession && currentSession.user) {
               subscription.unsubscribe();
@@ -90,7 +89,6 @@ export default function AuthCallback() {
             }
           });
 
-          // Timeout after 8s if no session
           setTimeout(() => {
             if (isMounted && !syncInProgress.current) {
               setHasError(true);
@@ -116,33 +114,33 @@ export default function AuthCallback() {
   }, [setLocation, setSessionUser, toast]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
+    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-violet-500/10 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 shadow-2xl relative z-10 text-center">
+      <div className="w-full max-w-md bg-[#060608] border border-zinc-800 rounded-3xl p-8 shadow-2xl relative z-10 text-center backdrop-blur-xl">
         <div className="flex justify-center mb-6">
           <RazrLogo size={56} />
         </div>
 
         <div className="mb-6 flex justify-center">
           {hasError ? (
-            <div className="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+            <div className="w-12 h-12 rounded-full bg-rose-950/60 border border-rose-500/30 flex items-center justify-center text-rose-400">
               <AlertCircle className="w-6 h-6" />
             </div>
           ) : (
-            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+            <div className="w-12 h-12 rounded-full bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
               <Loader2 className="w-6 h-6 animate-spin" />
             </div>
           )}
         </div>
 
-        <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-2">
+        <h2 className="text-xl font-black uppercase tracking-tight bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent mb-2">
           {hasError ? "Authentication Notice" : "Connecting Account"}
         </h2>
-        <p className="text-xs text-slate-500 mb-6">{statusText}</p>
+        <p className="text-xs text-zinc-400 mb-6">{statusText}</p>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-600">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black border border-zinc-800 text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+          <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
           End-to-End Encrypted Handshake
         </div>
       </div>

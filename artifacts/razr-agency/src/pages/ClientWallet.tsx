@@ -21,27 +21,21 @@ import {
   ArrowUpRight,
   ArrowRight,
   TrendingUp,
-  History,
   ShieldCheck,
-  Building,
   CheckCircle2,
-  ExternalLink,
-  Layers,
-  Sparkles,
-  RefreshCw,
   Zap,
-  Info
+  Sparkles,
 } from "lucide-react";
-import { SiTelegram } from "react-icons/si";
-import { PAYMENT_CONFIG, MANUAL_PAYMENT_NETWORKS } from "@/config/payment";
+import { MANUAL_PAYMENT_NETWORKS } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
 import { playSuccessChime } from "@/lib/audioAlerts";
+import { SpotlightCard } from "@/components/ui/SpotlightCard";
 
 export default function ClientWallet() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<"DEPOSITS" | "WITHDRAWALS" | "ALLOCATIONS">("DEPOSITS");
+  const [activeTab, setActiveTab] = useState<"DEPOSITS" | "WITHDRAWALS">("DEPOSITS");
 
   // Data states
   const [myPayments, setMyPayments] = useState<any[]>([]);
@@ -53,7 +47,7 @@ export default function ClientWallet() {
 
   // Deposit Modal State
   const [showDepositModal, setShowDepositModal] = useState(false);
-  const [depositStep, setDepositStep] = useState(1); // 1: Pay & Instructions, 2: Submit Proof, 3: Submitted Confirmation
+  const [depositStep, setDepositStep] = useState(1);
   const [selectedNetwork, setSelectedNetwork] = useState(MANUAL_PAYMENT_NETWORKS[0]);
   const [depositAmount, setDepositAmount] = useState("500");
   const [txHash, setTxHash] = useState("");
@@ -84,7 +78,7 @@ export default function ClientWallet() {
     setIsLoadingPayments(true);
     setPaymentsError("");
     try {
-      const data = await apiFetch<any[]>("/api/payments/my-payments");
+      const data = await apiFetch<any[]>("/api/payments/me");
       setMyPayments(data || []);
     } catch (e: any) {
       setPaymentsError(e.message || "Failed to load payment history.");
@@ -208,7 +202,7 @@ export default function ClientWallet() {
       await refreshUser();
       toast({
         title: "Proof Submitted!",
-        description: "Payment proof submitted successfully. Our team will review and credit your balance promptly.",
+        description: "Payment proof submitted successfully. Our desk will confirm and credit your balance promptly.",
       });
     } catch (err: any) {
       setPaymentError(err.message || "Network error.");
@@ -296,17 +290,16 @@ export default function ClientWallet() {
     <ClientLayout>
       <div className="space-y-8 max-w-7xl mx-auto pb-16">
         {/* Top Header Card */}
-        <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-r from-emerald-50 via-white to-slate-50 p-8 shadow-sm">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-600/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <SpotlightCard tone="violet-cyan" className="p-8 shadow-2xl backdrop-blur-xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black uppercase tracking-widest mb-3">
-                <Wallet className="w-3.5 h-3.5 text-emerald-600" /> Capital & Treasury Management
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-950/60 border border-violet-500/30 text-cyan-300 text-xs font-black uppercase tracking-widest mb-3">
+                <Wallet className="w-3.5 h-3.5 text-cyan-400" /> Capital & Treasury Management
               </div>
-              <h1 className="text-3xl font-black tracking-tight uppercase text-slate-900">
-                Wallet <span className="text-emerald-600">& Treasury</span>
+              <h1 className="text-3xl font-black tracking-tight uppercase text-white">
+                Wallet <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">& Treasury</span>
               </h1>
-              <p className="text-sm text-slate-600 mt-1">
+              <p className="text-sm text-zinc-400 mt-1">
                 Manage your USDT funds, execute instant deposits, and request withdrawals with 0% foreign transaction fees.
               </p>
             </div>
@@ -317,7 +310,7 @@ export default function ClientWallet() {
                   setShowDepositModal(true);
                   setDepositStep(1);
                 }}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-lg shadow-emerald-600/25 cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 hover:scale-[1.02] text-white text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-violet-600/25 cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" /> Deposit Funds
               </button>
@@ -328,129 +321,127 @@ export default function ClientWallet() {
                   setSubmittedWithdrawal(null);
                   setShowWithdrawModal(true);
                 }}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-widest transition-all shadow-md cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-black hover:bg-zinc-900 text-white text-xs font-black uppercase tracking-widest transition-all border border-zinc-800 cursor-pointer"
               >
-                <ArrowDownToLine className="w-4 h-4" /> Withdraw Funds
+                <ArrowDownToLine className="w-4 h-4 text-cyan-400" /> Withdraw Funds
               </button>
             </div>
           </div>
-        </div>
+        </SpotlightCard>
 
         {/* 3 Key Treasury Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* 1. Available Balance */}
-          <div className="relative overflow-hidden rounded-3xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/80 via-white to-white p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+          <SpotlightCard tone="aurora" className="p-6 flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between text-slate-500 mb-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-800/80">Available Balance</span>
-                <div className="w-11 h-11 rounded-2xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center border border-emerald-200/60 shadow-xs group-hover:scale-105 transition-transform">
+              <div className="flex items-center justify-between text-zinc-400 mb-3">
+                <span className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent">Available Balance</span>
+                <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-cyan-400 flex items-center justify-center border border-violet-500/30">
                   <Wallet className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl md:text-4xl font-black text-slate-900 font-mono tracking-tight tabular-nums">
+              <div className="text-3xl md:text-4xl font-black text-white font-mono tracking-tight tabular-nums">
                 ${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mt-1.5 block">
+              <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider mt-1.5 block">
                 USDT (Ready for Instant Ad Spend)
               </span>
             </div>
-            <div className="pt-4 mt-4 border-t border-emerald-100/80 flex items-center gap-1.5 text-xs text-emerald-700 font-bold">
+            <div className="pt-4 mt-4 border-t border-zinc-800 flex items-center gap-1.5 text-xs text-cyan-400 font-bold">
               <TrendingUp className="w-3.5 h-3.5" /> 100% Commission-Free Balance
             </div>
-          </div>
+          </SpotlightCard>
 
           {/* 2. Total Deposited */}
-          <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 backdrop-blur-sm p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-400 via-slate-600 to-slate-800" />
+          <SpotlightCard tone="sunset" className="p-6 flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between text-slate-500 mb-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Deposited</span>
-                <div className="w-11 h-11 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center border border-slate-200/60 shadow-xs group-hover:scale-105 transition-transform">
-                  <PlusCircle className="w-5 h-5 text-emerald-600" />
+              <div className="flex items-center justify-between text-zinc-400 mb-3">
+                <span className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-pink-400 to-amber-300 bg-clip-text text-transparent">Total Deposited</span>
+                <div className="w-11 h-11 rounded-2xl bg-zinc-900 text-pink-400 flex items-center justify-center border border-zinc-800">
+                  <PlusCircle className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl md:text-4xl font-black text-slate-900 font-mono tracking-tight tabular-nums">
+              <div className="text-3xl md:text-4xl font-black text-white font-mono tracking-tight tabular-nums">
                 ${totalDeposited.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <span className="text-[10px] text-slate-500 font-medium mt-1.5 block">
+              <span className="text-[10px] text-zinc-400 font-medium mt-1.5 block">
                 Lifetime credited deposits
               </span>
             </div>
-            <div className="pt-4 mt-4 border-t border-slate-100 text-[11px] text-slate-500 font-semibold flex items-center justify-between">
+            <div className="pt-4 mt-4 border-t border-zinc-800 text-[11px] text-zinc-400 font-semibold flex items-center justify-between">
               <span>TRC20 · BEP20 · ERC20</span>
-              <span className="text-emerald-600 font-bold">Direct Clearance</span>
+              <span className="text-cyan-400 font-bold">Direct Clearance</span>
             </div>
-          </div>
+          </SpotlightCard>
 
           {/* 3. Total Withdrawn */}
-          <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 backdrop-blur-sm p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500" />
+          <SpotlightCard className="p-6 flex flex-col justify-between" spotlightColor="rgba(168, 85, 247, 0.15)">
             <div>
-              <div className="flex items-center justify-between text-slate-500 mb-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Withdrawn</span>
-                <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-100 shadow-xs group-hover:scale-105 transition-transform">
+              <div className="flex items-center justify-between text-zinc-400 mb-3">
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Total Withdrawn</span>
+                <div className="w-11 h-11 rounded-2xl bg-zinc-900 text-violet-400 flex items-center justify-center border border-zinc-800">
                   <ArrowDownToLine className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl md:text-4xl font-black text-slate-900 font-mono tracking-tight tabular-nums">
+              <div className="text-3xl md:text-4xl font-black text-white font-mono tracking-tight tabular-nums">
                 ${totalWithdrawn.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <span className="text-[10px] text-slate-500 font-medium mt-1.5 block">
+              <span className="text-[10px] text-zinc-400 font-medium mt-1.5 block">
                 Dispatched to your address
               </span>
             </div>
-            <div className="pt-4 mt-4 border-t border-slate-100 text-[11px] text-slate-500 font-semibold">
+            <div className="pt-4 mt-4 border-t border-zinc-800 text-[11px] text-zinc-400 font-semibold">
               {pendingWithdrawals > 0 ? (
-                <span className="text-amber-600 font-bold">${pendingWithdrawals.toFixed(2)} in administrative review</span>
+                <span className="text-amber-400 font-bold">${pendingWithdrawals.toFixed(2)} in administrative review</span>
               ) : (
-                <span className="text-slate-400">0 pending requests</span>
+                <span className="text-zinc-500">0 pending requests</span>
               )}
             </div>
-          </div>
+          </SpotlightCard>
         </div>
 
         {/* Action Callout Banner */}
-        <div className="p-7 rounded-3xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-slate-900/10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="space-y-1.5 relative z-10">
-            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5" /> Instant Agency Line Liquidity
-            </span>
-            <h3 className="text-xl font-black uppercase tracking-tight">
-              Ready to Load Your Ad Accounts?
-            </h3>
-            <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
-              Deposits are credited to your central wallet. You can allocate funds into individual Meta, Google, or TikTok ad accounts on demand with tiered service fees (1.5%–3%).
-            </p>
+        <SpotlightCard tone="violet-cyan" className="p-7 shadow-2xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400 flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5" /> Instant Agency Line Liquidity
+              </span>
+              <h3 className="text-xl font-black uppercase tracking-tight bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
+                Ready to Load Your Ad Accounts?
+              </h3>
+              <p className="text-xs text-zinc-400 max-w-xl leading-relaxed">
+                Deposits are credited to your central wallet. You can allocate funds into individual Meta, Google, or TikTok ad accounts on demand with tiered service fees (1.5%–3%).
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                onClick={() => {
+                  setShowDepositModal(true);
+                  setDepositStep(1);
+                }}
+                className="px-5 py-3 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-90 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-violet-600/30 cursor-pointer"
+              >
+                Deposit USDT
+              </button>
+              <Link href="/app/dashboard">
+                <a className="px-5 py-3 rounded-xl bg-black hover:bg-zinc-900 text-white text-xs font-black uppercase tracking-widest transition-all border border-zinc-800">
+                  Ad Accounts <ArrowRight className="w-3.5 h-3.5 inline ml-1" />
+                </a>
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center gap-3 shrink-0 relative z-10">
-            <button
-              onClick={() => {
-                setShowDepositModal(true);
-                setDepositStep(1);
-              }}
-              className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-widest transition-all shadow-md cursor-pointer active:scale-95"
-            >
-              Deposit USDT
-            </button>
-            <Link href="/app/dashboard">
-              <a className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-black uppercase tracking-widest transition-all border border-white/10">
-                Ad Accounts <ArrowRight className="w-3.5 h-3.5 inline ml-1" />
-              </a>
-            </Link>
-          </div>
-        </div>
+        </SpotlightCard>
 
         {/* Transaction History & Records Section */}
-        <div className="rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-6 md:p-8 space-y-6">
+        <SpotlightCard tone="default" className="p-6 md:p-8 space-y-6 shadow-2xl backdrop-blur-xl">
           {/* Header & Tabs */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
             <div>
-              <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">
+              <h2 className="text-lg font-black uppercase tracking-tight bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
                 Treasury & Transaction Records
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-zinc-400 mt-0.5">
                 Complete log of all wallet deposits, withdrawals, and balance movements.
               </p>
             </div>
@@ -461,8 +452,8 @@ export default function ClientWallet() {
                 onClick={() => setActiveTab("DEPOSITS")}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   activeTab === "DEPOSITS"
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    ? "bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-md shadow-violet-600/20"
+                    : "bg-black text-zinc-400 hover:text-white hover:bg-zinc-900 border border-zinc-800"
                 }`}
               >
                 <PlusCircle className="w-3.5 h-3.5" />
@@ -474,8 +465,8 @@ export default function ClientWallet() {
                 onClick={() => setActiveTab("WITHDRAWALS")}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   activeTab === "WITHDRAWALS"
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    ? "bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-md shadow-violet-600/20"
+                    : "bg-black text-zinc-400 hover:text-white hover:bg-zinc-900 border border-zinc-800"
                 }`}
               >
                 <ArrowDownToLine className="w-3.5 h-3.5" />
@@ -488,73 +479,73 @@ export default function ClientWallet() {
           {activeTab === "DEPOSITS" && (
             <div className="space-y-4">
               {paymentsError ? (
-                <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between">
+                <div className="text-xs text-rose-400 bg-rose-950/40 border border-rose-500/30 rounded-xl p-4 flex items-center justify-between">
                   <span>{paymentsError}</span>
                   <button onClick={fetchMyPayments} className="font-bold underline cursor-pointer">Retry</button>
                 </div>
               ) : isLoadingPayments ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                  <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
                 </div>
               ) : myPayments.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-slate-200 text-slate-400 font-black uppercase text-[10px] tracking-wider">
-                        <th className="pb-3 pr-4">Order / ID</th>
-                        <th className="pb-3 px-4">Network</th>
-                        <th className="pb-3 px-4">Amount</th>
-                        <th className="pb-3 px-4">TXID</th>
-                        <th className="pb-3 px-4">Date</th>
-                        <th className="pb-3 pl-4 text-right">Status</th>
+                      <tr className="border-b border-zinc-800 text-zinc-400 font-black uppercase text-[10px] tracking-wider bg-black">
+                        <th className="py-3 px-4">Order / ID</th>
+                        <th className="py-3 px-4">Network</th>
+                        <th className="py-3 px-4">Amount</th>
+                        <th className="py-3 px-4">TXID</th>
+                        <th className="py-3 px-4">Date</th>
+                        <th className="py-3 px-4 text-right">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-zinc-800/80">
                       {myPayments.map((p: any) => (
-                        <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="py-4 pr-4 font-mono font-bold text-slate-900">
+                        <tr key={p.id} className="hover:bg-zinc-900/40 transition-colors">
+                          <td className="py-4 px-4 font-mono font-bold text-white">
                             #{p.orderId || p.id}
                           </td>
                           <td className="py-4 px-4">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md font-mono text-[10px] font-bold bg-slate-100 text-slate-700 uppercase border border-slate-200">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md font-mono text-[10px] font-bold bg-black text-zinc-300 uppercase border border-zinc-800">
                               {p.network}
                             </span>
                           </td>
-                          <td className="py-4 px-4 font-black text-slate-900 text-sm">
+                          <td className="py-4 px-4 font-black bg-gradient-to-r from-emerald-400 to-cyan-300 bg-clip-text text-transparent text-sm">
                             ${Number(p.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })} USDT
                           </td>
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-1.5 max-w-[200px]">
-                              <span className="font-mono text-[11px] text-slate-500 truncate" title={p.txHash}>
+                              <span className="font-mono text-[11px] text-cyan-400 truncate" title={p.txHash}>
                                 {p.txHash}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => handleCopy(p.txHash, "TXID")}
-                                className="text-slate-400 hover:text-slate-900 cursor-pointer"
+                                className="text-zinc-500 hover:text-white cursor-pointer"
                                 title="Copy TXID"
                               >
                                 <Copy className="w-3 h-3" />
                               </button>
                             </div>
                           </td>
-                          <td className="py-4 px-4 text-slate-500 text-[11px]">
+                          <td className="py-4 px-4 text-zinc-400 text-[11px]">
                             {new Date(p.createdAt).toLocaleDateString()} {new Date(p.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </td>
-                          <td className="py-4 pl-4 text-right">
+                          <td className="py-4 px-4 text-right">
                             <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${
                               p.status === "PAID"
-                                ? "text-emerald-700 bg-emerald-50 border-emerald-200"
+                                ? "text-emerald-400 bg-emerald-950/60 border-emerald-500/30"
                                 : p.status === "REJECTED"
-                                ? "text-red-700 bg-red-50 border-red-200"
-                                : "text-amber-700 bg-amber-50 border-amber-200"
+                                ? "text-rose-400 bg-rose-950/60 border-rose-500/30"
+                                : "text-amber-400 bg-amber-950/60 border-amber-500/30"
                             }`}>
                               {p.status === "PAID" ? (
-                                <><CheckCircle2 className="w-3 h-3 text-emerald-600" /> Credited</>
+                                <><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Credited</>
                               ) : p.status === "REJECTED" ? (
-                                <><X className="w-3 h-3 text-red-600" /> Rejected</>
+                                <><X className="w-3 h-3 text-rose-400" /> Rejected</>
                               ) : (
-                                <><Clock className="w-3 h-3 text-amber-600" /> In Review</>
+                                <><Clock className="w-3 h-3 text-amber-400" /> In Review</>
                               )}
                             </span>
                           </td>
@@ -564,18 +555,18 @@ export default function ClientWallet() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-12 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50 space-y-3">
-                  <Wallet className="w-10 h-10 text-slate-300 mx-auto" />
+                <div className="text-center py-12 border border-dashed border-zinc-800 rounded-2xl bg-black/40 space-y-3">
+                  <Wallet className="w-10 h-10 text-zinc-600 mx-auto" />
                   <div>
-                    <h4 className="text-sm font-black uppercase text-slate-700">No Deposits Submitted Yet</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">Top up your wallet with USDT on Tron or BNB Smart Chain.</p>
+                    <h4 className="text-sm font-black uppercase text-white">No Deposits Submitted Yet</h4>
+                    <p className="text-xs text-zinc-400 mt-0.5">Top up your wallet with USDT on Tron or BNB Smart Chain.</p>
                   </div>
                   <button
                     onClick={() => {
                       setShowDepositModal(true);
                       setDepositStep(1);
                     }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 transition-colors shadow-sm cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-wider hover:opacity-90 transition-all shadow-md cursor-pointer"
                   >
                     <PlusCircle className="w-3.5 h-3.5" /> Deposit Funds Now
                   </button>
@@ -588,70 +579,70 @@ export default function ClientWallet() {
           {activeTab === "WITHDRAWALS" && (
             <div className="space-y-4">
               {withdrawalsError ? (
-                <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between">
+                <div className="text-xs text-rose-400 bg-rose-950/40 border border-rose-500/30 rounded-xl p-4 flex items-center justify-between">
                   <span>{withdrawalsError}</span>
                   <button onClick={fetchMyWithdrawals} className="font-bold underline cursor-pointer">Retry</button>
                 </div>
               ) : isLoadingWithdrawals ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                  <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
                 </div>
               ) : myWithdrawals.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-slate-200 text-slate-400 font-black uppercase text-[10px] tracking-wider">
-                        <th className="pb-3 pr-4">Request ID</th>
-                        <th className="pb-3 px-4">Amount</th>
-                        <th className="pb-3 px-4">USDT Payout Address</th>
-                        <th className="pb-3 px-4">Requested Date</th>
-                        <th className="pb-3 pl-4 text-right">Status</th>
+                      <tr className="border-b border-zinc-800 text-zinc-400 font-black uppercase text-[10px] tracking-wider bg-black">
+                        <th className="py-3 px-4">Request ID</th>
+                        <th className="py-3 px-4">Amount</th>
+                        <th className="py-3 px-4">USDT Payout Address</th>
+                        <th className="py-3 px-4">Requested Date</th>
+                        <th className="py-3 px-4 text-right">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-zinc-800/80">
                       {myWithdrawals.map((w: any) => (
-                        <tr key={w.id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="py-4 pr-4 font-mono font-bold text-slate-900">
+                        <tr key={w.id} className="hover:bg-zinc-900/40 transition-colors">
+                          <td className="py-4 px-4 font-mono font-bold text-white">
                             {w.requestId}
                           </td>
-                          <td className="py-4 px-4 font-black text-slate-900 text-sm">
+                          <td className="py-4 px-4 font-black bg-gradient-to-r from-emerald-400 to-cyan-300 bg-clip-text text-transparent text-sm">
                             ${Number(w.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })} USDT
                           </td>
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-1.5 max-w-[220px]">
-                              <span className="font-mono text-[11px] text-slate-600 truncate" title={w.usdtAddress}>
+                              <span className="font-mono text-[11px] text-cyan-400 truncate" title={w.usdtAddress}>
                                 {w.usdtAddress}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => handleCopy(w.usdtAddress, "Payout Address")}
-                                className="text-slate-400 hover:text-slate-900 cursor-pointer"
+                                className="text-zinc-500 hover:text-white cursor-pointer"
                               >
                                 <Copy className="w-3 h-3" />
                               </button>
                             </div>
                           </td>
-                          <td className="py-4 px-4 text-slate-500 text-[11px]">
+                          <td className="py-4 px-4 text-zinc-400 text-[11px]">
                             {new Date(w.createdAt).toLocaleDateString()} {new Date(w.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </td>
-                          <td className="py-4 pl-4 text-right">
+                          <td className="py-4 px-4 text-right">
                             <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${
                               w.status === "APPROVED"
-                                ? "text-emerald-700 bg-emerald-50 border-emerald-200"
+                                ? "text-emerald-400 bg-emerald-950/60 border-emerald-500/30"
                                 : w.status === "REJECTED"
-                                ? "text-red-700 bg-red-50 border-red-200"
-                                : "text-amber-700 bg-amber-50 border-amber-200"
+                                ? "text-rose-400 bg-rose-950/60 border-rose-500/30"
+                                : "text-amber-400 bg-amber-950/60 border-amber-500/30"
                             }`}>
                               {w.status === "APPROVED" ? (
-                                <><CheckCircle2 className="w-3 h-3 text-emerald-600" /> Completed</>
+                                <><CheckCircle2 className="w-3 h-3 text-emerald-400" /> Completed</>
                               ) : w.status === "REJECTED" ? (
-                                <><X className="w-3 h-3 text-red-600" /> Rejected</>
+                                <><X className="w-3 h-3 text-rose-400" /> Rejected</>
                               ) : (
-                                <><Clock className="w-3 h-3 text-amber-600" /> In Review</>
+                                <><Clock className="w-3 h-3 text-amber-400" /> In Review</>
                               )}
                             </span>
                             {w.rejectionReason && (
-                              <div className="text-[10px] text-red-600 mt-1 italic text-right">
+                              <div className="text-[10px] text-rose-400 mt-1 italic text-right">
                                 {w.rejectionReason}
                               </div>
                             )}
@@ -662,11 +653,11 @@ export default function ClientWallet() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-12 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50 space-y-3">
-                  <ArrowDownToLine className="w-10 h-10 text-slate-300 mx-auto" />
+                <div className="text-center py-12 border border-dashed border-zinc-800 rounded-2xl bg-black/40 space-y-3">
+                  <ArrowDownToLine className="w-10 h-10 text-zinc-600 mx-auto" />
                   <div>
-                    <h4 className="text-sm font-black uppercase text-slate-700">No Withdrawal Requests</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">Withdraw unspent wallet balance to your USDT address anytime (Min $200).</p>
+                    <h4 className="text-sm font-black uppercase text-white">No Withdrawal Requests</h4>
+                    <p className="text-xs text-zinc-400 mt-0.5">Withdraw unspent wallet balance to your USDT address anytime (Min $200).</p>
                   </div>
                   <button
                     onClick={() => {
@@ -674,7 +665,7 @@ export default function ClientWallet() {
                       setSubmittedWithdrawal(null);
                       setShowWithdrawModal(true);
                     }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-black uppercase tracking-wider hover:bg-slate-800 transition-colors shadow-sm cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors shadow-md border border-zinc-800 cursor-pointer"
                   >
                     <ArrowDownToLine className="w-3.5 h-3.5" /> Request Withdrawal
                   </button>
@@ -682,7 +673,7 @@ export default function ClientWallet() {
               )}
             </div>
           )}
-        </div>
+        </SpotlightCard>
       </div>
 
       {/* MANUAL USDT PAYMENT MODAL */}
@@ -694,26 +685,26 @@ export default function ClientWallet() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={resetDepositModal}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/85 backdrop-blur-md"
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-xl rounded-3xl border border-zinc-800 bg-[#060608] p-6 md:p-8 overflow-hidden shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
             >
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-600 via-primary to-teal-500" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500" />
               
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-emerald-600" /> Deposit USDT
+                  <h3 className="text-xl font-black uppercase tracking-tight bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-cyan-400" /> Deposit USDT
                   </h3>
-                  <p className="text-xs text-slate-600 mt-1">Direct blockchain payment with 0% foreign transaction fees</p>
+                  <p className="text-xs text-zinc-400 mt-1">Direct blockchain payment with 0% foreign transaction fees</p>
                 </div>
                 <button
                   onClick={resetDepositModal}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 cursor-pointer transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -723,7 +714,7 @@ export default function ClientWallet() {
                 <div className="space-y-6">
                   {/* Step 1: Network Selection */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2.5">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2.5">
                       1. Select Blockchain Network
                     </label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
@@ -732,14 +723,14 @@ export default function ClientWallet() {
                           key={net.id}
                           type="button"
                           onClick={() => setSelectedNetwork(net)}
-                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                          className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                             selectedNetwork.id === net.id
-                              ? "border-emerald-500 bg-emerald-50 text-slate-900 shadow-md"
-                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
+                              ? "border-cyan-500 bg-gradient-to-br from-violet-950/40 via-black to-cyan-950/40 text-white shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/50"
+                              : "border-zinc-800 bg-black text-zinc-400 hover:border-zinc-700 hover:text-white"
                           }`}
                         >
-                          <div className="text-xs font-black uppercase">{net.name}</div>
-                          <div className="text-[9px] font-bold text-emerald-600 mt-1">{net.badge}</div>
+                          <div className="text-xs font-black uppercase text-white">{net.name}</div>
+                          <div className="text-[9px] font-bold text-cyan-400 mt-1">{net.badge}</div>
                         </button>
                       ))}
                     </div>
@@ -747,7 +738,7 @@ export default function ClientWallet() {
 
                   {/* Step 2: Amount input */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">
                       2. Payment Amount (USDT)
                     </label>
                     <div className="flex items-center gap-2">
@@ -757,15 +748,15 @@ export default function ClientWallet() {
                           min={minDeposit}
                           value={depositAmount}
                           onChange={(e) => setDepositAmount(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm outline-none focus:border-primary/50 font-bold"
+                          className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-cyan-500 font-bold"
                           placeholder="Enter amount"
                         />
-                        <span className="absolute right-4 top-3 text-xs font-black uppercase text-emerald-600">USDT</span>
+                        <span className="absolute right-4 top-3.5 text-xs font-black uppercase text-cyan-400">USDT</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleCopy(depositAmount, "Payment Amount")}
-                        className="px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider transition-colors shrink-0 cursor-pointer"
+                        className="px-4 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white text-xs font-bold uppercase tracking-wider transition-colors shrink-0 cursor-pointer"
                       >
                         <Copy className="w-3.5 h-3.5 inline mr-1" /> Copy Amount
                       </button>
@@ -778,10 +769,10 @@ export default function ClientWallet() {
                           key={val}
                           type="button"
                           onClick={() => setDepositAmount(String(val))}
-                          className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                             depositAmount === String(val)
-                              ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
-                              : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+                              ? "bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-md shadow-violet-600/30"
+                              : "bg-black text-zinc-300 border border-zinc-800 hover:bg-zinc-900"
                           }`}
                         >
                           ${val}
@@ -789,7 +780,7 @@ export default function ClientWallet() {
                       ))}
                     </div>
 
-                    <p className="text-[9px] text-slate-400 mt-1.5">
+                    <p className="text-[9px] text-zinc-500 mt-2">
                       {isFirstDeposit
                         ? `First topup: minimum $${MIN_DEPOSIT_FIRST}. Zero commission — the full amount is credited to your main wallet.`
                         : `Minimum topup: $${MIN_DEPOSIT_NEXT}. Zero commission — the full amount is credited to your main wallet.`}
@@ -797,43 +788,43 @@ export default function ClientWallet() {
                   </div>
 
                   {/* Warning banner */}
-                  <div className="flex items-start gap-2.5 text-xs text-amber-700 bg-amber-50 p-3.5 rounded-xl border border-amber-200 font-semibold">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                  <div className="flex items-start gap-2.5 text-xs text-amber-300 bg-amber-950/20 p-3.5 rounded-xl border border-amber-500/30 font-medium">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
                     <p>Send USDT only on the selected <strong>{selectedNetwork.name}</strong> network.</p>
                   </div>
 
                   {/* Receiving Address & QR Code */}
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 space-y-4">
+                  <div className="rounded-2xl border border-zinc-800 bg-black p-5 space-y-4">
                     <div className="flex flex-col md:flex-row items-center gap-6">
-                      <div className="p-3 bg-white rounded-2xl border border-slate-200 shrink-0 shadow-lg">
+                      <div className="p-3 bg-white rounded-2xl shrink-0 shadow-lg">
                         <QRCodeSVG value={selectedNetwork.address} size={130} level="H" includeMargin={false} />
                       </div>
 
                       <div className="space-y-3 flex-1 min-w-0 w-full">
                         <div>
-                          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">
                             Send exactly:
                           </div>
-                          <div className="text-2xl font-black text-slate-900 tracking-tight">
+                          <div className="text-2xl font-black bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-300 bg-clip-text text-transparent tracking-tight">
                             {depositAmount || "0"} USDT
                           </div>
-                          <div className="text-[9px] text-slate-400 mt-0.5">
+                          <div className="text-[9px] text-zinc-500 mt-0.5">
                             You'll be credited: ${(Number(depositAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} — full credit, 0% fee
                           </div>
                         </div>
 
                         <div>
-                          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">
                             Receiving Address:
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-[11px] font-mono text-emerald-700 break-all flex-1">
+                            <div className="bg-[#060608] border border-zinc-800 rounded-xl px-3 py-2 text-[11px] font-mono text-cyan-300 break-all flex-1">
                               {selectedNetwork.address}
                             </div>
                             <button
                               type="button"
                               onClick={() => handleCopy(selectedNetwork.address, "Receiving Address")}
-                              className="p-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 transition-colors cursor-pointer shrink-0"
+                              className="p-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 transition-colors cursor-pointer shrink-0"
                               title="Copy Receiving Address"
                             >
                               <Copy className="w-4 h-4" />
@@ -848,7 +839,7 @@ export default function ClientWallet() {
                   <button
                     type="button"
                     onClick={() => setDepositStep(2)}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-violet-600/30 cursor-pointer"
                   >
                     Already made the payment? Submit Proof <ArrowUpRight className="w-4 h-4" />
                   </button>
@@ -857,26 +848,28 @@ export default function ClientWallet() {
 
               {depositStep === 2 && (
                 <form onSubmit={handleSubmitPaymentProof} className="space-y-5">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
                     <button
                       type="button"
                       onClick={() => setDepositStep(1)}
-                      className="text-xs text-emerald-600 font-bold uppercase hover:underline cursor-pointer"
+                      className="text-xs text-cyan-400 font-bold uppercase hover:underline cursor-pointer"
                     >
                       ← Back to Details
                     </button>
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
                       Network: {selectedNetwork.name}
                     </span>
                   </div>
 
-                  <h4 className="text-base font-black uppercase tracking-tight text-slate-900">Submit Payment Proof</h4>
+                  <h4 className="text-base font-black uppercase tracking-tight bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
+                    Submit Payment Proof
+                  </h4>
 
                   {/* TXID Input */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                        Transaction Hash / TXID <span className="text-red-500">*</span>
+                      <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                        Transaction Hash / TXID <span className="text-rose-400">*</span>
                       </label>
                       <button
                         type="button"
@@ -889,7 +882,7 @@ export default function ClientWallet() {
                             }
                           } catch {}
                         }}
-                        className="text-[10px] font-bold text-emerald-600 hover:underline cursor-pointer"
+                        className="text-[10px] font-bold text-cyan-400 hover:underline cursor-pointer"
                       >
                         Paste from Clipboard
                       </button>
@@ -898,28 +891,28 @@ export default function ClientWallet() {
                       type="text"
                       value={txHash}
                       onChange={(e) => setTxHash(e.target.value)}
-                      placeholder="0x..."
+                      placeholder="0x... or 64-character hash"
                       required
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs font-mono outline-none focus:border-primary/50"
+                      className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-xs font-mono outline-none focus:border-cyan-500 placeholder:text-zinc-600"
                     />
-                    <p className="text-[10px] text-slate-500 mt-1">
+                    <p className="text-[10px] text-zinc-500 mt-1">
                       {selectedNetwork.id === "tron" ? "Tron hex format, 64 characters (no 0x prefix)" : "EVM hex format starting with 0x (66 characters)"}
                     </p>
                   </div>
 
                   {/* Payment Screenshot File Upload */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
-                      Payment Screenshot Proof <span className="text-red-500">*</span>
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
+                      Payment Screenshot Proof <span className="text-rose-400">*</span>
                     </label>
 
                     {screenshotBase64 ? (
-                      <div className="relative rounded-xl border border-emerald-200 bg-emerald-50 p-3 flex items-center justify-between gap-3">
+                      <div className="relative rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-3 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <img src={screenshotBase64} alt="Preview" className="w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0" />
+                          <img src={screenshotBase64} alt="Preview" className="w-12 h-12 rounded-lg object-cover border border-zinc-800 shrink-0" />
                           <div className="min-w-0">
-                            <div className="text-xs font-bold text-slate-900 truncate">{screenshotFileName || "screenshot.png"}</div>
-                            <div className="text-[9px] text-emerald-600 font-bold uppercase mt-0.5 flex items-center gap-1">
+                            <div className="text-xs font-bold text-white truncate">{screenshotFileName || "screenshot.png"}</div>
+                            <div className="text-[9px] text-cyan-400 font-bold uppercase mt-0.5 flex items-center gap-1">
                               <CheckCircle className="w-3 h-3" /> Image Uploaded
                             </div>
                           </div>
@@ -930,17 +923,17 @@ export default function ClientWallet() {
                             setScreenshotBase64(null);
                             setScreenshotFileName("");
                           }}
-                          className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer shrink-0"
+                          className="p-2 rounded-lg bg-rose-950/60 text-rose-400 hover:bg-rose-900 transition-colors cursor-pointer shrink-0 border border-rose-500/30"
                           title="Remove image"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center p-6 rounded-xl border border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer text-center">
-                        <Upload className="w-7 h-7 text-emerald-600 mb-2" />
-                        <span className="text-xs font-bold text-slate-900">Click to Upload Payment Screenshot</span>
-                        <span className="text-[10px] text-slate-500 mt-1">PNG, JPG or WEBP (Max size 5MB)</span>
+                      <label className="flex flex-col items-center justify-center p-6 rounded-xl border border-dashed border-zinc-800 bg-black hover:bg-zinc-900/40 transition-colors cursor-pointer text-center">
+                        <Upload className="w-7 h-7 text-cyan-400 mb-2" />
+                        <span className="text-xs font-bold text-white">Click to Upload Payment Screenshot</span>
+                        <span className="text-[10px] text-zinc-500 mt-1">PNG, JPG or WEBP (Max size 5MB)</span>
                         <input
                           type="file"
                           accept="image/png, image/jpeg, image/jpg, image/webp"
@@ -953,7 +946,7 @@ export default function ClientWallet() {
 
                   {/* Optional Note */}
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
                       Optional Payment Note
                     </label>
                     <textarea
@@ -961,12 +954,12 @@ export default function ClientWallet() {
                       onChange={(e) => setPaymentNote(e.target.value)}
                       placeholder="Add any specific comments regarding your transfer..."
                       rows={2}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 outline-none focus:border-primary/50"
+                      className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-xs text-white placeholder:text-zinc-600 outline-none focus:border-cyan-500"
                     />
                   </div>
 
                   {paymentError && (
-                    <div className="text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-200">
+                    <div className="text-xs text-rose-400 bg-rose-950/40 p-3 rounded-xl border border-rose-500/30">
                       {paymentError}
                     </div>
                   )}
@@ -974,7 +967,7 @@ export default function ClientWallet() {
                   <button
                     type="submit"
                     disabled={isSubmittingProof}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-90 text-white text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-violet-600/30 cursor-pointer disabled:opacity-50"
                   >
                     {isSubmittingProof ? (
                       <><Loader2 className="w-4 h-4 animate-spin" /> Submitting Proof...</>
@@ -987,26 +980,28 @@ export default function ClientWallet() {
 
               {depositStep === 3 && (
                 <div className="text-center py-6 space-y-6">
-                  <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600 shadow-md">
+                  <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto text-cyan-400 shadow-lg">
                     <Clock className="w-8 h-8" />
                   </div>
 
                   <div>
-                    <h4 className="text-lg font-black uppercase tracking-tight text-slate-900">Payment Proof Submitted</h4>
-                    <p className="text-xs text-slate-600 mt-2 leading-relaxed max-w-md mx-auto">
+                    <h4 className="text-lg font-black uppercase tracking-tight bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
+                      Payment Proof Submitted
+                    </h4>
+                    <p className="text-xs text-zinc-400 mt-2 leading-relaxed max-w-md mx-auto">
                       Payment proof submitted successfully. Your deposit is pending administrative clearance and will be credited to your balance shortly.
                     </p>
                   </div>
 
                   {submittedPayment && (
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left text-xs space-y-2 font-mono">
+                    <div className="bg-black border border-zinc-800 rounded-2xl p-4 text-left text-xs space-y-2 font-mono text-zinc-300">
                       <div className="flex justify-between">
-                        <span className="text-slate-500">Order ID:</span>
-                        <span className="text-slate-900 font-bold">{submittedPayment.orderId}</span>
+                        <span className="text-zinc-500">Order ID:</span>
+                        <span className="text-white font-bold">{submittedPayment.orderId}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-500">Status:</span>
-                        <span className="text-amber-600 font-bold uppercase">{submittedPayment.status}</span>
+                        <span className="text-zinc-500">Status:</span>
+                        <span className="text-cyan-400 font-bold uppercase">{submittedPayment.status}</span>
                       </div>
                     </div>
                   )}
@@ -1014,7 +1009,7 @@ export default function ClientWallet() {
                   <button
                     type="button"
                     onClick={resetDepositModal}
-                    className="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border border-zinc-800"
                   >
                     Done & Close
                   </button>
@@ -1034,66 +1029,67 @@ export default function ClientWallet() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowWithdrawModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/85 backdrop-blur-md"
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 md:p-8 overflow-hidden shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-xl rounded-3xl border border-zinc-800 bg-[#060608] p-6 md:p-8 overflow-hidden shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
             >
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-600 via-primary to-teal-500" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500" />
 
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
-                    <ArrowDownToLine className="w-5 h-5 text-emerald-600" /> Withdraw USDT
+                  <h3 className="text-xl font-black uppercase tracking-tight bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent flex items-center gap-2">
+                    <ArrowDownToLine className="w-5 h-5 text-cyan-400" /> Withdraw USDT
                   </h3>
-                  <p className="text-xs text-slate-600 mt-1">Withdraw available balance to your TRON or EVM USDT address</p>
+                  <p className="text-xs text-zinc-400 mt-1">Withdraw available balance to your TRON or EVM USDT address</p>
                 </div>
                 <button
-                  type="button"
                   onClick={() => setShowWithdrawModal(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 cursor-pointer transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Available balance summary */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 flex items-center justify-between mb-5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Available Balance</span>
-                <span className="text-xl font-black text-slate-900 tabular-nums">
+              <div className="rounded-2xl border border-zinc-800 bg-black p-4 flex items-center justify-between mb-5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Available Balance</span>
+                <span className="text-xl font-black bg-gradient-to-r from-emerald-400 to-cyan-300 bg-clip-text text-transparent tabular-nums font-mono">
                   ${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })} USDT
                 </span>
               </div>
 
               {walletBalance < MIN_WITHDRAWAL ? (
-                <div className="flex items-start gap-2.5 text-xs text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-200 font-semibold">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                <div className="flex items-start gap-2.5 text-xs text-amber-300 bg-amber-950/20 p-4 rounded-xl border border-amber-500/30 font-medium">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
                   <p>
                     Your available balance is below the <strong>${MIN_WITHDRAWAL} minimum withdrawal</strong>. You can add more funds or allocate remaining balance to active campaigns.
                   </p>
                 </div>
               ) : submittedWithdrawal ? (
                 <div className="text-center py-6 space-y-6">
-                  <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600 shadow-md">
+                  <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto text-cyan-400 shadow-md">
                     <Clock className="w-8 h-8" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-black uppercase tracking-tight text-slate-900">Withdrawal Request Submitted</h4>
-                    <p className="text-xs text-slate-600 mt-2 leading-relaxed max-w-md mx-auto">
+                    <h4 className="text-lg font-black uppercase tracking-tight bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
+                      Withdrawal Request Submitted
+                    </h4>
+                    <p className="text-xs text-zinc-400 mt-2 leading-relaxed max-w-md mx-auto">
                       Your withdrawal is pending administrator review. You'll receive ${Number(submittedWithdrawal.amount || withdrawAmount).toLocaleString()} USDT at your address once dispatched.
                     </p>
                   </div>
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left text-xs space-y-2 font-mono">
+                  <div className="bg-black border border-zinc-800 rounded-2xl p-4 text-left text-xs space-y-2 font-mono text-zinc-300">
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Request ID:</span>
-                      <span className="text-slate-900 font-bold">{submittedWithdrawal.requestId}</span>
+                      <span className="text-zinc-500">Request ID:</span>
+                      <span className="text-white font-bold">{submittedWithdrawal.requestId}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Status:</span>
-                      <span className="text-amber-600 font-bold uppercase">{submittedWithdrawal.status}</span>
+                      <span className="text-zinc-500">Status:</span>
+                      <span className="text-cyan-400 font-bold uppercase">{submittedWithdrawal.status}</span>
                     </div>
                   </div>
                   <button
@@ -1102,7 +1098,7 @@ export default function ClientWallet() {
                       setShowWithdrawModal(false);
                       setSubmittedWithdrawal(null);
                     }}
-                    className="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border border-zinc-800"
                   >
                     Done & Close
                   </button>
@@ -1110,11 +1106,11 @@ export default function ClientWallet() {
               ) : (
                 <form onSubmit={handleWithdraw} className="space-y-4">
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
-                      Withdrawal Amount (USDT) <span className="text-red-500">*</span>
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
+                      Withdrawal Amount (USDT) <span className="text-rose-400">*</span>
                     </label>
                     <div className="relative">
-                      <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                      <DollarSign className="absolute left-4 top-3.5 w-4 h-4 text-zinc-500" />
                       <input
                         type="number"
                         min={MIN_WITHDRAWAL}
@@ -1122,30 +1118,30 @@ export default function ClientWallet() {
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
                         placeholder={`Min $${MIN_WITHDRAWAL}`}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 text-slate-900 text-sm font-black outline-none focus:border-primary/50"
+                        className="w-full bg-black border border-zinc-800 rounded-xl pl-11 pr-4 py-3.5 text-white text-sm font-black outline-none focus:border-cyan-500"
                         required
                       />
                     </div>
-                    <p className="text-[9px] text-slate-400 mt-1">Minimum withdrawal: ${MIN_WITHDRAWAL} USDT.</p>
+                    <p className="text-[9px] text-zinc-500 mt-1">Minimum withdrawal: ${MIN_WITHDRAWAL} USDT.</p>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">
-                      Your USDT Receiving Address <span className="text-red-500">*</span>
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">
+                      Your USDT Receiving Address <span className="text-rose-400">*</span>
                     </label>
                     <input
                       type="text"
                       value={usdtAddress}
                       onChange={(e) => setUsdtAddress(e.target.value)}
                       placeholder="e.g. TRON (T...) or EVM (0x...)"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs font-mono outline-none focus:border-primary/50"
+                      className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-xs font-mono outline-none focus:border-cyan-500 placeholder:text-zinc-600"
                       required
                     />
-                    <p className="text-[9px] text-slate-400 mt-1">TRON (TRC20) or EVM (BSC/ETH) supported.</p>
+                    <p className="text-[9px] text-zinc-500 mt-1">TRON (TRC20) or EVM (BSC/ETH) supported.</p>
                   </div>
 
                   {withdrawError && (
-                    <div className="text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-200">
+                    <div className="text-xs text-rose-400 bg-rose-950/40 p-3 rounded-xl border border-rose-500/30">
                       {withdrawError}
                     </div>
                   )}
@@ -1153,7 +1149,7 @@ export default function ClientWallet() {
                   <button
                     type="submit"
                     disabled={isSubmittingWithdraw}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-widest transition-all shadow-md cursor-pointer disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-90 text-white text-xs font-black uppercase tracking-widest transition-all shadow-xl shadow-violet-600/30 cursor-pointer disabled:opacity-50"
                   >
                     {isSubmittingWithdraw ? (
                       <><Loader2 className="w-4 h-4 animate-spin" /> Submitting Request...</>

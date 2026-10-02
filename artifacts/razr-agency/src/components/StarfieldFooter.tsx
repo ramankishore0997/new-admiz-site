@@ -54,13 +54,13 @@ export default function StarfieldFooter() {
 
       // subtle gradient beams
       const grad = ctx.createRadialGradient(w * 0.2, h * 0.5, 0, w * 0.2, h * 0.5, w * 0.6);
-      grad.addColorStop(0, "rgba(5, 150, 105, 0.06)");
+      grad.addColorStop(0, "rgba(139, 92, 246, 0.08)");
       grad.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
       const grad2 = ctx.createRadialGradient(w * 0.85, h * 0.3, 0, w * 0.85, h * 0.3, w * 0.5);
-      grad2.addColorStop(0, "rgba(20, 184, 166, 0.05)");
+      grad2.addColorStop(0, "rgba(6, 182, 212, 0.07)");
       grad2.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.fillStyle = grad2;
       ctx.fillRect(0, 0, w, h);
@@ -78,7 +78,7 @@ export default function StarfieldFooter() {
 
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(15, 23, 42, ${s.a * 0.5})`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.a * 0.75})`;
         ctx.fill();
       });
 
@@ -91,8 +91,8 @@ export default function StarfieldFooter() {
         const tailX = shooting.x - (shooting.vx / Math.hypot(shooting.vx, shooting.vy)) * shooting.len;
         const tailY = shooting.y - (shooting.vy / Math.hypot(shooting.vx, shooting.vy)) * shooting.len;
         const lg = ctx.createLinearGradient(shooting.x, shooting.y, tailX, tailY);
-        lg.addColorStop(0, `rgba(5,150,105,${alpha})`);
-        lg.addColorStop(1, "rgba(5,150,105,0)");
+        lg.addColorStop(0, `rgba(6,182,212,${alpha})`);
+        lg.addColorStop(1, "rgba(139,92,246,0)");
         ctx.strokeStyle = lg;
         ctx.lineWidth = 1.5;
         ctx.beginPath();

@@ -19,7 +19,10 @@ import {
   BadgeCheck,
   HelpCircle,
   Info,
-  ArrowRight
+  ArrowRight,
+  Layers,
+  Zap,
+  Globe
 } from "lucide-react";
 import { PAYMENT_CONFIG } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
@@ -36,18 +39,18 @@ export default function ClientApplication() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "DRAFT":
-        return "text-amber-600 bg-amber-50 border-amber-200";
+        return "text-amber-400 bg-amber-500/10 border-amber-500/30";
       case "SUBMITTED":
-        return "text-slate-600 bg-slate-100 border-slate-200";
+        return "text-cyan-300 bg-cyan-500/10 border-cyan-500/30";
       case "UNDER_REVIEW":
-        return "text-amber-600 bg-amber-50 border-amber-200";
+        return "text-violet-400 bg-violet-500/10 border-violet-500/30";
       case "APPROVED":
-        return "text-emerald-600 bg-emerald-50 border-emerald-200";
+        return "text-emerald-400 bg-emerald-500/10 border-emerald-500/30";
       case "INFORMATION_REQUIRED":
       case "DOCUMENTS_REQUIRED":
-        return "text-red-600 bg-red-50 border-red-200";
+        return "text-rose-400 bg-rose-500/10 border-rose-500/30";
       default:
-        return "text-slate-400 bg-slate-50 border-slate-200";
+        return "text-zinc-400 bg-zinc-900 border-zinc-800";
     }
   };
 
@@ -78,9 +81,9 @@ export default function ClientApplication() {
       const calculated = Math.max(1, Math.min(5, Math.floor(walletBalance / 10)));
       setApplyAppCount(calculated);
     }
-  }, [walletBalance]);
+  }, [walletBalance, user]);
 
-  const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; badge: string; features: string[]; styles: string }> = {
+  const HAT_FEATURES: Record<"BLACK" | "GREY" | "WHITE", { title: string; emoji: string; desc: string; badge: string; features: string[]; styles: string; badgeStyles: string }> = {
     BLACK: {
       title: "Black Hat",
       emoji: "⚫",
@@ -93,7 +96,8 @@ export default function ClientApplication() {
         "Priority provisioning queue — accounts ready in minutes",
         "Dedicated compliance manager on Telegram 24/7",
       ],
-      styles: "border-slate-900 bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-[0_10px_40px_-10px_rgba(2,6,23,0.55)]",
+      styles: "border-purple-500/30 bg-[#0c0a14] text-white shadow-xl hover:border-purple-500/50",
+      badgeStyles: "border-purple-500/40 bg-purple-500/10 text-purple-300",
     },
     GREY: {
       title: "Grey Hat",
@@ -107,7 +111,8 @@ export default function ClientApplication() {
         "Warm accounts with prior spending history",
         "Round-the-clock Telegram priority support",
       ],
-      styles: "border-amber-400 bg-gradient-to-br from-amber-100 to-amber-50 text-amber-900 shadow-[0_10px_40px_-10px_rgba(245,158,11,0.4)]",
+      styles: "border-amber-500/30 bg-[#120e06] text-amber-200 shadow-xl hover:border-amber-500/50",
+      badgeStyles: "border-amber-500/40 bg-amber-500/10 text-amber-300",
     },
     WHITE: {
       title: "White Hat",
@@ -121,7 +126,8 @@ export default function ClientApplication() {
         "Bank-grade account history & full spend limits",
         "Priority VIP support channel on Telegram",
       ],
-      styles: "border-emerald-400 bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-900 shadow-[0_10px_40px_-10px_rgba(5,150,105,0.4)]",
+      styles: "border-emerald-500/30 bg-[#06120e] text-emerald-200 shadow-xl hover:border-emerald-500/50",
+      badgeStyles: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
     },
   };
 
@@ -136,7 +142,6 @@ export default function ClientApplication() {
       const list = await apiFetch<any[]>("/api/applications");
       setApplications(list);
       if (list.length > 0) {
-        // Prefer an editable application, otherwise fall back to the first one
         const chosen =
           list.find((a) => ["DRAFT", "INFORMATION_REQUIRED", "DOCUMENTS_REQUIRED"].includes(a.status)) || list[0];
         await selectApplication(chosen.id);
@@ -156,10 +161,8 @@ export default function ClientApplication() {
     setLoadError("");
     try {
       const detail = await apiFetch<any>(`/api/applications/${appId}`);
-
       setApplication(detail);
 
-      // Timeline and messages are separate endpoints
       const [tlData, msgData] = await Promise.all([
         apiFetch<any[]>(`/api/applications/${detail.id}/timeline`).catch(() => []),
         apiFetch<any[]>(`/api/applications/${detail.id}/messages`).catch(() => []),
@@ -167,7 +170,6 @@ export default function ClientApplication() {
       setTimeline(tlData || []);
       setMessages(msgData || []);
 
-      // Prepopulate draft fields
       const advertising = detail.advertisingInfo || {};
       const reqs = detail.accountRequirements || {};
 
@@ -188,7 +190,6 @@ export default function ClientApplication() {
     loadData();
   }, []);
 
-  // Poll for live updates (timeline + messages) so admin actions appear in real time
   useEffect(() => {
     if (!application?.id) return;
     const id = setInterval(() => {
@@ -243,30 +244,29 @@ export default function ClientApplication() {
       ? "TikTok Ads"
       : "Other Ads Platform";
 
-  // Account switcher bar — clients can hold multiple ad accounts from one main wallet
   const renderAccountBar = () => {
     return (
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+      <div className="mb-6 bg-[#060608] border border-zinc-800/80 rounded-2xl p-4 shadow-xl">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
             My Ad Accounts ({applications.length})
           </span>
           <button
             onClick={handleStartApplication}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary/30 bg-primary/5 text-[9px] font-black uppercase tracking-widest text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-violet-500/30 bg-violet-500/10 text-[9px] font-black uppercase tracking-widest text-violet-300 hover:bg-violet-500/20 transition-all cursor-pointer hover:scale-105"
           >
             + New Account
           </button>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2">
           {applications.map((app) => (
             <button
               key={app.id}
               onClick={() => selectApplication(app.id)}
-              className={`px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl border text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                 app.id === application?.id
-                  ? "border-primary bg-primary/5 text-primary"
-                  : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                  ? "border-violet-500 bg-gradient-to-r from-violet-600/20 to-cyan-600/20 text-white shadow-lg shadow-violet-500/10"
+                  : "border-zinc-800 bg-black/60 text-zinc-400 hover:border-zinc-700 hover:text-white"
               }`}
             >
               #{String(app.publicId || app.id).slice(-6)} · {app.status.replace("_", " ")}
@@ -336,11 +336,9 @@ export default function ClientApplication() {
 
     setIsSubmitting(true);
     try {
-      // 1. First save draft and submit the current application
       await handleSaveDraft();
       await apiFetch(`/api/applications/${application.id}/submit`, { method: "POST" });
 
-      // 2. If user selected multiple accounts, create and submit remaining (applyAppCount - 1)
       if (applyAppCount > 1) {
         for (let i = 2; i <= applyAppCount; i++) {
           const extraApp = await apiFetch<any>("/api/applications", { method: "POST" });
@@ -399,7 +397,7 @@ export default function ClientApplication() {
     return (
       <ClientLayout>
         <div className="min-h-[60vh] flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
         </div>
       </ClientLayout>
     );
@@ -410,28 +408,32 @@ export default function ClientApplication() {
     return (
       <ClientLayout>
         <div className="max-w-2xl mx-auto text-center py-20 relative z-10">
-          <div className="absolute inset-0 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-          <div className="w-16 h-16 bg-white border border-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-6 text-primary shadow-xl shadow-slate-200/60">
+          <div className="absolute inset-0 bg-violet-600/10 rounded-full blur-[140px] pointer-events-none" />
+          <div className="w-16 h-16 bg-[#060608] border border-violet-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6 text-cyan-400 shadow-xl shadow-violet-500/10">
             <FileText className="w-8 h-8" />
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <span className="text-[9px] font-black tracking-widest text-primary uppercase">Onboarding Queue</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 mb-4 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
+            <span className="text-[9px] font-black tracking-widest uppercase bg-gradient-to-r from-violet-300 to-cyan-300 bg-clip-text text-transparent">
+              Onboarding Queue
+            </span>
           </div>
-          <h2 className="text-3xl font-black uppercase tracking-tight text-slate-900 mb-4">Unlock Unlimited Ad Accounts</h2>
-          <p className="text-sm text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
+          <h2 className="text-3xl font-black uppercase tracking-tight text-white mb-4">
+            Unlock Unlimited <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Ad Accounts</span>
+          </h2>
+          <p className="text-sm text-zinc-300 mb-8 max-w-md mx-auto leading-relaxed">
             High-trust agency ad accounts on Meta, Google & TikTok — provisioned in minutes with unlimited free replacements.
             One wallet, unlimited accounts. Scale across every network with priority pipelines.
           </p>
 
           {loadError && (
             <div className="max-w-md mx-auto mb-6 text-left">
-              <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">
+              <div className="text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3">
                 {loadError}
               </div>
               <button
                 onClick={loadData}
-                className="mt-2 text-[10px] font-black uppercase tracking-wider text-primary hover:underline cursor-pointer"
+                className="mt-2 text-[10px] font-black uppercase tracking-wider text-cyan-400 hover:underline cursor-pointer"
               >
                 Retry
               </button>
@@ -441,17 +443,16 @@ export default function ClientApplication() {
           <button
             onClick={handleStartApplication}
             disabled={isLoading}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-widest hover:opacity-95 hover:scale-105 transition-all shadow-lg shadow-violet-600/30 cursor-pointer disabled:opacity-50"
           >
             {isLoading ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Initializing...</>
+              <><Loader2 className="w-4 h-4 animate-spin text-white" /> Initializing...</>
             ) : (
-              <>Start Compliance Onboarding</>
+              <>Start Compliance Onboarding <ArrowRight className="w-4 h-4" /></>
             )}
           </button>
         </div>
 
-        {/* Visual Meta BM ID Guide Modal */}
         <BmGuideModal
           isOpen={showBmGuide}
           onClose={() => setShowBmGuide(false)}
@@ -460,7 +461,7 @@ export default function ClientApplication() {
     );
   }
 
-  // 2. State: In Draft or Needs Revisions (Client Stepper Edit Mode)
+  // 2. State: In Draft or Needs Revisions
   const isDraftMode =
     application.status === "DRAFT" ||
     application.status === "INFORMATION_REQUIRED" ||
@@ -471,18 +472,19 @@ export default function ClientApplication() {
       <ClientLayout>
         <div className="max-w-3xl mx-auto relative z-10 pb-20">
           {/* Stepper Header */}
-          <div className="mb-8 pb-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="mb-8 pb-6 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">Ad Account Application</h1>
+              <h1 className="text-2xl font-black uppercase tracking-tight text-white">
+                Ad Account <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Application</span>
+              </h1>
               <div className="flex flex-wrap items-center gap-3 mt-1.5">
-                <p className="text-xs text-slate-500">
-                  Application ID: <span className="font-mono font-bold text-slate-700">{application.publicId}</span> ({application.status})
+                <p className="text-xs text-zinc-400">
+                  Application ID: <span className="font-mono font-bold text-cyan-300">{application.publicId}</span> ({application.status})
                 </p>
 
-                {/* Subtle Number of Accounts selector right next to Application ID */}
-                <div className="inline-flex items-center gap-1.5 bg-slate-100/90 border border-slate-200 rounded-lg px-2 py-1 text-xs">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">Accounts:</span>
-                  <div className="flex items-center gap-0.5 bg-white rounded-md border border-slate-200/80 p-0.5">
+                <div className="inline-flex items-center gap-1.5 bg-[#060608] border border-zinc-800 rounded-lg px-2.5 py-1 text-xs">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Accounts:</span>
+                  <div className="flex items-center gap-0.5 bg-black rounded-md border border-zinc-800 p-0.5">
                     {[1, 2, 3, 4, 5].map((num) => {
                       const isSelected = applyAppCount === num;
                       const isAffordable = walletBalance >= num * 10;
@@ -493,10 +495,10 @@ export default function ClientApplication() {
                           onClick={() => setApplyAppCount(num)}
                           className={`w-5 h-5 rounded text-[10px] font-black transition-all cursor-pointer flex items-center justify-center ${
                             isSelected
-                              ? "bg-slate-900 text-white shadow-xs"
+                              ? "bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-xs"
                               : isAffordable
-                              ? "text-slate-700 hover:bg-slate-100"
-                              : "text-slate-300 hover:bg-slate-50"
+                              ? "text-zinc-300 hover:bg-zinc-800"
+                              : "text-zinc-600 hover:bg-black"
                           }`}
                           title={
                             isAffordable
@@ -514,7 +516,7 @@ export default function ClientApplication() {
             </div>
             <button
               onClick={handleSaveDraft}
-              className="px-4 py-2 border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 rounded-lg text-[10px] font-black uppercase tracking-wider text-slate-700 transition-colors cursor-pointer self-start sm:self-auto"
+              className="px-4 py-2 border border-zinc-800 hover:border-zinc-700 bg-[#060608] hover:bg-zinc-900 rounded-xl text-[10px] font-black uppercase tracking-wider text-zinc-300 transition-all cursor-pointer self-start sm:self-auto hover:text-white"
             >
               Save Progress
             </button>
@@ -522,18 +524,20 @@ export default function ClientApplication() {
 
           {renderAccountBar()}
 
-          {/* Pricing & Benefits — shown before applying */}
-          <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50/70 via-white to-white shadow-xl shadow-emerald-100/40 p-6 mb-6">
+          {/* Pricing & Benefits */}
+          <div className="rounded-3xl border border-zinc-800 bg-[#060608] shadow-2xl p-6 mb-6">
             <div className="flex items-center gap-2 mb-4">
-              <ShieldCheck className="w-5 h-5 text-emerald-600" />
-              <h3 className="text-base font-black uppercase tracking-wider text-slate-900">Before You Apply — What's Included</h3>
+              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              <h3 className="text-base font-black uppercase tracking-wider text-white">
+                Before You Apply — <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">What's Included</span>
+              </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Benefits */}
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-2.5">Benefits</div>
-                <ul className="space-y-1.5">
+              <div className="rounded-2xl border border-zinc-800/80 bg-black/60 p-4">
+                <div className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-2.5">Benefits</div>
+                <ul className="space-y-2">
                   {[
                     "Unlimited free replacements — lifetime, every account",
                     "Business Manager access assigned on your topup",
@@ -541,55 +545,55 @@ export default function ClientApplication() {
                     "100% refund if BM isn't assigned within 48 hrs",
                     "Dedicated Telegram support 24/7",
                   ].map((b) => (
-                    <li key={b} className="text-[10px] text-slate-600 flex items-start gap-1.5">
-                      <CheckCircle className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" /> {b}
+                    <li key={b} className="text-[10px] text-zinc-300 flex items-start gap-1.5">
+                      <CheckCircle className="w-3 h-3 mt-0.5 text-emerald-400 shrink-0" /> {b}
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* Minimum deposits */}
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-2.5">Minimum Deposits</div>
-                <ul className="space-y-1.5">
-                  <li className="text-[10px] text-slate-600 flex items-start gap-1.5">
-                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
-                    <span><strong>$10</strong> first topup — full credit, 0% fee</span>
+              <div className="rounded-2xl border border-zinc-800/80 bg-black/60 p-4">
+                <div className="text-[10px] font-black uppercase tracking-widest text-cyan-400 mb-2.5">Minimum Deposits</div>
+                <ul className="space-y-2">
+                  <li className="text-[10px] text-zinc-300 flex items-start gap-1.5">
+                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-cyan-400 shrink-0" />
+                    <span><strong className="text-white">$10</strong> first topup — full credit, 0% fee</span>
                   </li>
-                  <li className="text-[10px] text-slate-600 flex items-start gap-1.5">
-                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
-                    <span><strong>$50</strong> every topup after that — 0% fee</span>
+                  <li className="text-[10px] text-zinc-300 flex items-start gap-1.5">
+                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-cyan-400 shrink-0" />
+                    <span><strong className="text-white">$50</strong> every topup after that — 0% fee</span>
                   </li>
-                  <li className="text-[10px] text-slate-600 flex items-start gap-1.5">
-                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
-                    <span><strong>$50</strong> ad-account topup — unlocks BM access + activation</span>
+                  <li className="text-[10px] text-zinc-300 flex items-start gap-1.5">
+                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-cyan-400 shrink-0" />
+                    <span><strong className="text-white">$50</strong> ad-account topup — unlocks BM access</span>
                   </li>
-                  <li className="text-[10px] text-slate-600 flex items-start gap-1.5">
-                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
-                    <span><strong>$10</strong> application fee per ad account (from wallet)</span>
+                  <li className="text-[10px] text-zinc-300 flex items-start gap-1.5">
+                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-cyan-400 shrink-0" />
+                    <span><strong className="text-white">$10</strong> application fee per ad account</span>
                   </li>
                 </ul>
               </div>
 
               {/* Fee tiers */}
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-2.5">Ad-Account Topup Fees</div>
+              <div className="rounded-2xl border border-zinc-800/80 bg-black/60 p-4">
+                <div className="text-[10px] font-black uppercase tracking-widest text-violet-400 mb-2.5">Ad-Account Topup Fees</div>
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                    <span className="text-[10px] font-bold text-slate-700">Below $100</span>
-                    <span className="text-[10px] font-black text-emerald-700">3%</span>
+                  <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-[#0c0c10] px-3 py-2">
+                    <span className="text-[10px] font-bold text-zinc-300">Below $100</span>
+                    <span className="text-[10px] font-black text-cyan-300">3%</span>
                   </div>
-                  <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                    <span className="text-[10px] font-bold text-slate-700">$100 – $1,000</span>
-                    <span className="text-[10px] font-black text-emerald-700">2%</span>
+                  <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-[#0c0c10] px-3 py-2">
+                    <span className="text-[10px] font-bold text-zinc-300">$100 – $1,000</span>
+                    <span className="text-[10px] font-black text-cyan-300">2%</span>
                   </div>
-                  <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                    <span className="text-[10px] font-bold text-slate-700">Above $1,000</span>
-                    <span className="text-[10px] font-black text-emerald-700">1.5%</span>
+                  <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-[#0c0c10] px-3 py-2">
+                    <span className="text-[10px] font-bold text-zinc-300">Above $1,000</span>
+                    <span className="text-[10px] font-black text-emerald-400">1.5%</span>
                   </div>
                 </div>
-                <div className="mt-2.5 text-[9px] text-slate-400 font-semibold flex items-start gap-1">
-                  <BadgeCheck className="w-3 h-3 mt-0.5 text-emerald-600 shrink-0" />
+                <div className="mt-2.5 text-[9px] text-zinc-400 font-semibold flex items-start gap-1">
+                  <BadgeCheck className="w-3 h-3 mt-0.5 text-violet-400 shrink-0" />
                   Wallet deposits are always commission-free — credited in full.
                 </div>
               </div>
@@ -597,67 +601,69 @@ export default function ClientApplication() {
           </div>
 
           {/* Simple apply form */}
-          <div className="rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-8 mb-6 relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-emerald-600/40 to-teal-500/40" />
+          <div className="rounded-3xl border border-zinc-800 bg-[#060608] shadow-2xl p-8 mb-6 relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
 
             <div className="space-y-6">
               {/* Form title */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                  <h3 className="text-base font-black uppercase text-slate-900 tracking-wider">Ad Account Details</h3>
+                  <Sparkles className="w-5 h-5 text-cyan-400" />
+                  <h3 className="text-base font-black uppercase text-white tracking-wider">
+                    Ad Account <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Details</span>
+                  </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowBmGuide(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-black uppercase tracking-wider hover:bg-blue-100 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-500/10 border border-violet-500/30 text-violet-300 text-[10px] font-black uppercase tracking-wider hover:bg-violet-500/20 transition-all cursor-pointer"
                 >
-                  <HelpCircle className="w-3.5 h-3.5 text-blue-600" /> Meta BM Guide
+                  <HelpCircle className="w-3.5 h-3.5 text-cyan-400" /> Meta BM Guide
                 </button>
               </div>
 
               {/* Interactive Step Guide Bar */}
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-2.5">
+              <div className="p-4 rounded-2xl bg-black border border-zinc-800 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black uppercase text-emerald-900 flex items-center gap-1.5">
-                    <Info className="w-4 h-4 text-emerald-700" /> Application Checklist & Setup Guide
+                  <span className="text-xs font-black uppercase bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent flex items-center gap-1.5">
+                    <Info className="w-4 h-4 text-cyan-400" /> Application Checklist & Setup Guide
                   </span>
-                  <span className="text-[10px] font-bold text-emerald-700">Fast 2-Min Process</span>
+                  <span className="text-[10px] font-bold text-zinc-400">Fast 2-Min Process</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-[11px]">
-                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${applyPlatform ? "bg-white border-emerald-300 text-emerald-900 font-bold shadow-2xs" : "bg-white/60 border-emerald-100 text-slate-500"}`}>
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${applyPlatform ? "text-emerald-600" : "text-slate-300"}`} />
+                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${applyPlatform ? "bg-violet-500/10 border-violet-500/30 text-violet-200 font-bold" : "bg-[#060608] border-zinc-800 text-zinc-600"}`}>
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${applyPlatform ? "text-cyan-400" : "text-zinc-600"}`} />
                     <span>1. Pick Platform</span>
                   </div>
-                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${(applyPlatform === "meta" && applyBmId) || (applyPlatform === "google" && applyGmail) || applyPlatform === "tiktok" ? "bg-white border-emerald-300 text-emerald-900 font-bold shadow-2xs" : "bg-white/60 border-emerald-100 text-slate-500"}`}>
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${(applyPlatform === "meta" && applyBmId) || (applyPlatform === "google" && applyGmail) || applyPlatform === "tiktok" ? "text-emerald-600" : "text-slate-300"}`} />
+                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${(applyPlatform === "meta" && applyBmId) || (applyPlatform === "google" && applyGmail) || applyPlatform === "tiktok" ? "bg-violet-500/10 border-violet-500/30 text-violet-200 font-bold" : "bg-[#060608] border-zinc-800 text-zinc-600"}`}>
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${(applyPlatform === "meta" && applyBmId) || (applyPlatform === "google" && applyGmail) || applyPlatform === "tiktok" ? "text-cyan-400" : "text-zinc-600"}`} />
                     <span>2. Enter {applyPlatform === "meta" ? "BM ID" : applyPlatform === "google" ? "Gmail" : "Handle"}</span>
                   </div>
-                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${applyHatType ? "bg-white border-emerald-300 text-emerald-900 font-bold shadow-2xs" : "bg-white/60 border-emerald-100 text-slate-500"}`}>
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${applyHatType ? "text-emerald-600" : "text-slate-300"}`} />
+                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${applyHatType ? "bg-violet-500/10 border-violet-500/30 text-violet-200 font-bold" : "bg-[#060608] border-zinc-800 text-zinc-600"}`}>
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${applyHatType ? "text-cyan-400" : "text-zinc-600"}`} />
                     <span>3. Choose Hat Tier</span>
                   </div>
-                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${walletBalance >= applyAppCount * 10 ? "bg-white border-emerald-300 text-emerald-900 font-bold shadow-2xs" : "bg-white/60 border-emerald-100 text-slate-500"}`}>
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${walletBalance >= applyAppCount * 10 ? "text-emerald-600" : "text-slate-300"}`} />
+                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${walletBalance >= applyAppCount * 10 ? "bg-violet-500/10 border-violet-500/30 text-violet-200 font-bold" : "bg-[#060608] border-zinc-800 text-zinc-600"}`}>
+                    <CheckCircle2 className={`w-3.5 h-3.5 ${walletBalance >= applyAppCount * 10 ? "text-cyan-400" : "text-zinc-600"}`} />
                     <span>4. Submit ($10/app)</span>
                   </div>
                 </div>
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Select Platform *</label>
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Select Platform *</label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { id: "meta", name: "Meta Ads", color: "text-emerald-600 border-emerald-200 bg-emerald-50" },
-                    { id: "google", name: "Google Ads", color: "text-[#FBBC05] border-[#FBBC05]/20 bg-[#FBBC05]/5" },
-                    { id: "tiktok", name: "TikTok Ads", color: "text-[#EE1D52] border-[#EE1D52]/20 bg-[#EE1D52]/5" },
+                    { id: "meta", name: "Meta Ads", color: "text-cyan-300 border-cyan-500/40 bg-cyan-500/10" },
+                    { id: "google", name: "Google Ads", color: "text-amber-300 border-amber-500/40 bg-amber-500/10" },
+                    { id: "tiktok", name: "TikTok Ads", color: "text-pink-300 border-pink-500/40 bg-pink-500/10" },
                   ].map((p) => (
                     <button
                       key={p.id}
                       type="button"
                       onClick={() => setApplyPlatform(p.id)}
-                      className={`p-3 rounded-xl border text-center transition-all text-[10px] font-bold cursor-pointer ${
-                        applyPlatform === p.id ? `${p.color} border-current` : "border-slate-200 bg-white hover:border-slate-300 text-slate-600"
+                      className={`p-3 rounded-xl border text-center transition-all text-[10px] font-black cursor-pointer ${
+                        applyPlatform === p.id ? `${p.color} border-current shadow-md` : "border-zinc-800 bg-black hover:border-zinc-700 text-zinc-400"
                       }`}
                     >
                       {p.name}
@@ -669,11 +675,11 @@ export default function ClientApplication() {
               {applyPlatform === "meta" && (
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Meta Business Manager ID (BM ID) *</label>
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Meta Business Manager ID (BM ID) *</label>
                     <button
                       type="button"
                       onClick={() => setShowBmGuide(true)}
-                      className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+                      className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-cyan-400 hover:underline cursor-pointer"
                     >
                       <HelpCircle className="w-3 h-3" /> Where to find BM ID? (Guide)
                     </button>
@@ -683,68 +689,68 @@ export default function ClientApplication() {
                     value={applyBmId}
                     onChange={(e) => setApplyBmId(e.target.value)}
                     placeholder="e.g. 4920491029302"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-primary/50 transition-colors"
+                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors placeholder:text-zinc-600"
                   />
-                  <span className="text-[9px] text-slate-400">The BM ID your ad account will be granted under.</span>
+                  <span className="text-[9px] text-zinc-500">The BM ID your ad account will be granted under.</span>
                 </div>
               )}
 
               {applyPlatform === "google" && (
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Gmail for the Ad Account *</label>
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Gmail for the Ad Account *</label>
                   <input
                     type="email"
                     value={applyGmail}
                     onChange={(e) => setApplyGmail(e.target.value)}
                     placeholder="yourgmail@gmail.com"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-primary/50 transition-colors"
+                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors placeholder:text-zinc-600"
                   />
-                  <span className="text-[9px] text-slate-400">Your Google Ads account will be created on this Gmail.</span>
+                  <span className="text-[9px] text-zinc-500">Your Google Ads account will be created on this Gmail.</span>
                 </div>
               )}
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Account Name (Optional)</label>
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Account Name (Optional)</label>
                 <input
                   type="text"
                   value={applyAccountName}
                   onChange={(e) => setApplyAccountName(e.target.value)}
                   placeholder="e.g. Scale Account 1"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs outline-none focus:border-primary/50 transition-colors"
+                  className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors placeholder:text-zinc-600"
                 />
-                <span className="text-[9px] text-slate-400">Give your ad account your own name — it will appear in your dashboard.</span>
+                <span className="text-[9px] text-zinc-500">Give your ad account your own name — it will appear in your dashboard.</span>
               </div>
 
               {/* Account country + currency */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Account Country *</label>
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Account Country *</label>
                   <SearchableSelect
                     value={applyCountry}
                     onChange={setApplyCountry}
                     options={ACCOUNT_COUNTRIES.map((c) => ({ value: c, label: c }))}
                     placeholder="Search country..."
-                    buttonClassName="text-xs"
+                    buttonClassName="text-xs bg-black border-zinc-800"
                   />
-                  <span className="text-[9px] text-slate-400">The country your ad account will be registered in.</span>
+                  <span className="text-[9px] text-zinc-500">The country your ad account will be registered in.</span>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Account Currency *</label>
+                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Account Currency *</label>
                   <SearchableSelect
                     value={applyCurrency}
                     onChange={setApplyCurrency}
                     options={ACCOUNT_CURRENCIES.map((c) => ({ value: c.split(" — ")[0], label: c }))}
                     placeholder="Search currency..."
-                    buttonClassName="text-xs"
+                    buttonClassName="text-xs bg-black border-zinc-800"
                   />
-                  <span className="text-[9px] text-slate-400">Billing currency for your ad account.</span>
+                  <span className="text-[9px] text-zinc-500">Billing currency for your ad account.</span>
                 </div>
               </div>
 
               {/* Hat type */}
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Choose Hat Type *</label>
-                <div className="grid grid-cols-1 gap-2">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Choose Hat Type *</label>
+                <div className="grid grid-cols-1 gap-2.5">
                   {(Object.keys(HAT_FEATURES) as Array<"BLACK" | "GREY" | "WHITE">).map((key) => {
                     const hat = HAT_FEATURES[key];
                     const isSelected = applyHatType === key;
@@ -753,29 +759,25 @@ export default function ClientApplication() {
                         key={key}
                         type="button"
                         onClick={() => setApplyHatType(key)}
-                        className={`text-left rounded-xl border p-4 transition-all cursor-pointer ${
-                          isSelected ? `${hat.styles} border-current shadow-lg` : "border-slate-200 bg-white hover:border-slate-300 text-slate-700"
+                        className={`text-left rounded-2xl border p-4 transition-all cursor-pointer ${
+                          isSelected ? `${hat.styles} ring-1 ring-violet-500 shadow-xl` : "border-zinc-800 bg-black/60 hover:border-zinc-700 text-zinc-300"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className={`text-xs font-black uppercase tracking-wider ${isSelected ? "" : "text-slate-900"}`}>
+                          <span className={`text-xs font-black uppercase tracking-wider ${isSelected ? "" : "text-white"}`}>
                             {hat.emoji} {hat.title}
                           </span>
                           <span
-                            className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${
-                              isSelected
-                                ? "border-current opacity-90 bg-white/10"
-                                : "border-emerald-300 bg-emerald-50 text-emerald-700"
-                            }`}
+                            className={`text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full border ${hat.badgeStyles}`}
                           >
                             {hat.badge}
                           </span>
                         </div>
-                        <span className={`block text-[10px] font-semibold mb-1.5 ${isSelected ? "opacity-90" : "text-slate-600"}`}>{hat.desc}</span>
-                        <ul className={`space-y-0.5 ${isSelected ? "opacity-90" : "text-slate-500"}`}>
+                        <span className={`block text-[10px] font-semibold mb-1.5 ${isSelected ? "opacity-95" : "text-zinc-400"}`}>{hat.desc}</span>
+                        <ul className={`space-y-1 ${isSelected ? "opacity-95" : "text-zinc-400"}`}>
                           {hat.features.map((f) => (
-                            <li key={f} className="text-[10px] flex items-start gap-1">
-                              <span className="shrink-0">•</span> {f}
+                            <li key={f} className="text-[10px] flex items-start gap-1.5">
+                              <span className="shrink-0 text-cyan-400">•</span> {f}
                             </li>
                           ))}
                         </ul>
@@ -785,29 +787,29 @@ export default function ClientApplication() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs text-primary flex items-start gap-2.5">
-                <Wallet className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="rounded-2xl border border-violet-500/30 bg-violet-500/10 p-4 text-xs text-violet-200 flex items-start gap-2.5">
+                <Wallet className="w-4 h-4 shrink-0 mt-0.5 text-cyan-400" />
                 <p>
                   <strong>Application fee: $10 per ad account</strong> — includes{" "}
                   <strong>UNLIMITED FREE REPLACEMENTS</strong> on every account, forever. Deducted from your
                   main-wallet balance when you submit. Current balance:{" "}
-                  <strong>${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>{" "}
+                  <strong className="text-white">${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>{" "}
                   — deposits are commission-free, credited in full.
                 </p>
               </div>
 
               {user && walletBalance < applyAppCount * 10 && (
-                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs flex items-start gap-2.5 text-red-600">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs flex items-start gap-2.5 text-rose-300">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
                   <p>
                     Your wallet balance is too low to unlock this account. Top up first —{" "}
-                    <strong>zero commission, full credit</strong> — then submit instantly.
+                    <strong className="text-white">zero commission, full credit</strong> — then submit instantly.
                   </p>
                 </div>
               )}
 
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs flex items-start gap-2.5 text-amber-600">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs flex items-start gap-2.5 text-amber-200">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
                 <p>
                   Please check and confirm all submitted details. Once you click Submit, your application will freeze edits until reviewed.
                 </p>
@@ -820,7 +822,7 @@ export default function ClientApplication() {
             <button
               onClick={handleSaveDraft}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-black uppercase tracking-wider text-slate-600 transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-zinc-800 hover:bg-zinc-900 text-xs font-black uppercase tracking-wider text-zinc-300 transition-colors cursor-pointer disabled:opacity-50"
             >
               Save Draft
             </button>
@@ -828,7 +830,7 @@ export default function ClientApplication() {
             <button
               onClick={handleSubmitApplication}
               disabled={isSubmitting || (user ? walletBalance < applyAppCount * 10 : false)}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-700 disabled:opacity-30 disabled:pointer-events-none transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-wider hover:opacity-95 hover:scale-105 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-lg shadow-violet-600/30 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
@@ -837,14 +839,13 @@ export default function ClientApplication() {
                 </>
               ) : (
                 <>
-                  Submit & Unlock Account <CheckCircle className="w-4 h-4 text-white" />
+                  Submit & Unlock Account <CheckCircle className="w-4 h-4 text-cyan-300" />
                 </>
               )}
             </button>
           </div>
         </div>
 
-        {/* Visual Meta BM ID Guide Modal */}
         <BmGuideModal
           isOpen={showBmGuide}
           onClose={() => setShowBmGuide(false)}
@@ -856,40 +857,44 @@ export default function ClientApplication() {
   // 3. State: Submitted, Review, Approved (Review cockpit)
   return (
     <ClientLayout>
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Onboarding Header */}
-      <div className="mb-10 pb-6 border-b border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+      <div className="mb-10 pb-6 border-b border-zinc-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border border-slate-200 bg-slate-100 text-slate-500">
+            <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded border border-zinc-800 bg-[#060608] text-cyan-300">
               {application.publicId}
             </span>
-            <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${getStatusColor(application.status)}`}>
+            <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${getStatusColor(application.status)}`}>
               {application.status}
             </span>
           </div>
-          <h1 className="text-2xl font-black uppercase tracking-tight text-slate-900">Compliance Cockpit</h1>
-          <p className="text-xs text-slate-500 mt-1">Submitted on {application.submittedAt ? new Date(application.submittedAt).toLocaleString() : "Date pending"}</p>
+          <h1 className="text-2xl font-black uppercase tracking-tight text-white">
+            Compliance <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Cockpit</span>
+          </h1>
+          <p className="text-xs text-zinc-400 mt-1">Submitted on {application.submittedAt ? new Date(application.submittedAt).toLocaleString() : "Date pending"}</p>
         </div>
 
         <a
           href={TELEGRAM_SUPPORT_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-widest hover:opacity-95 hover:scale-105 transition-all cursor-pointer shadow-lg shadow-violet-600/30"
         >
-          Priority Review Link <ExternalLink className="w-4.5 h-4.5" />
+          Priority Review Link <ExternalLink className="w-4 h-4 text-cyan-200" />
         </a>
       </div>
 
       {renderAccountBar()}
 
       {getJourneyIndex(application.status) >= 0 && (
-        <div className="relative z-10 mb-8 rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-5">
+        <div className="relative z-10 mb-8 rounded-3xl border border-zinc-800 bg-[#060608] shadow-2xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xs font-black uppercase tracking-widest text-slate-900">Application Journey</h2>
-            <span className="text-[9px] text-slate-400">
+            <h2 className="text-xs font-black uppercase tracking-widest text-white">
+              Application <span className="bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent">Journey</span>
+            </h2>
+            <span className="text-[9px] text-zinc-400">
               Step {getJourneyIndex(application.status) + 1} of {JOURNEY_STEPS.length}
             </span>
           </div>
@@ -903,28 +908,28 @@ export default function ClientApplication() {
                   <div className="flex flex-col items-center gap-1.5 min-w-0">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-colors ${
                       done
-                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        ? "bg-gradient-to-r from-violet-600 to-cyan-500 border-cyan-400 text-white"
                         : active
-                        ? "bg-white border-emerald-600 text-emerald-600"
-                        : "bg-slate-100 border-slate-200 text-slate-400"
+                        ? "bg-black border-cyan-400 text-cyan-300 shadow-md shadow-cyan-500/20"
+                        : "bg-[#060608] border-zinc-800 text-zinc-600"
                     }`}>
-                      {done ? <CheckCircle className="w-4 h-4" /> : <span className="text-[10px] font-black">{i + 1}</span>}
+                      {done ? <CheckCircle className="w-4 h-4 text-white" /> : <span className="text-[10px] font-black">{i + 1}</span>}
                     </div>
                     <span className={`text-[8px] font-black uppercase tracking-wider text-center ${
-                      active ? "text-emerald-700" : done ? "text-slate-600" : "text-slate-400"
+                      active ? "text-cyan-300" : done ? "text-zinc-300" : "text-zinc-600"
                     }`}>
                       {step}
                     </span>
                   </div>
                   {i < JOURNEY_STEPS.length - 1 && (
-                    <div className={`flex-1 h-0.5 mx-2 mb-4 rounded-full ${i < current ? "bg-emerald-600" : "bg-slate-200"}`} />
+                    <div className={`flex-1 h-0.5 mx-2 mb-4 rounded-full ${i < current ? "bg-gradient-to-r from-violet-500 to-cyan-400" : "bg-zinc-800"}`} />
                   )}
                 </div>
               );
             })}
           </div>
-          <p className="mt-4 text-[10px] text-slate-500 font-semibold flex items-start gap-1.5">
-            <AlertCircle className="w-3 h-3 mt-0.5 text-primary shrink-0" />
+          <p className="mt-4 text-[10px] text-zinc-400 font-semibold flex items-start gap-1.5">
+            <AlertCircle className="w-3.5 h-3.5 mt-0.5 text-cyan-400 shrink-0" />
             <span>
               {application.status === "ACTIVE"
                 ? "Your account is fully active. Happy campaigning!"
@@ -943,41 +948,43 @@ export default function ClientApplication() {
         <div className="lg:col-span-8 space-y-6">
           {/* Rejection Alert */}
           {application.rejectionReason && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-600 text-xs flex gap-3 items-start">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-5 text-rose-300 text-xs flex gap-3 items-start">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
               <div>
-                <h4 className="font-black uppercase tracking-wider mb-1">Reviewer Note: Action Required</h4>
+                <h4 className="font-black uppercase tracking-wider mb-1 text-white">Reviewer Note: Action Required</h4>
                 <p>{application.rejectionReason}</p>
               </div>
             </div>
           )}
 
           {/* Interactive timeline logs */}
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-6">
-            <h2 className="text-base font-black uppercase tracking-tight text-slate-900 mb-4">Application History Log</h2>
+          <div className="rounded-3xl border border-zinc-800 bg-[#060608] shadow-2xl p-6">
+            <h2 className="text-base font-black uppercase tracking-tight text-white mb-4">
+              Application <span className="bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent">History Log</span>
+            </h2>
             {timeline.length > 0 ? (
               <div className="space-y-4">
                 {timeline.map((event) => (
                   <div key={event.id} className="flex gap-4 items-start">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                    <div className="w-2 h-2 rounded-full bg-cyan-400 mt-1.5 shrink-0 shadow-sm shadow-cyan-400/50" />
                     <div>
-                      <div className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                      <div className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
                         <span>{event.event}</span>
-                        <span className="text-[8px] text-slate-400 normal-case font-normal">
+                        <span className="text-[8px] text-zinc-500 normal-case font-normal">
                           {new Date(event.createdAt).toLocaleString()}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5">{event.description}</p>
+                      <p className="text-xs text-zinc-400 mt-0.5">{event.description}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center">
-                <p className="text-xs text-slate-500 font-semibold">
+              <div className="rounded-2xl border border-dashed border-zinc-800 bg-black/60 p-5 text-center">
+                <p className="text-xs text-zinc-400 font-semibold">
                   No activity yet.
                 </p>
-                <p className="text-[10px] text-slate-400 mt-1">
+                <p className="text-[10px] text-zinc-500 mt-1">
                   {application.status === "DRAFT"
                     ? "Complete and submit your application to start the review process."
                     : "Updates will appear here automatically as your application progresses."}
@@ -989,13 +996,15 @@ export default function ClientApplication() {
 
         {/* RIGHT: Real-time support chat thread */}
         <div className="lg:col-span-4">
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 overflow-hidden flex flex-col h-[520px]">
-            <div className="bg-slate-50 border-b border-slate-200 p-4 flex items-center justify-between">
+          <div className="rounded-3xl border border-zinc-800 bg-[#060608] shadow-2xl overflow-hidden flex flex-col h-[520px]">
+            <div className="bg-black border-b border-zinc-800 p-4 flex items-center justify-between">
               <div>
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Compliance Message Thread</h3>
-                <span className="text-[9px] text-emerald-600">Response queue active</span>
+                <h3 className="text-xs font-black uppercase tracking-wider text-white">
+                  Compliance <span className="bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent">Message Thread</span>
+                </h3>
+                <span className="text-[9px] text-cyan-400">Response queue active</span>
               </div>
-              <MessageSquare className="w-4 h-4 text-slate-400" />
+              <MessageSquare className="w-4 h-4 text-zinc-400" />
             </div>
 
             {/* Chat Body */}
@@ -1007,21 +1016,21 @@ export default function ClientApplication() {
                     <div key={msg.id} className={`flex flex-col ${isAdmin ? "items-start" : "items-end"}`}>
                       <div className={`rounded-2xl px-4 py-2.5 text-xs max-w-[80%] leading-relaxed ${
                         isAdmin
-                          ? "bg-slate-100 text-slate-700 border border-slate-200 rounded-tl-none"
-                          : "bg-emerald-600 text-white rounded-tr-none shadow-[0_4px_15px_rgba(5,150,105,0.25)]"
+                          ? "bg-zinc-950 text-zinc-300 border border-zinc-800 rounded-tl-none"
+                          : "bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-medium rounded-tr-none shadow-md shadow-violet-500/20"
                       }`}>
                         {msg.message}
                       </div>
-                      <span className="text-[8px] text-slate-400 mt-1 font-mono">
+                      <span className="text-[8px] text-zinc-500 mt-1 font-mono">
                         {isAdmin ? "Compliance Agent" : "You"} · {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                   );
                 })
               ) : (
-                <div className="h-full flex items-center justify-center text-center p-6 text-slate-400 text-xs">
+                <div className="h-full flex items-center justify-center text-center p-6 text-zinc-500 text-xs">
                   <div>
-                    <MessageSquare className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <MessageSquare className="w-8 h-8 mx-auto mb-2 text-zinc-600" />
                     <span>No communication messages on this thread yet. Send a note below.</span>
                   </div>
                 </div>
@@ -1029,18 +1038,18 @@ export default function ClientApplication() {
             </div>
 
             {/* Chat Input */}
-            <form onSubmit={handleSendChatMessage} className="p-4 border-t border-slate-200 bg-slate-50 flex gap-2">
+            <form onSubmit={handleSendChatMessage} className="p-4 border-t border-zinc-800 bg-black flex gap-2">
               <input
                 type="text"
                 value={chatMessage}
                 onChange={(e) => setChatMessage(e.target.value)}
                 placeholder="Type reply or comment..."
-                className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-900 outline-none focus:border-primary/50 transition-colors"
+                className="flex-1 bg-[#060608] border border-zinc-800 rounded-xl px-4 py-2 text-xs text-white placeholder:text-zinc-600 outline-none focus:border-cyan-500/50 transition-colors"
               />
               <button
                 type="submit"
                 disabled={isSendingMsg || !chatMessage.trim()}
-                className="w-10 h-10 rounded-xl bg-emerald-600 disabled:opacity-30 disabled:pointer-events-none text-white flex items-center justify-center shrink-0 shadow cursor-pointer"
+                className="w-10 h-10 rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 hover:opacity-95 disabled:opacity-30 disabled:pointer-events-none text-white flex items-center justify-center shrink-0 shadow cursor-pointer font-black"
               >
                 {isSendingMsg ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
@@ -1049,7 +1058,6 @@ export default function ClientApplication() {
         </div>
       </div>
 
-      {/* Visual Meta BM ID Guide Modal */}
       <BmGuideModal
         isOpen={showBmGuide}
         onClose={() => setShowBmGuide(false)}

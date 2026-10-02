@@ -1,10 +1,8 @@
 import PageWrapper from "@/components/layout/PageWrapper";
-import FloatingOrbs from "@/components/FloatingOrbs";
+import Hero from "@/components/home/Hero";
 import HolographicCTA from "@/components/HolographicCTA";
 import ProblemSolution from "@/components/ProblemSolution";
-import ROISimulator from "@/components/ROISimulator";
 import AccessFlowJourney from "@/components/AccessFlowJourney";
-import UrgencyBadge from "@/components/UrgencyBadge";
 import GrowthMetrics from "@/components/GrowthMetrics";
 import CaseStudyTimeline from "@/components/CaseStudyTimeline";
 import FaqPreview from "@/components/FaqPreview";
@@ -13,7 +11,8 @@ import BookCallSection from "@/components/BookCallSection";
 export default function Home() {
   return (
     <PageWrapper>
-      <FloatingOrbs />
+      {/* PRO DARK HERO */}
+      <Hero />
 
       {/* PROBLEM / SOLUTION COMPARISON */}
       <ProblemSolution />
@@ -24,9 +23,6 @@ export default function Home() {
       {/* GROWTH METRICS */}
       <GrowthMetrics />
 
-      {/* ROI SIMULATOR — interactive budget calculator */}
-      <ROISimulator />
-
       {/* CASE STUDY TIMELINE */}
       <CaseStudyTimeline />
 
@@ -36,12 +32,9 @@ export default function Home() {
       {/* FAQ PREVIEW */}
       <FaqPreview />
 
-      {/* URGENCY BADGE — scarcity push above final CTA */}
-      <section className="relative z-10 pt-16 pb-4 flex justify-center px-4">
-        <UrgencyBadge />
-      </section>
-
+      {/* FINAL HOLOGRAPHIC CALL TO ACTION */}
       <HolographicCTA />
     </PageWrapper>
   );
 }
+

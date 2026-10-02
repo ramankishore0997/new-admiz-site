@@ -26,21 +26,19 @@ export default function CursorGlow() {
     if (!enabled) return;
 
     const tick = () => {
-      // Lerp toward target
-      current.current.x += (target.current.x - current.current.x) * 0.18;
-      current.current.y += (target.current.y - current.current.y) * 0.18;
+      current.current.x += (target.current.x - current.current.x) * 0.16;
+      current.current.y += (target.current.y - current.current.y) * 0.16;
       if (ref.current) {
-        ref.current.style.transform = `translate3d(${current.current.x - 200}px, ${current.current.y - 200}px, 0)`;
+        ref.current.style.transform = `translate3d(${current.current.x - 250}px, ${current.current.y - 250}px, 0)`;
       }
       const idleFor = performance.now() - lastMoveAt.current;
       const settled =
         Math.abs(target.current.x - current.current.x) < SETTLE_EPS &&
         Math.abs(target.current.y - current.current.y) < SETTLE_EPS;
-      // Keep ticking only while moving or until settle window closes
       if (!settled || idleFor < SETTLE_MS) {
         raf.current = requestAnimationFrame(tick);
       } else {
-        raf.current = null; // stop — no CPU cost while idle
+        raf.current = null;
       }
     };
 
@@ -67,11 +65,11 @@ export default function CursorGlow() {
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none fixed top-0 left-0 z-[2] h-[400px] w-[400px] rounded-full opacity-60 will-change-transform"
+      className="pointer-events-none fixed top-0 left-0 z-[1] h-[500px] w-[500px] rounded-full opacity-70 will-change-transform"
       style={{
         background:
-          "radial-gradient(closest-side, rgba(5,150,105,0.16), rgba(5,150,105,0.06) 35%, transparent 70%)",
-        mixBlendMode: "multiply",
+          "radial-gradient(closest-side, rgba(16,185,129,0.18), rgba(6,182,212,0.08) 45%, transparent 70%)",
+        mixBlendMode: "screen",
         transform: "translate3d(-9999px, -9999px, 0)",
       }}
     />

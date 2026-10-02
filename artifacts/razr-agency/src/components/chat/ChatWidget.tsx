@@ -124,8 +124,7 @@ export default function ChatWidget() {
     return () => clearInterval(iv);
   }, [user, streamActive, loadConversation]);
 
-  // Presence heartbeat — keeps last_seen fresh even if SSE drops; cheap,
-  // throttled client-side (max one POST per 30s per page).
+  // Presence heartbeat
   useEffect(() => {
     if (!user) return;
     const iv = setInterval(() => trackPage(window.location.pathname), 60_000);
@@ -169,36 +168,35 @@ export default function ChatWidget() {
     }
   };
 
-  // Show launcher once auth state is known; guests get a sign-in prompt.
   if (isLoading) return null;
 
   return (
     <>
-      {/* Incoming message preview (visible without opening chat) */}
+      {/* Incoming message preview */}
       {!open && incomingPreview && (
-        <div className="fixed bottom-44 right-4 md:right-6 z-[70] w-[calc(100vw-2rem)] max-w-sm rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-hidden flex flex-col">
-          <div className="px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white flex items-center justify-between shrink-0">
+        <div className="fixed bottom-44 right-4 md:right-6 z-[70] w-[calc(100vw-2rem)] max-w-sm rounded-3xl border border-zinc-800 bg-[#060608]/95 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col">
+          <div className="px-4 py-3 bg-black border-b border-zinc-800 text-white flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-              <span className="text-[11px] font-black uppercase tracking-wider">Support Team</span>
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="text-[11px] font-black uppercase tracking-wider bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent">Support Desk</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[9px] text-white/80">
+              <span className="text-[9px] text-zinc-400">
                 {new Date(incomingPreview.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
               </span>
-              <button onClick={() => setIncomingPreview(null)} className="p-1 rounded-lg hover:bg-white/15 transition-colors cursor-pointer" aria-label="Dismiss message">
+              <button onClick={() => setIncomingPreview(null)} className="p-1 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer" aria-label="Dismiss message">
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
-          <div className="p-4 bg-slate-50 flex-1 min-h-0">
-            <p className="text-xs text-slate-800 leading-relaxed whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
+          <div className="p-4 bg-[#060608] flex-1 min-h-0">
+            <p className="text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
               {incomingPreview.message}
             </p>
           </div>
           <button
             onClick={handleToggle}
-            className="w-full px-4 py-3 bg-emerald-600 text-white text-[11px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors cursor-pointer shrink-0"
+            className="w-full px-4 py-3 bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-[11px] font-black uppercase tracking-widest hover:opacity-95 transition-all cursor-pointer shrink-0"
           >
             Reply Now
           </button>
@@ -209,11 +207,11 @@ export default function ChatWidget() {
       <button
         onClick={handleToggle}
         aria-label={open ? "Close live chat" : "Open live chat"}
-        className="fixed bottom-24 right-4 md:bottom-28 md:right-6 z-[70] w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] flex items-center justify-center hover:scale-105 transition-transform cursor-pointer"
+        className="fixed bottom-24 right-4 md:bottom-28 md:right-6 z-[70] w-14 h-14 rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-[0_0_30px_rgba(139,92,246,0.35)] flex items-center justify-center hover:scale-105 transition-all cursor-pointer border border-violet-400/40 font-bold"
       >
         {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
         {!open && unread > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-red-500 border-2 border-white text-[9px] font-black flex items-center justify-center">
+          <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-rose-500 border-2 border-black text-[9px] font-black text-white flex items-center justify-center">
             {unread > 9 ? "9+" : unread}
           </span>
         )}
@@ -221,39 +219,41 @@ export default function ChatWidget() {
 
       {/* Panel */}
       {open && (
-        <div className="fixed bottom-[8.5rem] right-4 md:right-6 z-[70] w-[calc(100vw-2rem)] max-w-sm h-[30rem] max-h-[calc(100vh-10rem)] rounded-3xl border border-slate-200 bg-white shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed bottom-[8.5rem] right-4 md:right-6 z-[70] w-[calc(100vw-2rem)] max-w-sm h-[30rem] max-h-[calc(100vh-10rem)] rounded-3xl border border-zinc-800 bg-[#060608]/95 shadow-2xl backdrop-blur-xl flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="px-5 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white shrink-0">
+          <div className="px-5 py-4 bg-black border-b border-zinc-800 text-white shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-r from-violet-600/20 to-cyan-600/20 border border-violet-500/30 flex items-center justify-center text-cyan-300">
                   <MessageCircle className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <div className="text-sm font-black uppercase tracking-tight">Live Chat</div>
+                  <div className="text-sm font-black uppercase tracking-tight text-white">
+                    Live <span className="bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent">Support</span>
+                  </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${agentOnline ? "bg-emerald-300 animate-pulse" : "bg-slate-300"}`} />
-                    <span className="text-[10px] font-bold text-white/90">{agentOnline ? "Agent Online" : "Agent Offline — we'll reply soon"}</span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${agentOnline ? "bg-cyan-400 animate-pulse" : "bg-zinc-500"}`} />
+                    <span className="text-[10px] font-bold text-zinc-400">{agentOnline ? "Agent Online" : "Desk Active — instant reply"}</span>
                   </div>
                 </div>
               </div>
-              <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg hover:bg-white/15 transition-colors cursor-pointer" aria-label="Close">
+              <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer" aria-label="Close">
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
           {!user ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-4 p-6 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600">
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 p-6 text-center bg-black">
+              <div className="w-12 h-12 rounded-2xl bg-violet-950/60 border border-violet-500/30 flex items-center justify-center text-cyan-300">
                 <MessageCircle className="w-6 h-6" />
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Sign in to chat with our team in real time.
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Sign in to chat with our operations desk in real time.
               </p>
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-widest hover:opacity-95 transition-all shadow-lg shadow-violet-600/20"
               >
                 <LogIn className="w-3.5 h-3.5" /> Sign In
               </Link>
@@ -261,30 +261,32 @@ export default function ChatWidget() {
           ) : (
             <>
               {/* Messages */}
-              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-black/60">
                 {loading && (
-                  <div className="text-center text-[10px] text-slate-400 py-6">Loading conversation...</div>
+                  <div className="text-center text-[10px] text-zinc-500 py-6">Loading conversation...</div>
                 )}
                 {!loading && messages.length === 0 && (
-                  <div className="text-center text-[11px] text-slate-500 py-8 leading-relaxed">
+                  <div className="text-center text-[11px] text-zinc-400 py-8 leading-relaxed">
                     Hi {user.username}! 👋
                     <br />
-                    Ask us anything — payments, ad accounts, applications.
+                    Ask us anything — top-ups, account lines, scaling rules.
                   </div>
                 )}
                 {messages.map((m) => (
                   m.senderType === "OPERATOR" ? (
                     <div key={m.id} className="flex flex-col">
-                      <div className="text-xs leading-relaxed text-slate-800 whitespace-pre-wrap break-words">{m.message}</div>
-                      <div className="text-[8px] text-slate-400 mt-1">
-                        {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      <div className="max-w-[85%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed break-words bg-[#0c0c10] text-zinc-200 border border-zinc-800 rounded-bl-md">
+                        {m.message}
+                        <div className="text-[8px] text-zinc-400 mt-1">
+                          {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </div>
                       </div>
                     </div>
                   ) : (
                     <div key={m.id} className="flex justify-end">
-                      <div className="max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed break-words bg-emerald-600 text-white rounded-br-md">
+                      <div className="max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed break-words bg-gradient-to-r from-violet-600 to-cyan-600 text-white font-medium rounded-br-md shadow-lg shadow-violet-600/10">
                         {m.message}
-                        <div className="text-[8px] mt-1 text-emerald-200">
+                        <div className="text-[8px] mt-1 text-cyan-200 font-bold">
                           {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </div>
                       </div>
@@ -294,19 +296,19 @@ export default function ChatWidget() {
               </div>
 
               {/* Input */}
-              <form onSubmit={handleSend} className="p-3 border-t border-slate-200 bg-white shrink-0 flex items-center gap-2">
+              <form onSubmit={handleSend} className="p-3 border-t border-zinc-800 bg-black shrink-0 flex items-center gap-2">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type a message..."
                   maxLength={2000}
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 outline-none focus:border-emerald-500/60 transition-colors"
+                  className="flex-1 bg-[#060608] border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-zinc-600 outline-none focus:border-cyan-500 transition-colors"
                 />
                 <button
                   type="submit"
                   disabled={sending || !input.trim()}
-                  className="w-10 h-10 shrink-0 rounded-xl bg-emerald-600 text-white flex items-center justify-center hover:bg-emerald-700 disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+                  className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 text-white flex items-center justify-center hover:opacity-95 disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer font-black"
                   aria-label="Send message"
                 >
                   <Send className="w-4 h-4" />
