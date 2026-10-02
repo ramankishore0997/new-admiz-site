@@ -451,16 +451,29 @@ export default function ClientDashboard() {
     }
   };
 
-  const timeAgo = (iso?: string) => {
-    if (!iso) return "just now";
-    const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
-    if (mins < 1) return "just now";
-    if (mins < 60) return `${mins} min${mins > 1 ? "s" : ""} ago`;
-    const hrs = Math.round(mins / 60);
-    if (hrs < 24) return `${hrs} hr${hrs > 1 ? "s" : ""} ago`;
-    const days = Math.round(hrs / 24);
-    return `${days} day${days > 1 ? "s" : ""} ago`;
-  };
+  const totalDeposited = myPayments
+    .filter((p) => {
+      const st = String(p.status || "").toUpperCase();
+      return st === "PAID" || st === "CREDITED" || st === "COMPLETED" || st === "APPROVED" || st === "SUCCESS";
+    })
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  const totalWithdrawn = myWithdrawals
+    .filter((w) => {
+      const st = String(w.status || "").toUpperCase();
+      return st === "APPROVED" || st === "PAID" || st === "COMPLETED" || st === "SUCCESS";
+    })
+    .reduce((sum, w) => sum + Number(w.amount || 0), 0);
+
+  const pendingWithdrawals = myWithdrawals
+    .filter((w) => {
+      const st = String(w.status || "").toUpperCase();
+      return st === "PENDING" || st === "PENDING_APPROVAL" || st === "PROCESSING";
+    })
+    .reduce((sum, w) => sum + Number(w.amount || 0), 0);
+
+  const computedNet = Math.max(0, totalDeposited - totalWithdrawn - pendingWithdrawals);
+  const effectiveWalletBalance = Number(user?.balance && Number(user.balance) > 0 ? user.balance : computedNet);
 
   return (
     <ClientLayout>
@@ -510,7 +523,7 @@ export default function ClientDashboard() {
       {/* Next Action Dynamic Hero Card */}
       <div className="mb-8">
         <NextActionHero
-          walletBalance={Number(user?.balance ?? 0)}
+          walletBalance={effectiveWalletBalance}
           applications={applications}
           adAccounts={adAccounts}
           bmOrders={myBmOrders}
@@ -525,8 +538,8 @@ export default function ClientDashboard() {
       {/* Onboarding Step-by-Step Roadmap */}
       <div className="mb-8">
         <OnboardingRoadmap
-          walletBalance={Number(user?.balance ?? 0)}
-          hasPayments={myPayments.some((p) => p.status === "PAID")}
+          walletBalance={effectiveWalletBalance}
+          hasPayments={myPayments.some((p) => ["PAID", "CREDITED", "COMPLETED", "APPROVED", "SUCCESS"].includes(String(p.status || "").toUpperCase()))}
           applications={applications}
           onOpenDeposit={() => {
             setShowDepositModal(true);
@@ -552,7 +565,7 @@ export default function ClientDashboard() {
               </div>
             </div>
             <div className="text-3xl font-black bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent font-mono tabular-nums">
-              ${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${effectiveWalletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
           <div className="flex items-center justify-between text-xs text-cyan-400 font-bold mt-5 pt-3 border-t border-zinc-800/80">

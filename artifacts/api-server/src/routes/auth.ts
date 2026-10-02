@@ -132,18 +132,23 @@ async function buildProfile(user: User) {
     .where(eq(paymentsTable.userId, user.id))
     .orderBy(paymentsTable.createdAt);
 
-  const deposits = paymentRows.map((p) => ({
-    id: p.orderId,
-    amount: Number(p.amount) || 0,
-    crypto: p.network?.toUpperCase() || "USDT",
-    address: p.receivingAddress,
-    txHash: p.txHash,
-    note: p.note,
-    date: p.createdAt.toISOString(),
-    status: p.status === "PAID" ? "COMPLETED" : p.status === "REJECTED" ? "FAILED" : "PENDING",
-    rawStatus: p.status,
-    rejectionReason: p.rejectionReason,
-  }));
+  const deposits = paymentRows.map((p) => {
+    const rawSt = String(p.status || "").toUpperCase();
+    const isCompleted = ["PAID", "CREDITED", "COMPLETED", "APPROVED", "SUCCESS"].includes(rawSt);
+    const isFailed = ["REJECTED", "FAILED", "CANCELLED"].includes(rawSt);
+    return {
+      id: p.orderId,
+      amount: Number(p.amount) || 0,
+      crypto: p.network?.toUpperCase() || "USDT",
+      address: p.receivingAddress,
+      txHash: p.txHash,
+      note: p.note,
+      date: p.createdAt.toISOString(),
+      status: isCompleted ? "COMPLETED" : isFailed ? "FAILED" : "PENDING",
+      rawStatus: p.status,
+      rejectionReason: p.rejectionReason,
+    };
+  });
 
   // Main wallet = full admin-verified deposits (no commission on deposits).
   const balance = Math.round(deposits.filter((d) => d.status === "COMPLETED").reduce((sum, d) => sum + d.amount, 0) * 100) / 100;

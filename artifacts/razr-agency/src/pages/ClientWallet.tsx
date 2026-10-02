@@ -70,9 +70,31 @@ export default function ClientWallet() {
   const MIN_DEPOSIT_FIRST = 10;
   const MIN_DEPOSIT_NEXT = 50;
 
+  const totalDeposited = myPayments
+    .filter((p) => {
+      const st = String(p.status || "").toUpperCase();
+      return st === "PAID" || st === "CREDITED" || st === "COMPLETED" || st === "APPROVED" || st === "SUCCESS";
+    })
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  const totalWithdrawn = myWithdrawals
+    .filter((w) => {
+      const st = String(w.status || "").toUpperCase();
+      return st === "APPROVED" || st === "PAID" || st === "COMPLETED" || st === "SUCCESS";
+    })
+    .reduce((sum, w) => sum + Number(w.amount || 0), 0);
+
+  const pendingWithdrawals = myWithdrawals
+    .filter((w) => {
+      const st = String(w.status || "").toUpperCase();
+      return st === "PENDING" || st === "PENDING_APPROVAL" || st === "PROCESSING";
+    })
+    .reduce((sum, w) => sum + Number(w.amount || 0), 0);
+
+  const computedNet = Math.max(0, totalDeposited - totalWithdrawn - pendingWithdrawals);
+  const walletBalance = Number(user?.balance && Number(user.balance) > 0 ? user.balance : computedNet);
   const isFirstDeposit = myPayments.length === 0;
   const minDeposit = isFirstDeposit ? MIN_DEPOSIT_FIRST : MIN_DEPOSIT_NEXT;
-  const walletBalance = Number(user?.balance ?? 0);
 
   const fetchMyPayments = async () => {
     setIsLoadingPayments(true);
@@ -283,27 +305,6 @@ export default function ClientWallet() {
       setIsSubmittingWithdraw(false);
     }
   };
-
-  const totalDeposited = myPayments
-    .filter((p) => {
-      const st = String(p.status || "").toUpperCase();
-      return st === "PAID" || st === "COMPLETED" || st === "APPROVED" || st === "SUCCESS";
-    })
-    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
-
-  const totalWithdrawn = myWithdrawals
-    .filter((w) => {
-      const st = String(w.status || "").toUpperCase();
-      return st === "APPROVED" || st === "PAID" || st === "COMPLETED" || st === "SUCCESS";
-    })
-    .reduce((sum, w) => sum + Number(w.amount || 0), 0);
-
-  const pendingWithdrawals = myWithdrawals
-    .filter((w) => {
-      const st = String(w.status || "").toUpperCase();
-      return st === "PENDING" || st === "PENDING_APPROVAL" || st === "PROCESSING";
-    })
-    .reduce((sum, w) => sum + Number(w.amount || 0), 0);
 
   return (
     <ClientLayout>
