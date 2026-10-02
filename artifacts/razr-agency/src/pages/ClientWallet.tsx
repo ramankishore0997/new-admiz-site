@@ -30,6 +30,7 @@ import { MANUAL_PAYMENT_NETWORKS } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
 import { playSuccessChime } from "@/lib/audioAlerts";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
+import BorderBeam from "@/components/ui/BorderBeam";
 
 export default function ClientWallet() {
   const { user, refreshUser } = useAuth();
@@ -352,11 +353,12 @@ export default function ClientWallet() {
         {/* 3 Key Treasury Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* 1. Available Balance */}
-          <SpotlightCard tone="aurora" className="p-6 flex flex-col justify-between">
+          <SpotlightCard tone="aurora" className="p-6 flex flex-col justify-between relative overflow-hidden">
+            <BorderBeam size={180} duration={8} colorFrom="#8B5CF6" colorTo="#06B6D4" />
             <div>
               <div className="flex items-center justify-between text-zinc-400 mb-3">
                 <span className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent">Available Balance</span>
-                <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-cyan-400 flex items-center justify-center border border-violet-500/30">
+                <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-cyan-400 flex items-center justify-center border border-violet-500/30 shadow-inner">
                   <Wallet className="w-5 h-5" />
                 </div>
               </div>
@@ -367,7 +369,7 @@ export default function ClientWallet() {
                 USDT (Ready for Instant Ad Spend)
               </span>
             </div>
-            <div className="pt-4 mt-4 border-t border-zinc-800 flex items-center gap-1.5 text-xs text-cyan-400 font-bold">
+            <div className="pt-4 mt-4 border-t border-zinc-800 flex items-center gap-1.5 text-xs text-cyan-400 font-bold relative z-10">
               <TrendingUp className="w-3.5 h-3.5" /> 100% Commission-Free Balance
             </div>
           </SpotlightCard>

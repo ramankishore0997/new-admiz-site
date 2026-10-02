@@ -41,6 +41,8 @@ import OnboardingRoadmap from "@/components/onboarding/OnboardingRoadmap";
 import NextActionHero from "@/components/onboarding/NextActionHero";
 import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
 import SpotlightCard from "@/components/ui/SpotlightCard";
+import BorderBeam from "@/components/ui/BorderBeam";
+import BlackTitaniumCard from "@/components/ui/BlackTitaniumCard";
 import { playSuccessChime } from "@/lib/audioAlerts";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
@@ -565,13 +567,14 @@ export default function ClientDashboard() {
         {/* Wallet balance */}
         <SpotlightCard
           tone="violet-cyan"
-          className="p-6 flex flex-col justify-between hover:shadow-[0_12px_35px_-8px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300"
+          className="p-6 flex flex-col justify-between hover:shadow-[0_12px_35px_-8px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
         >
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
+          <BorderBeam size={160} duration={8} colorFrom="#8B5CF6" colorTo="#06B6D4" />
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Available Ad Balance</span>
-              <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-cyan-400 border border-violet-500/20 flex items-center justify-center">
+              <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-cyan-400 border border-violet-500/20 flex items-center justify-center shadow-inner">
                 <Wallet className="w-5 h-5" />
               </div>
             </div>
@@ -579,7 +582,7 @@ export default function ClientDashboard() {
               ${effectiveWalletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
-          <div className="flex items-center justify-between text-xs text-cyan-400 font-bold mt-5 pt-3 border-t border-zinc-800/80">
+          <div className="flex items-center justify-between text-xs text-cyan-400 font-bold mt-5 pt-3 border-t border-zinc-800/80 relative z-10">
             <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5" /> 100% Commission-Free</span>
             <Link href="/app/wallet">
               <span className="bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent hover:opacity-80 flex items-center gap-1 text-[11px] font-black uppercase tracking-wider cursor-pointer">
@@ -744,134 +747,22 @@ export default function ClientDashboard() {
 
             {adAccounts.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {adAccounts.map((acc: any) => {
-                  const getPlatformIcon = (platform: string) => {
-                    const l = (platform || "").toLowerCase();
-                    if (l.includes("meta") || l.includes("facebook")) return <SiMeta className="w-5 h-5 text-[#1877F2]" />;
-                    if (l.includes("google") || l.includes("youtube")) return <SiGoogleads className="w-5 h-5 text-yellow-400" />;
-                    if (l.includes("tiktok")) return <SiTiktok className="w-5 h-5 text-white" />;
-                    return <Building className="w-5 h-5 text-cyan-400" />;
-                  };
-
-                  const getPartnerBadge = (platform: string) => {
-                    const l = (platform || "").toLowerCase();
-                    if (l.includes("meta") || l.includes("facebook")) return "Meta Business Partner";
-                    if (l.includes("google") || l.includes("youtube")) return "Google Premier Partner";
-                    if (l.includes("tiktok")) return "TikTok Agency Partner";
-                    return "Enterprise Whitelist";
-                  };
-
-                  return (
-                    <SpotlightCard
-                      key={acc.id}
-                      tone="cyber"
-                      className="p-6 hover:shadow-[0_12px_35px_-8px_rgba(6,182,212,0.25)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between shadow-sm"
-                    >
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
-                      <div>
-                        {/* Top Platform & Partner Badge */}
-                        <div className="flex items-start justify-between gap-2 mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-2xl bg-black border border-zinc-800 flex items-center justify-center shrink-0 shadow-2xs">
-                              {getPlatformIcon(acc.platform)}
-                            </div>
-                            <div>
-                              <div className="text-xs text-white font-black uppercase tracking-wide">
-                                {acc.name || acc.platform}
-                              </div>
-                              <div className="inline-flex items-center gap-1 text-[9px] font-bold text-cyan-400 uppercase tracking-wider mt-0.5">
-                                <BadgeCheck className="w-3 h-3 text-cyan-400" /> {getPartnerBadge(acc.platform)}
-                              </div>
-                            </div>
-                          </div>
-                          <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${
-                            acc.status === "ACTIVE"
-                              ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
-                              : acc.status === "APPROVED"
-                              ? "text-cyan-400 border-cyan-500/30 bg-cyan-500/10"
-                              : "text-amber-400 border-amber-500/30 bg-amber-500/10"
-                          }`}>
-                            {acc.status === "APPROVED" ? "APPROVED" : acc.status}
-                          </span>
-                        </div>
-
-                        {/* Account ID / BM Access */}
-                        <div className="bg-black rounded-2xl p-3.5 border border-zinc-800 space-y-2 mb-4">
-                          <div className="flex items-center justify-between text-[10px]">
-                            <span className="text-zinc-400 font-bold uppercase tracking-wider">Account ID:</span>
-                            <span className="font-mono font-bold text-white">{acc.accountId || "Provisioning..."}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-[10px] pt-2 border-t border-zinc-800">
-                            <span className="text-zinc-400 font-bold uppercase tracking-wider">BM Access:</span>
-                            {acc.status === "ACTIVE" && acc.businessPortfolioId ? (
-                              <span className="font-mono font-bold text-cyan-400 flex items-center gap-1">
-                                <BadgeCheck className="w-3 h-3 text-cyan-400" /> BM: {acc.businessPortfolioId}
-                              </span>
-                            ) : (
-                              <span className="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 inline-flex items-center gap-1">
-                                <Clock className="w-2.5 h-2.5 text-amber-400" /> Pending Admin Assignment
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Health & Whitelist Indicators */}
-                        <div className="grid grid-cols-2 gap-2 mb-4 text-[9px]">
-                          <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center gap-1.5 text-cyan-300 font-bold">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            <span>Health: 99.8% (Optimal)</span>
-                          </div>
-                          <div className="p-2.5 rounded-xl bg-black border border-zinc-800 flex items-center gap-1.5 text-zinc-300 font-bold">
-                            <Shield className="w-3 h-3 text-zinc-400" />
-                            <span>Clean HK/US ASN</span>
-                          </div>
-                        </div>
-
-                        {/* Spend Limit & Balance */}
-                        <div className="flex items-center justify-between py-2.5 border-y border-zinc-800 text-[10px] text-zinc-300 font-bold mb-4">
-                          <span>Spend Limit: <strong className="text-white">{acc.spendLimit || "Uncapped Line"}</strong></span>
-                          <span>
-                            Ad Balance: <strong className="text-cyan-400 text-xs font-mono font-black">${(Number(acc.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="space-y-2 pt-1">
-                        {(acc.status === "ACTIVE" || acc.status === "APPROVED") && (
-                          <button
-                            onClick={() => openLoadModal(acc)}
-                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer shadow-md shadow-violet-600/20"
-                          >
-                            <Wallet className="w-3.5 h-3.5" /> {acc.status === "APPROVED" && Number(acc.balance || 0) < 50 ? "Topup & Get BM Access" : "Load Fund"}
-                          </button>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <button
-                            onClick={() => {
-                              setBmTarget(acc);
-                              setShowBmModal(true);
-                            }}
-                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-black hover:bg-zinc-900 text-zinc-300 text-[9px] font-bold uppercase tracking-wider border border-zinc-800 transition-colors cursor-pointer shadow-2xs"
-                          >
-                            <UserCheck className="w-3 h-3 text-zinc-400" /> BM Access
-                          </button>
-                          <button
-                            onClick={() => {
-                              setReplacementTarget(acc);
-                              setReplacementSubmitted(false);
-                              setShowReplacementModal(true);
-                            }}
-                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-black hover:bg-zinc-900 text-zinc-300 text-[9px] font-bold uppercase tracking-wider border border-zinc-800 transition-colors cursor-pointer shadow-2xs"
-                          >
-                            <RefreshCw className="w-3 h-3 text-zinc-400" /> Replace SLA
-                          </button>
-                        </div>
-                      </div>
-                    </SpotlightCard>
-                  );
-                })}
+                {adAccounts.map((acc: any) => (
+                  <BlackTitaniumCard
+                    key={acc.id}
+                    account={acc}
+                    onLoadFunds={() => openLoadModal(acc)}
+                    onBmAccess={() => {
+                      setBmTarget(acc);
+                      setShowBmModal(true);
+                    }}
+                    onRequestReplacement={() => {
+                      setReplacementTarget(acc);
+                      setReplacementSubmitted(false);
+                      setShowReplacementModal(true);
+                    }}
+                  />
+                ))}
               </div>
             ) : (
               <div className="text-center py-16 border border-dashed border-zinc-800 rounded-3xl bg-black">
