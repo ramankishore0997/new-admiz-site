@@ -4,38 +4,34 @@ interface BorderBeamProps {
   className?: string;
   size?: number;
   duration?: number;
-  borderWidth?: number;
-  anchor?: number;
   colorFrom?: string;
   colorTo?: string;
-  delay?: number;
 }
 
 export function BorderBeam({
   className = "",
-  size = 250,
-  duration = 12,
-  anchor = 90,
-  borderWidth = 1.5,
+  duration = 6,
   colorFrom = "#8B5CF6",
   colorTo = "#06B6D4",
-  delay = 0,
 }: BorderBeamProps) {
   return (
     <div
-      style={
-        {
-          "--size": `${size}px`,
-          "--duration": `${duration}s`,
-          "--anchor": `${anchor}%`,
-          "--border-width": `${borderWidth}px`,
-          "--color-from": colorFrom,
-          "--color-to": colorTo,
-          "--delay": `-${delay}s`,
-        } as React.CSSProperties
-      }
-      className={`pointer-events-none absolute inset-0 rounded-[inherit] [border:calc(var(--border-width))_solid_transparent] ![mask-clip:padding-box,border-box] ![mask-composite:intersect] [mask:linear-gradient(transparent,transparent),linear-gradient(white,white)] after:absolute after:aspect-square after:w-[calc(var(--size))] after:animate-border-beam after:[animation-delay:var(--delay)] after:[background:linear-gradient(to_left,var(--color-from),var(--color-to),transparent)] after:[offset-anchor:calc(var(--anchor))_50%] after:[offset-path:rect(0_auto_auto_0_round_calc(var(--size)))] ${className}`}
-    />
+      aria-hidden="true"
+      className={`pointer-events-none absolute -inset-[1px] rounded-[inherit] p-[1.5px] overflow-hidden z-0 ${className}`}
+      style={{
+        WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+        WebkitMaskComposite: "xor",
+        maskComposite: "exclude",
+      }}
+    >
+      <div
+        className="absolute inset-[-150%] will-change-transform"
+        style={{
+          background: `conic-gradient(from 0deg, transparent 0 310deg, ${colorFrom} 335deg, ${colorTo} 360deg)`,
+          animation: `spin-laser ${duration}s linear infinite`,
+        }}
+      />
+    </div>
   );
 }
 

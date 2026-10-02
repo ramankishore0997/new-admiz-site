@@ -493,8 +493,9 @@ export default function ClientDashboard() {
       {/* Top Banner / Welcome Header */}
       <SpotlightCard
         tone="violet-cyan"
-        className="p-8 mb-8 backdrop-blur-xl"
+        className="p-8 mb-8 backdrop-blur-xl relative overflow-hidden"
       >
+        <BorderBeam duration={7} colorFrom="#8B5CF6" colorTo="#06B6D4" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -765,14 +766,54 @@ export default function ClientDashboard() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 border border-dashed border-zinc-800 rounded-3xl bg-black">
-                <Building className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-                <p className="text-xs text-zinc-400 font-medium">No provisioned agency ad accounts yet.</p>
-                <Link href="/app/application">
-                  <span className="inline-flex items-center gap-1.5 text-xs text-cyan-400 font-bold hover:underline mt-3 cursor-pointer">
-                    Submit Application <ArrowUpRight className="w-3.5 h-3.5" />
-                  </span>
-                </Link>
+              <div className="space-y-6">
+                <div className="relative">
+                  <div className="absolute -top-3 left-4 z-20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-violet-600 to-cyan-500 text-white text-[9px] font-black uppercase tracking-wider shadow-lg">
+                    <Sparkles className="w-3 h-3" /> Sample Preview Line · Apply To Provision Your Real Line
+                  </div>
+                  <BlackTitaniumCard
+                    account={{
+                      id: "preview-line-meta",
+                      name: "Enterprise Meta Line (Demo)",
+                      platform: "META",
+                      status: "ACTIVE",
+                      balance: 0,
+                      spendLimit: "Uncapped ($50k+/day)",
+                      accountId: "ACT-84920481903",
+                      businessPortfolioId: "BM-92817401",
+                      currency: "USD",
+                      country: "US",
+                    }}
+                    onLoadFunds={() => {
+                      setShowDepositModal(true);
+                      setDepositStep(1);
+                    }}
+                    onBmAccess={() => {
+                      toast({
+                        title: "Demo Line Preview",
+                        description: "Submit your application to receive live Business Manager access.",
+                      });
+                    }}
+                    onRequestReplacement={() => {
+                      toast({
+                        title: "100% Free Replacement SLA",
+                        description: "All live agency lines include instant replacement guarantee.",
+                      });
+                    }}
+                  />
+                </div>
+
+                <div className="text-center py-6 px-4 border border-dashed border-zinc-800/80 rounded-2xl bg-black/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-left">
+                    <p className="text-xs font-bold text-white uppercase tracking-wider">Ready to launch your dedicated line?</p>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">Approval speed ~15–30 mins with zero billing tax and zero commission fees.</p>
+                  </div>
+                  <Link href="/app/application">
+                    <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-violet-600/20 cursor-pointer shrink-0">
+                      Submit Application <ArrowUpRight className="w-4 h-4" />
+                    </span>
+                  </Link>
+                </div>
               </div>
             )}
           </SpotlightCard>
@@ -782,6 +823,7 @@ export default function ClientDashboard() {
         <div className="lg:col-span-4 space-y-6">
           {/* Assigned Dedicated Account Executive Card */}
           <SpotlightCard tone="violet-cyan" className="p-6 relative overflow-hidden shadow-sm backdrop-blur-md">
+            <BorderBeam duration={9} colorFrom="#8B5CF6" colorTo="#06B6D4" />
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Dedicated VIP Concierge</span>
               <span className="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">

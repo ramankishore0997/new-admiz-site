@@ -278,21 +278,24 @@
   }
 
   .cyber-grid {
-    background-size: 36px 36px;
+    background-size: 40px 40px;
     background-image: 
-      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      linear-gradient(to right, rgba(139, 92, 246, 0.09) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(6, 182, 212, 0.07) 1px, transparent 1px);
   }
 
   .cyber-dot-matrix {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
-    background-size: 24px 24px;
+    background-image: radial-gradient(rgba(139, 92, 246, 0.22) 1.5px, transparent 0);
+    background-size: 28px 28px;
   }
 }
 
-@keyframes border-beam {
+@keyframes spin-laser {
+  0% {
+    transform: rotate(0deg);
+  }
   100% {
-    offset-distance: 100%;
+    transform: rotate(360deg);
   }
 }
 
