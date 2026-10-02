@@ -22,6 +22,7 @@ import {
 import { SiTelegram, SiWhatsapp } from "react-icons/si";
 import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
 import MobileGlassDock from "@/components/layout/MobileGlassDock";
+import DimensionalField from "@/components/ui/dimensional-field";
 import { PAYMENT_CONFIG } from "@/config/payment";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl || "https://t.me/RazrMarketing";
@@ -280,9 +281,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         )}
       </AnimatePresence>
 
-      {/* Main Content Area */}
-      <main className="flex-1 min-w-0 min-h-screen relative p-6 md:p-8 pb-24 md:pb-8 overflow-y-auto bg-[#030305] cyber-grid">
-        <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#030305]/80 to-[#030305] pointer-events-none" />
+      {/* Main Content Area with Vanguard Dimensional Architecture Field Background */}
+      <main className="flex-1 min-w-0 min-h-screen relative p-6 md:p-8 pb-24 md:pb-8 overflow-y-auto bg-[#050608]">
+        {/* Full-Screen Dimensional Three.js WebGL Architecture */}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-75">
+          <DimensionalField className="w-full h-full" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050608]/70 via-[#050608]/40 to-[#050608]/85 pointer-events-none" />
+        </div>
+
         <div className="relative z-10">{children}</div>
       </main>
 
