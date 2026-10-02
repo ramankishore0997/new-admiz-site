@@ -997,7 +997,7 @@ export default function ClientApplication() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/15 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
 
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-zinc-800/80">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-cyan-400 shrink-0 shadow-lg">
                       {applyPlatform === "meta" ? <SiMeta className="w-7 h-7 text-[#1877F2]" /> : applyPlatform === "google" ? <SiGoogleads className="w-7 h-7 text-yellow-400" /> : <SiTiktok className="w-7 h-7 text-white" />}
@@ -1019,29 +1019,6 @@ export default function ClientApplication() {
                     <span className="px-3 py-1.5 rounded-xl bg-purple-950/60 border border-purple-500/30 text-purple-300 text-xs font-black uppercase tracking-wider">
                       {applyHatType} Hat Tier
                     </span>
-                    <span className="px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-black uppercase tracking-wider">
-                      0% Billing Tax
-                    </span>
-                  </div>
-                </div>
-
-                {/* Account Specs Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
-                  <div>
-                    <div className="text-[10px] font-mono uppercase text-zinc-400">Daily Spend Limit</div>
-                    <div className="text-sm font-black text-white font-mono mt-0.5">Uncapped ($50k+/day)</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-mono uppercase text-zinc-400">Currency & Country</div>
-                    <div className="text-sm font-black text-cyan-300 font-mono mt-0.5">{applyCurrency} · {applyCountry}</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-mono uppercase text-zinc-400">Replacement Guarantee</div>
-                    <div className="text-sm font-black text-emerald-400 font-mono mt-0.5">100% Free · 15-Min SLA</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-mono uppercase text-zinc-400">Provisioning Speed</div>
-                    <div className="text-sm font-black text-amber-400 font-mono mt-0.5">~15–30 Minutes</div>
                   </div>
                 </div>
               </div>
