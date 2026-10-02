@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
 import AnimatedGradientBackground from "@/components/ui/animated-gradient-background";
+import { EarthBlaze } from "@/components/ui/earth-blaze";
 import {
   Mail,
   Lock,
@@ -66,38 +67,37 @@ export default function Login() {
 
   return (
     <PageWrapper>
-      {/* Dynamic Animated Ambient Radial Gradient */}
-      <AnimatedGradientBackground
-        Breathing={true}
-        animationSpeed={0.012}
-        breathingRange={6}
-        startingGap={110}
-        topOffset={10}
-        gradientColors={[
-          "#000000",
-          "#1e1b4b",
-          "#3b0764",
-          "#0f172a",
-          "#064e3b",
-          "#1e1035",
-          "#000000"
-        ]}
-        gradientStops={[30, 50, 65, 78, 88, 96, 100]}
-        containerClassName="opacity-60 pointer-events-none"
-      />
+      {/* Full-Screen WebGL Earth Blaze Atmospheric Background */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-auto">
+        <EarthBlaze
+          starCount={2600}
+          galaxyBrightness={1.35}
+          surfaceBrightness={1.2}
+          illumination={1.2}
+          auroraEnabled={true}
+          interactive={true}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            aspectRatio: "auto",
+          }}
+        />
+        {/* Atmospheric vignette for crystal clear readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/90 pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-violet-600/10 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none" />
+      </div>
 
-      {/* Background Ambient Glow Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-violet-600/10 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none" />
-
-      <section className="min-h-[85vh] flex items-center justify-center py-12 md:py-16 relative bg-transparent">
-        <div className="container mx-auto px-4 max-w-6xl relative z-10">
+      <section className="min-h-[85vh] flex items-center justify-center py-12 md:py-16 relative z-10 bg-transparent pointer-events-none">
+        <div className="container mx-auto px-4 max-w-6xl relative z-10 pointer-events-none">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
             {/* LEFT COLUMN: Agency Powerhouse Showcase & Prestige Metrics */}
-            <div className="lg:col-span-6 space-y-8 text-left">
+            <div className="lg:col-span-6 space-y-6 text-left pointer-events-auto">
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-violet-500/30 bg-violet-950/60 shadow-lg shadow-violet-500/10">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-violet-500/30 bg-violet-950/60 backdrop-blur-md shadow-lg shadow-violet-500/10">
                   <Sparkles className="w-4 h-4 text-cyan-400 animate-spin" style={{ animationDuration: "6s" }} />
                   <span className="text-[10px] font-black tracking-widest bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent uppercase">
                     Global Growth Powerhouse · London HQ
@@ -118,7 +118,7 @@ export default function Login() {
 
               {/* 3 Agency Pillars */}
               <div className="space-y-3.5">
-                <div className="p-4 rounded-2xl bg-[#060608] border border-zinc-800/80 flex items-start gap-3.5 hover:border-violet-500/40 transition-all shadow-md">
+                <div className="p-4 rounded-2xl bg-[#060608]/80 backdrop-blur-md border border-zinc-800/80 flex items-start gap-3.5 hover:border-violet-500/40 transition-all shadow-md">
                   <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center shrink-0 text-cyan-300 mt-0.5 shadow-xs">
                     <Zap className="w-4 h-4" />
                   </div>
@@ -128,7 +128,7 @@ export default function Login() {
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-[#060608] border border-zinc-800/80 flex items-start gap-3.5 hover:border-cyan-500/40 transition-all shadow-md">
+                <div className="p-4 rounded-2xl bg-[#060608]/80 backdrop-blur-md border border-zinc-800/80 flex items-start gap-3.5 hover:border-cyan-500/40 transition-all shadow-md">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0 text-emerald-400 mt-0.5 shadow-xs">
                     <Headphones className="w-4 h-4" />
                   </div>
@@ -138,7 +138,7 @@ export default function Login() {
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-[#060608] border border-zinc-800/80 flex items-start gap-3.5 hover:border-emerald-500/40 transition-all shadow-md">
+                <div className="p-4 rounded-2xl bg-[#060608]/80 backdrop-blur-md border border-zinc-800/80 flex items-start gap-3.5 hover:border-emerald-500/40 transition-all shadow-md">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 text-cyan-300 mt-0.5 shadow-xs">
                     <TrendingUp className="w-4 h-4" />
                   </div>
@@ -151,15 +151,15 @@ export default function Login() {
 
               {/* Prestige Agency Metrics Strip */}
               <div className="grid grid-cols-3 gap-3 pt-2">
-                <div className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800/90 text-left">
+                <div className="p-3.5 rounded-2xl bg-zinc-950/80 backdrop-blur-md border border-zinc-800/90 text-left">
                   <div className="text-xl font-black text-white font-mono">$150M+</div>
                   <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 mt-0.5">Revenue Engineered</div>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800/90 text-left">
+                <div className="p-3.5 rounded-2xl bg-zinc-950/80 backdrop-blur-md border border-zinc-800/90 text-left">
                   <div className="text-xl font-black text-cyan-300 font-mono">48+</div>
                   <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 mt-0.5">Global Markets</div>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800/90 text-left">
+                <div className="p-3.5 rounded-2xl bg-zinc-950/80 backdrop-blur-md border border-zinc-800/90 text-left">
                   <div className="text-xl font-black text-emerald-400 font-mono">8-Figure</div>
                   <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-400 mt-0.5">Client Portfolios</div>
                 </div>
@@ -173,7 +173,7 @@ export default function Login() {
             </div>
 
             {/* RIGHT COLUMN: Interactive Spotlight Sign In Card */}
-            <div className="lg:col-span-6 w-full max-w-md mx-auto">
+            <div className="lg:col-span-6 w-full max-w-md mx-auto pointer-events-auto">
               <SpotlightCard tone="violet-cyan" className="p-7 sm:p-9 shadow-2xl backdrop-blur-xl">
                 <div className="text-center mb-6">
                   <img

@@ -17,20 +17,16 @@ export function BorderBeam({
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none absolute -inset-[1px] rounded-[inherit] p-[1.5px] overflow-hidden z-0 ${className}`}
-      style={{
-        WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-        WebkitMaskComposite: "xor",
-        maskComposite: "exclude",
-      }}
+      className={`pointer-events-none absolute -inset-[1px] rounded-[inherit] overflow-hidden z-0 ${className}`}
     >
       <div
         className="absolute inset-[-150%] will-change-transform"
         style={{
-          background: `conic-gradient(from 0deg, transparent 0 310deg, ${colorFrom} 335deg, ${colorTo} 360deg)`,
+          background: `conic-gradient(from 0deg, transparent 0 290deg, ${colorFrom} 325deg, ${colorTo} 360deg)`,
           animation: `spin-laser ${duration}s linear infinite`,
         }}
       />
+      <div className="absolute inset-[1.5px] rounded-[inherit] bg-[#07070a] z-0" />
     </div>
   );
 }
