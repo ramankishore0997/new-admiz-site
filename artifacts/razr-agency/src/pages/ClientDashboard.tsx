@@ -451,29 +451,40 @@ export default function ClientDashboard() {
     }
   };
 
-  const totalDeposited = myPayments
+  const timeAgo = (iso?: string) => {
+    if (!iso) return "just now";
+    const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins} min${mins > 1 ? "s" : ""} ago`;
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return `${hrs} hr${hrs > 1 ? "s" : ""} ago`;
+    const days = Math.round(hrs / 24);
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  };
+
+  const totalDeposited = (myPayments || [])
     .filter((p) => {
-      const st = String(p.status || "").toUpperCase();
+      const st = String(p?.status || "").toUpperCase();
       return st === "PAID" || st === "CREDITED" || st === "COMPLETED" || st === "APPROVED" || st === "SUCCESS";
     })
-    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    .reduce((sum, p) => sum + Number(p?.amount || 0), 0);
 
-  const totalWithdrawn = myWithdrawals
+  const totalWithdrawn = (myWithdrawals || [])
     .filter((w) => {
-      const st = String(w.status || "").toUpperCase();
+      const st = String(w?.status || "").toUpperCase();
       return st === "APPROVED" || st === "PAID" || st === "COMPLETED" || st === "SUCCESS";
     })
-    .reduce((sum, w) => sum + Number(w.amount || 0), 0);
+    .reduce((sum, w) => sum + Number(w?.amount || 0), 0);
 
-  const pendingWithdrawals = myWithdrawals
+  const pendingWithdrawals = (myWithdrawals || [])
     .filter((w) => {
-      const st = String(w.status || "").toUpperCase();
+      const st = String(w?.status || "").toUpperCase();
       return st === "PENDING" || st === "PENDING_APPROVAL" || st === "PROCESSING";
     })
-    .reduce((sum, w) => sum + Number(w.amount || 0), 0);
+    .reduce((sum, w) => sum + Number(w?.amount || 0), 0);
 
   const computedNet = Math.max(0, totalDeposited - totalWithdrawn - pendingWithdrawals);
-  const effectiveWalletBalance = Number(user?.balance && Number(user.balance) > 0 ? user.balance : computedNet);
+  const effectiveWalletBalance = Number(user?.balance && Number(user.balance) > 0 ? user.balance : computedNet) || 0;
 
   return (
     <ClientLayout>

@@ -25,28 +25,32 @@ interface NextActionHeroProps {
 }
 
 export default function NextActionHero({
-  walletBalance,
-  applications,
-  adAccounts,
+  walletBalance = 0,
+  applications = [],
+  adAccounts = [],
   bmOrders = [],
   onOpenDeposit,
   onOpenLoadModal
 }: NextActionHeroProps) {
   const { toast } = useToast();
   const [copiedLink, setCopiedLink] = useState(false);
+  const safeBalance = Number(walletBalance) || 0;
+  const safeApps = Array.isArray(applications) ? applications : [];
+  const safeAdAccs = Array.isArray(adAccounts) ? adAccounts : [];
+  const safeBmOrders = Array.isArray(bmOrders) ? bmOrders : [];
 
   // 1. Check if there is a ready BM store order with invite link
-  const readyBmOrder = bmOrders.find((o) => o.status === "COMPLETED" && o.inviteLink);
+  const readyBmOrder = safeBmOrders.find((o) => o?.status === "COMPLETED" && o?.inviteLink);
 
   // 2. Check if there is an active/approved ad account with BM access link/ID
-  const activeAdAccWithBm = adAccounts.find(
-    (a) => (a.status === "ACTIVE" || a.status === "APPROVED") && (a.inviteLink || a.businessPortfolioId)
+  const activeAdAccWithBm = safeAdAccs.find(
+    (a) => (a?.status === "ACTIVE" || a?.status === "APPROVED") && (a?.inviteLink || a?.businessPortfolioId)
   );
 
   // 3. Check application states
-  const draftApp = applications.find((a) => a.status === "DRAFT");
-  const reviewApp = applications.find((a) => ["SUBMITTED", "UNDER_REVIEW", "INFORMATION_REQUIRED"].includes(a.status));
-  const needsTopupAcc = adAccounts.find((a) => a.status === "APPROVED" && (Number(a.balance) || 0) < 50);
+  const draftApp = safeApps.find((a) => a?.status === "DRAFT");
+  const reviewApp = safeApps.find((a) => ["SUBMITTED", "UNDER_REVIEW", "INFORMATION_REQUIRED"].includes(a?.status));
+  const needsTopupAcc = safeAdAccs.find((a) => a?.status === "APPROVED" && (Number(a?.balance) || 0) < 50);
 
   const handleCopyLink = (link: string) => {
     navigator.clipboard.writeText(link);
@@ -228,7 +232,7 @@ export default function NextActionHero({
   }
 
   // State 6: Funded Wallet, No Application Yet
-  if (walletBalance > 0 && applications.length === 0) {
+  if (safeBalance > 0 && safeApps.length === 0) {
     return (
       <SpotlightCard tone="violet-cyan" className="p-6 md:p-8 shadow-2xl backdrop-blur-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
@@ -240,7 +244,7 @@ export default function NextActionHero({
               Apply for Your First <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Agency Ad Account</span>
             </h2>
             <p className="text-xs text-zinc-300 leading-relaxed font-medium">
-              You have <strong className="text-cyan-300">${walletBalance.toFixed(2)} USDT</strong> in your wallet. Select your platform (Meta, Google, or TikTok) and submit your application in 60 seconds.
+              You have <strong className="text-cyan-300">${safeBalance.toFixed(2)} USDT</strong> in your wallet. Select your platform (Meta, Google, or TikTok) and submit your application in 60 seconds.
             </p>
           </div>
 

@@ -23,20 +23,22 @@ interface OnboardingRoadmapProps {
 }
 
 export default function OnboardingRoadmap({
-  walletBalance,
-  hasPayments,
-  applications,
+  walletBalance = 0,
+  hasPayments = false,
+  applications = [],
   onOpenDeposit,
   onOpenGuide
 }: OnboardingRoadmapProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const safeBalance = Number(walletBalance) || 0;
+  const safeApps = Array.isArray(applications) ? applications : [];
 
   // Step Completion Logic
-  const isStep1Done = walletBalance > 0 || hasPayments;
-  const isStep2Done = applications.length > 0;
-  const approvedApp = applications.find((a) => a.status === "APPROVED");
+  const isStep1Done = safeBalance > 0 || hasPayments;
+  const isStep2Done = safeApps.length > 0;
+  const approvedApp = safeApps.find((a) => a?.status === "APPROVED");
   const isStep3Done = !!approvedApp;
-  const isStep4Done = isStep3Done && applications.some((a) => a.bmAccessGranted);
+  const isStep4Done = isStep3Done && safeApps.some((a) => a?.bmAccessGranted);
 
   // Calculate overall progress percentage
   let completedSteps = 0;
@@ -55,7 +57,7 @@ export default function OnboardingRoadmap({
       num: 1,
       title: "Deposit USDT Funds",
       desc: isStep1Done
-        ? `Completed ($${walletBalance.toFixed(2)} USDT available in wallet)`
+        ? `Completed ($${safeBalance.toFixed(2)} USDT available in wallet)`
         : "Top up your main wallet with USDT (TRC20/BEP20). Balance is 100% usable for ad spend.",
       isDone: isStep1Done,
       isActive: currentStep === 1,
