@@ -36,11 +36,6 @@ export default function AdminLogin() {
     }
   };
 
-  const handleFillDemo = () => {
-    setEmail("admin@razr.marketing");
-    setPassword("admin123");
-  };
-
   return (
     <div className="min-h-screen bg-black text-foreground flex items-center justify-center relative overflow-hidden">
       {/* Ambient glow */}
@@ -67,26 +62,6 @@ export default function AdminLogin() {
               <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Razr Operations</span>
             </h2>
             <p className="text-xs text-zinc-400 font-bold tracking-wider uppercase">Administrative Control Panel</p>
-          </div>
-
-          {/* Quick Local Demo Badge */}
-          <div className="mb-6 p-3 rounded-2xl bg-zinc-950 border border-violet-500/30 text-left space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-cyan-400" /> Localhost Admin Demo
-              </span>
-              <button
-                type="button"
-                onClick={handleFillDemo}
-                className="px-2 py-0.5 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 text-[9px] font-black text-cyan-300 uppercase tracking-wider cursor-pointer transition-colors border border-violet-500/30"
-              >
-                Auto Fill
-              </button>
-            </div>
-            <div className="text-[11px] font-mono text-zinc-300 flex justify-between pt-0.5">
-              <span>ID: <strong className="text-white">admin@razr.marketing</strong></span>
-              <span>Pass: <strong className="text-white">admin123</strong></span>
-            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
