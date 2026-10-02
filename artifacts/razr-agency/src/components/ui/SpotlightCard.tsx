@@ -112,7 +112,7 @@ export function SpotlightCard({
     <div
       ref={containerRef}
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-zinc-800 bg-[#060608] backdrop-blur-2xl transition-all duration-500 text-white group",
+        "relative overflow-hidden rounded-3xl border border-white/10 bg-[#08080c]/60 backdrop-blur-2xl transition-all duration-500 text-white group shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]",
         className
       )}
       onMouseMove={handleMouseMove}

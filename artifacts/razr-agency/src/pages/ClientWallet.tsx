@@ -475,7 +475,7 @@ export default function ClientWallet() {
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   activeTab === "DEPOSITS"
                     ? "bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-md shadow-violet-600/20"
-                    : "bg-black text-zinc-400 hover:text-white hover:bg-zinc-900 border border-zinc-800"
+                    : "bg-black/40 backdrop-blur-md text-zinc-400 hover:text-white hover:bg-white/10 border border-white/10"
                 }`}
               >
                 <PlusCircle className="w-3.5 h-3.5" />
@@ -488,7 +488,7 @@ export default function ClientWallet() {
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   activeTab === "WITHDRAWALS"
                     ? "bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white shadow-md shadow-violet-600/20"
-                    : "bg-black text-zinc-400 hover:text-white hover:bg-zinc-900 border border-zinc-800"
+                    : "bg-black/40 backdrop-blur-md text-zinc-400 hover:text-white hover:bg-white/10 border border-white/10"
                 }`}
               >
                 <ArrowDownToLine className="w-3.5 h-3.5" />
@@ -513,7 +513,7 @@ export default function ClientWallet() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-zinc-800 text-zinc-400 font-black uppercase text-[10px] tracking-wider bg-black">
+                      <tr className="border-b border-white/10 text-zinc-400 font-black uppercase text-[10px] tracking-wider bg-black/50 backdrop-blur-md">
                         <th className="py-3 px-4">Order / ID</th>
                         <th className="py-3 px-4">Network</th>
                         <th className="py-3 px-4">Amount</th>
@@ -577,7 +577,7 @@ export default function ClientWallet() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-12 border border-dashed border-zinc-800 rounded-2xl bg-black/40 space-y-3">
+                <div className="text-center py-12 border border-dashed border-white/10 rounded-2xl bg-black/40 space-y-3">
                   <Wallet className="w-10 h-10 text-zinc-600 mx-auto" />
                   <div>
                     <h4 className="text-sm font-black uppercase text-white">No Deposits Submitted Yet</h4>
@@ -613,7 +613,7 @@ export default function ClientWallet() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-zinc-800 text-zinc-400 font-black uppercase text-[10px] tracking-wider bg-black">
+                      <tr className="border-b border-white/10 text-zinc-400 font-black uppercase text-[10px] tracking-wider bg-black/50 backdrop-blur-md">
                         <th className="py-3 px-4">Request ID</th>
                         <th className="py-3 px-4">Amount</th>
                         <th className="py-3 px-4">USDT Payout Address</th>

@@ -63,7 +63,7 @@ export default function BlackTitaniumCard({
   };
 
   return (
-    <div className="group relative rounded-3xl border border-zinc-800/80 bg-gradient-to-br from-[#0c0c12] via-[#050508] to-[#080c10] p-6 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:border-violet-500/50 hover:shadow-[0_20px_60px_-15px_rgba(139,92,246,0.3)] overflow-hidden flex flex-col justify-between">
+    <div className="group relative rounded-3xl border border-white/10 bg-gradient-to-br from-[#0c0c14]/75 via-[#06060a]/65 to-[#080c12]/75 backdrop-blur-2xl p-6 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:border-violet-500/50 hover:shadow-[0_20px_60px_-15px_rgba(139,92,246,0.3)] overflow-hidden flex flex-col justify-between">
       {/* Background Foil & Shimmer Highlights */}
       <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-violet-600/10 via-cyan-500/10 to-transparent rounded-full blur-2xl pointer-events-none group-hover:from-violet-600/20 group-hover:via-cyan-500/20 transition-all duration-500" />
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400 opacity-80 group-hover:opacity-100" />
