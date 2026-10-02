@@ -60,6 +60,8 @@ import { Loader2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
+import ErrorBoundary from "@/components/ErrorBoundary";
+
 const queryClient = new QueryClient();
 
 function DashboardRedirect() {
@@ -72,7 +74,11 @@ function DashboardRedirect() {
     }
   }, [user, isLoading]);
 
-  return null;
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#060608]">
+      <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+    </div>
+  );
 }
 
 function ProtectedRoute({ path, component: Component, role }: { path: string; component: React.ComponentType; role?: string }) {
@@ -89,16 +95,13 @@ function ProtectedRoute({ path, component: Component, role }: { path: string; co
     }
   }, [user, isLoading, role]);
 
-  if (isLoading) {
+  if (isLoading || !user || (role === "ADMIN" && !["SUPER_ADMIN", "ADMIN", "REVIEWER", "SUPPORT"].includes(user.role))) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#060608]">
+        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
       </div>
     );
   }
-
-  if (!user) return null;
-  if (role === "ADMIN" && !["SUPER_ADMIN", "ADMIN", "REVIEWER", "SUPPORT"].includes(user.role)) return null;
 
   return <Component />;
 }
@@ -264,23 +267,24 @@ function App() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <AmbientLights />
-          <NoiseTexture />
-          <CursorGlow />
-          <LoadingScreen />
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <ChatWidget />
-          </WouterRouter>
-          <Toaster />
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AuthProvider>
+            <AmbientLights />
+            <NoiseTexture />
+            <CursorGlow />
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <Router />
+            </WouterRouter>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <ChatWidget />
+            </WouterRouter>
+            <Toaster />
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
