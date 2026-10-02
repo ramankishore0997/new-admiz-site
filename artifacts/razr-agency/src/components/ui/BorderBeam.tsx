@@ -17,7 +17,12 @@ export function BorderBeam({
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none absolute -inset-[1px] rounded-[inherit] overflow-hidden z-0 ${className}`}
+      className={`pointer-events-none absolute inset-0 rounded-[inherit] p-[1.5px] overflow-hidden z-0 ${className}`}
+      style={{
+        WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+        WebkitMaskComposite: "xor",
+        maskComposite: "exclude",
+      }}
     >
       <div
         className="absolute inset-[-150%] will-change-transform"
@@ -26,7 +31,6 @@ export function BorderBeam({
           animation: `spin-laser ${duration}s linear infinite`,
         }}
       />
-      <div className="absolute inset-[1.5px] rounded-[inherit] bg-[#07070a] z-0" />
     </div>
   );
 }

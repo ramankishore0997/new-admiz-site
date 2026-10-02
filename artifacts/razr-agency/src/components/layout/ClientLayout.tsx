@@ -72,12 +72,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-[#07070c]/75 backdrop-blur-2xl border-r border-white/10 p-5 relative shadow-2xl">
+    <div className="flex flex-col h-full bg-[#060608] border-r border-zinc-800 p-5 relative">
       {/* Ambient glow effect */}
-      <div className="absolute top-10 left-10 w-28 h-28 bg-violet-500/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-10 left-10 w-24 h-24 bg-violet-500/10 rounded-full blur-2xl pointer-events-none" />
 
       {/* Brand logo */}
-      <div className="flex items-center gap-3 mb-6 pb-5 border-b border-white/10 relative z-10">
+      <div className="flex items-center gap-3 mb-6 pb-5 border-b border-zinc-800/80 relative z-10">
         <Link href="/">
           <RazrLogo size={32} />
         </Link>
@@ -99,17 +99,17 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     onClick={() => setIsMobileOpen(false)}
                     className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 ${
                       isActive
-                        ? "bg-gradient-to-r from-violet-600/30 via-indigo-600/30 to-cyan-500/30 text-white border border-violet-400/40 shadow-md shadow-violet-950/50 backdrop-blur-md"
-                        : "text-zinc-400 hover:text-white hover:bg-white/5"
+                        ? "bg-gradient-to-r from-violet-600/20 via-indigo-600/20 to-cyan-500/20 text-white border border-violet-500/40 shadow-sm"
+                        : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Icon className={`w-4 h-4 ${isActive ? "text-cyan-400" : "text-zinc-400"}`} />
+                      <Icon className={`w-4 h-4 ${isActive ? "text-cyan-400" : "text-zinc-500"}`} />
                       <span>{item.name}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       {item.badge && (
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider bg-violet-950/80 text-cyan-300 border border-violet-500/40">
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider bg-violet-950/60 text-cyan-300 border border-violet-500/30">
                           {item.badge}
                         </span>
                       )}
@@ -124,7 +124,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       </nav>
 
       {/* 24/7 Dedicated Concierge Support Card */}
-      <div className="my-2 p-3.5 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 text-white space-y-2.5 relative z-10 shadow-lg">
+      <div className="my-2 p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-white space-y-2.5 relative z-10 shadow-lg">
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent flex items-center gap-1.5">
             <Headphones className="w-3.5 h-3.5 text-cyan-400" /> 24/7 Live Concierge
@@ -134,7 +134,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
         </div>
-        <p className="text-[11px] text-zinc-300 font-medium leading-snug">
+        <p className="text-[11px] text-zinc-400 font-medium leading-snug">
           Instant limit boosts, deposit approvals & account setup.
         </p>
         <div className="grid grid-cols-2 gap-1.5 pt-0.5">
@@ -142,7 +142,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             href={TELEGRAM_SUPPORT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer shadow-md"
+            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer"
           >
             <SiTelegram className="w-3.5 h-3.5" /> Telegram
           </a>
@@ -150,7 +150,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             href={WHATSAPP_SUPPORT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-black/60 border border-white/10 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer"
           >
             <SiWhatsapp className="w-3.5 h-3.5 text-emerald-400" /> WhatsApp
           </a>
@@ -158,12 +158,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       </div>
 
       {/* Quick Setup Guide Card */}
-      <div className="my-2 p-3.5 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 text-white space-y-2 relative z-10">
+      <div className="my-2 p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-white space-y-2 relative z-10">
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-pink-400 to-amber-300 bg-clip-text text-transparent flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-amber-300" /> Quick Guide
           </span>
-          <span className="text-[9px] text-zinc-400 font-bold">4 Steps</span>
+          <span className="text-[9px] text-zinc-500 font-bold">4 Steps</span>
         </div>
         <button
           type="button"
@@ -171,29 +171,29 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             setIsGuideOpen(true);
             setIsMobileOpen(false);
           }}
-          className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-black/60 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-white/10"
+          className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#060608] hover:bg-zinc-900 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer border border-zinc-800"
         >
           <HelpCircle className="w-3.5 h-3.5 text-cyan-400" /> Open Step Guide
         </button>
       </div>
 
       {/* Bottom Profile / Logout */}
-      <div className="pt-4 border-t border-white/10 space-y-4 relative z-10">
+      <div className="pt-4 border-t border-zinc-800 space-y-4 relative z-10">
         {user && (
           <div className="flex items-center gap-3 px-2">
-            <div className="w-9 h-9 rounded-full bg-violet-500/20 border border-violet-400/40 flex items-center justify-center text-xs font-black text-cyan-400">
+            <div className="w-9 h-9 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-xs font-black text-cyan-400">
               {user.username.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
               <div className="text-xs font-bold text-white truncate">{user.username}</div>
-              <div className="text-[9px] text-zinc-400 truncate">{user.email}</div>
+              <div className="text-[9px] text-zinc-500 truncate">{user.email}</div>
             </div>
           </div>
         )}
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 transition-colors"
         >
           <LogOut className="w-4 h-4 text-rose-400" />
           <span>Log Out</span>
@@ -203,20 +203,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   );
 
   return (
-    <div className="min-h-screen bg-[#050508] text-foreground flex flex-col md:flex-row relative">
-      {/* Full-Screen Atmospheric Background Image */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none">
-        <img
-          src="/portal-bg.png"
-          alt="Portal Atmosphere"
-          className="w-full h-full object-cover object-center fixed inset-0 scale-[1.02]"
-        />
-        {/* Soft dark overlay for contrast */}
-        <div className="absolute inset-0 bg-black/20 pointer-events-none" />
-      </div>
-
+    <div className="min-h-screen bg-[#050608] text-foreground flex flex-col md:flex-row relative">
       {/* Mobile Header */}
-      <header className="md:hidden flex items-center justify-between p-4 bg-[#07070c]/85 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 relative">
+      <header className="md:hidden flex items-center justify-between p-4 bg-[#060608] border-b border-zinc-800 sticky top-0 z-40">
         <Link href="/" className="flex items-center gap-2">
           <img
             src="/logo.png"
@@ -240,14 +229,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             href={WHATSAPP_SUPPORT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-black/60 border border-white/10 text-white text-[10px] font-bold"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-[10px] font-bold"
             title="WhatsApp Support"
           >
             <SiWhatsapp className="w-3.5 h-3.5 text-emerald-400" />
           </a>
           <button
             onClick={() => setIsMobileOpen(true)}
-            className="p-2 rounded-xl bg-black/60 border border-white/10 text-zinc-300 hover:text-white cursor-pointer"
+            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white cursor-pointer"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -255,7 +244,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       </header>
 
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:block w-64 shrink-0 h-screen sticky top-0 overflow-y-auto relative z-20">
+      <aside className="hidden md:block w-64 shrink-0 h-screen sticky top-0 overflow-y-auto">
         <SidebarContent />
       </aside>
 
@@ -269,7 +258,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileOpen(false)}
-              className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             />
             {/* Drawer */}
             <motion.div
@@ -277,12 +266,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="relative w-64 h-full z-10"
+              className="relative w-64 h-full"
             >
               <SidebarContent />
               <button
                 onClick={() => setIsMobileOpen(false)}
-                className="absolute top-4 right-[-48px] p-2.5 rounded-full bg-zinc-900/90 backdrop-blur-md border border-white/15 text-white shadow-lg cursor-pointer"
+                className="absolute top-4 right-[-48px] p-2.5 rounded-full bg-zinc-900 border border-zinc-800 text-white shadow-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -292,7 +281,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 min-h-screen relative z-10 p-6 md:p-8 pb-24 md:pb-8 overflow-y-auto bg-transparent">
+      <main className="flex-1 min-w-0 min-h-screen relative p-6 md:p-8 pb-24 md:pb-8 overflow-y-auto bg-[#050608]">
         <div className="relative z-10">{children}</div>
       </main>
 
