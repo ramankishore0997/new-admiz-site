@@ -33,7 +33,7 @@ function Counter({ value, suffix }: { value: number; suffix: string }) {
 
 export default function GrowthMetrics() {
   return (
-    <section className="py-20 relative z-10 bg-black text-white">
+    <section className="py-20 relative z-10 bg-transparent text-white">
       <div className="container mx-auto px-4 max-w-7xl relative">
         <div className="flex items-end justify-between gap-8 flex-wrap mb-12">
           <div>

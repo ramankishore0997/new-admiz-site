@@ -25,7 +25,7 @@ export default function BookCallSection() {
     : buildWaLink("book-call", { source: "book-call-section" });
 
   return (
-    <section className="relative py-16 md:py-24 z-10 bg-black text-white">
+    <section className="relative py-16 md:py-24 z-10 bg-transparent text-white">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           <div className="lg:col-span-5">

@@ -9,6 +9,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import CursorGlow from "@/components/effects/CursorGlow";
 import NoiseTexture from "@/components/effects/NoiseTexture";
 import AmbientLights from "@/components/effects/AmbientLights";
+import GlobalCosmicBackground from "@/components/effects/GlobalCosmicBackground";
 
 import Home from "@/pages/Home";
 import Features from "@/pages/Features";
@@ -121,7 +122,8 @@ function Router() {
   const isAppOrAdmin = location.startsWith("/app") || location.startsWith("/admin");
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-primary/30 selection:text-white">
+    <div className="flex flex-col min-h-screen bg-transparent text-foreground selection:bg-primary/30 selection:text-white relative">
+      <GlobalCosmicBackground />
       {!isAppOrAdmin && <Navbar />}
       <main className="flex-1 relative z-10">
         <Switch>

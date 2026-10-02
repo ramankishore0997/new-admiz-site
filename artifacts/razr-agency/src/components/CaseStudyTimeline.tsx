@@ -35,7 +35,7 @@ const STAGES = [
 
 export default function CaseStudyTimeline() {
   return (
-    <section className="py-20 relative z-10 overflow-hidden bg-black text-white">
+    <section className="py-20 relative z-10 overflow-hidden bg-transparent text-white">
       <div className="container mx-auto px-4 max-w-7xl relative">
         <div className="text-center mb-16">
           <div className="text-[10px] font-black uppercase tracking-[0.25em] bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-3">Case Study · UK D2C Skincare Brand</div>

@@ -9,11 +9,11 @@ interface PageWrapperProps {
 export default function PageWrapper({ children }: PageWrapperProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.55, ease: EASE_LUX }}
-      className="pt-20 relative overflow-x-hidden w-full max-w-[100vw]"
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.28, ease: EASE_LUX }}
+      className="pt-20 relative overflow-x-hidden w-full max-w-[100vw] bg-transparent"
     >
       {children}
     </motion.div>

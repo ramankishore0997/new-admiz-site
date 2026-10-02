@@ -11,27 +11,7 @@ const TELEGRAM_URL = "https://t.me/RazrMarketing";
 
 export default function Hero() {
   return (
-    <section className="relative pt-16 pb-20 md:pt-28 md:pb-32 overflow-hidden bg-black text-white">
-      {/* Animated Radial Ambient Gradient */}
-      <AnimatedGradientBackground
-        Breathing={true}
-        animationSpeed={0.012}
-        breathingRange={8}
-        startingGap={110}
-        topOffset={15}
-        gradientColors={[
-          "#000000",
-          "#1E1B4B",
-          "#3B0764",
-          "#0F172A",
-          "#064E3B",
-          "#1E1035",
-          "#000000"
-        ]}
-        gradientStops={[25, 45, 60, 75, 85, 95, 100]}
-        containerClassName="opacity-70 pointer-events-none"
-      />
-
+    <section className="relative pt-16 pb-20 md:pt-28 md:pb-32 overflow-hidden bg-transparent text-white">
       <div className="container mx-auto px-4 max-w-6xl relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           {/* Multi-Color Live Status Badge */}

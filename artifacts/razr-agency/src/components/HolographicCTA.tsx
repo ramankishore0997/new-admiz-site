@@ -6,7 +6,7 @@ import AnimatedGradientBackground from "@/components/ui/animated-gradient-backgr
 
 export default function HolographicCTA() {
   return (
-    <section className="py-16 relative z-10 overflow-hidden bg-black text-white">
+    <section className="py-16 relative z-10 overflow-hidden bg-transparent text-white">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="relative rounded-[2.5rem] p-[1.5px] overflow-hidden group">
           {/* animated multi-color gradient border */}

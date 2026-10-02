@@ -44,7 +44,7 @@ const GAINS = [
 
 export default function ProblemSolution() {
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden bg-black text-white border-y border-zinc-900">
+    <section className="relative py-20 md:py-32 overflow-hidden bg-transparent text-white">
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <motion.div
