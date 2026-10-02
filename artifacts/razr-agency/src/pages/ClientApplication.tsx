@@ -20,17 +20,85 @@ import {
   HelpCircle,
   Info,
   ArrowRight,
+  ArrowLeft,
   Layers,
   Zap,
-  Globe
+  Globe,
+  Building,
+  Check,
+  Copy,
+  Compass,
+  Briefcase,
+  ChevronRight
 } from "lucide-react";
+import { SiMeta, SiGoogleads, SiTiktok } from "react-icons/si";
 import { PAYMENT_CONFIG } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
 import { ACCOUNT_COUNTRIES, ACCOUNT_CURRENCIES } from "@/lib/countries-currencies";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import BmGuideModal from "@/components/onboarding/BmGuideModal";
+import { SpotlightCard } from "@/components/ui/SpotlightCard";
 
-const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
+const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl || "https://t.me/RazrMarketing";
+
+const BUSINESS_NICHES = [
+  {
+    id: "ecommerce",
+    name: "E-Commerce & Dropshipping",
+    emoji: "🛍️",
+    desc: "Shopify stores, DTC brands, physical products",
+    recommendedHat: "WHITE" as const,
+    note: "Optimal long-term brand scaling & rock-solid ad line stability"
+  },
+  {
+    id: "saas_info",
+    name: "SaaS & Info Products",
+    emoji: "📱",
+    desc: "Software, apps, digital courses, coaching, education",
+    recommendedHat: "WHITE" as const,
+    note: "Policy-cleared high spend stability for digital brands"
+  },
+  {
+    id: "nutra",
+    name: "Nutra & Supplements",
+    emoji: "💊",
+    desc: "Health, skincare, dietary supplements, wellness",
+    recommendedHat: "GREY" as const,
+    note: "Warm historical spend accounts with fast replacements"
+  },
+  {
+    id: "gaming_casino",
+    name: "Casino, Betting & Gaming",
+    emoji: "🎰",
+    desc: "iGaming, sports betting, sweepstakes, casino",
+    recommendedHat: "BLACK" as const,
+    note: "Unlimited replacements with uncapped aggressive spend scaling"
+  },
+  {
+    id: "crypto_forex",
+    name: "Crypto, Trading & Forex",
+    emoji: "💰",
+    desc: "Exchanges, signals, trading tools, financial leads",
+    recommendedHat: "BLACK" as const,
+    note: "Instant line replenishment & zero daily spend ceiling"
+  },
+  {
+    id: "leadgen",
+    name: "Lead Gen & Real Estate",
+    emoji: "🏘️",
+    desc: "Mortgage, solar, insurance, local services, B2B",
+    recommendedHat: "GREY" as const,
+    note: "High auction authority with institutional routing"
+  },
+  {
+    id: "other",
+    name: "Other / Multi-Vertical",
+    emoji: "🌐",
+    desc: "General marketing campaigns & custom media buying",
+    recommendedHat: "WHITE" as const,
+    note: "Flexible Tier-1 agency setup"
+  }
+];
 
 export default function ClientApplication() {
   const { user } = useAuth();
@@ -61,17 +129,23 @@ export default function ClientApplication() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
-  // Simple apply form state
+  // 3-Step Wizard Navigation
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
+  const [selectedNiche, setSelectedNiche] = useState<string>("ecommerce");
+
+  // Apply form state
   const [applyPlatform, setApplyPlatform] = useState("meta");
   const [applyBmId, setApplyBmId] = useState("");
   const [applyGmail, setApplyGmail] = useState("");
   const [applyAccountName, setApplyAccountName] = useState("");
+  const [applyWebsiteUrl, setApplyWebsiteUrl] = useState("");
   const [applyCountry, setApplyCountry] = useState("United States");
   const [applyCurrency, setApplyCurrency] = useState("USD");
-  const [applyHatType, setApplyHatType] = useState<"" | "BLACK" | "GREY" | "WHITE">("");
+  const [applyHatType, setApplyHatType] = useState<"BLACK" | "GREY" | "WHITE">("WHITE");
   const [applyAppCount, setApplyAppCount] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showBmGuide, setShowBmGuide] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const walletBalance = Number(user?.balance ?? 0);
 
@@ -96,7 +170,7 @@ export default function ClientApplication() {
         "Priority provisioning queue — accounts ready in minutes",
         "Dedicated compliance manager on Telegram 24/7",
       ],
-      styles: "border-purple-500/30 bg-[#0c0a14] text-white shadow-xl hover:border-purple-500/50",
+      styles: "border-purple-500/40 bg-[#0c0a14] text-white shadow-xl hover:border-purple-500/60",
       badgeStyles: "border-purple-500/40 bg-purple-500/10 text-purple-300",
     },
     GREY: {
@@ -111,7 +185,7 @@ export default function ClientApplication() {
         "Warm accounts with prior spending history",
         "Round-the-clock Telegram priority support",
       ],
-      styles: "border-amber-500/30 bg-[#120e06] text-amber-200 shadow-xl hover:border-amber-500/50",
+      styles: "border-amber-500/40 bg-[#120e06] text-amber-200 shadow-xl hover:border-amber-500/60",
       badgeStyles: "border-amber-500/40 bg-amber-500/10 text-amber-300",
     },
     WHITE: {
@@ -126,7 +200,7 @@ export default function ClientApplication() {
         "Bank-grade account history & full spend limits",
         "Priority VIP support channel on Telegram",
       ],
-      styles: "border-emerald-500/30 bg-[#06120e] text-emerald-200 shadow-xl hover:border-emerald-500/50",
+      styles: "border-emerald-500/40 bg-[#06120e] text-emerald-200 shadow-xl hover:border-emerald-500/60",
       badgeStyles: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
     },
   };
@@ -134,6 +208,19 @@ export default function ClientApplication() {
   // Chat message input
   const [chatMessage, setChatMessage] = useState("");
   const [isSendingMsg, setIsSendingMsg] = useState(false);
+
+  // Handle Niche Selection & Auto-Recommend Hat Type
+  const handleSelectNiche = (nicheId: string) => {
+    setSelectedNiche(nicheId);
+    const niche = BUSINESS_NICHES.find((n) => n.id === nicheId);
+    if (niche) {
+      setApplyHatType(niche.recommendedHat);
+      toast({
+        title: `${niche.emoji} ${niche.name} Selected`,
+        description: `Auto-selected ${niche.recommendedHat} Hat for ${niche.note.toLowerCase()}.`,
+      });
+    }
+  };
 
   // Load active application and details
   const loadData = async () => {
@@ -180,7 +267,9 @@ export default function ClientApplication() {
       setApplyAccountName(reqs.accountName || "");
       setApplyCountry(reqs.country || "United States");
       setApplyCurrency(reqs.currency || "USD");
-      setApplyHatType((reqs.hatType as "" | "BLACK" | "GREY" | "WHITE") || "");
+      if (reqs.hatType && (reqs.hatType === "BLACK" || reqs.hatType === "GREY" || reqs.hatType === "WHITE")) {
+        setApplyHatType(reqs.hatType);
+      }
     } catch (e: any) {
       setLoadError(e.message || "Failed to load this application.");
     }
@@ -224,6 +313,7 @@ export default function ClientApplication() {
       const list = await apiFetch<any[]>("/api/applications");
       setApplications(list);
       await selectApplication(newApp.id);
+      setWizardStep(1);
       setIsLoading(false);
     } catch (e: any) {
       setIsLoading(false);
@@ -253,7 +343,7 @@ export default function ClientApplication() {
           </span>
           <button
             onClick={handleStartApplication}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-violet-500/30 bg-violet-500/10 text-[9px] font-black uppercase tracking-widest text-violet-300 hover:bg-violet-500/20 transition-all cursor-pointer hover:scale-105"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-violet-500/30 bg-violet-500/10 text-[9px] font-black uppercase tracking-widest text-cyan-300 hover:bg-violet-500/20 transition-all cursor-pointer hover:scale-105"
           >
             + New Account
           </button>
@@ -280,7 +370,7 @@ export default function ClientApplication() {
   const validateApplyForm = (): string | null => {
     if (applyPlatform === "meta" && !applyBmId.trim()) return "Please enter your Meta Business Manager ID.";
     if (applyPlatform === "google" && !applyGmail.trim()) return "Please enter the Gmail for your Google Ads account.";
-    if (!applyHatType) return "Please choose a hat type (Black, Grey or White).";
+    if (!applyHatType) return "Please choose a hat tier (Black, Grey or White).";
     return null;
   };
 
@@ -291,7 +381,7 @@ export default function ClientApplication() {
         method: "PATCH",
         body: JSON.stringify({
           personalInfo: { fullName: user?.username || "", email: user?.email || "" },
-          businessInfo: {},
+          businessInfo: { websiteUrl: applyWebsiteUrl.trim() || undefined },
           advertisingInfo: { platform: platName },
           accountRequirements: {
             hatType: applyHatType || undefined,
@@ -346,7 +436,7 @@ export default function ClientApplication() {
             method: "PATCH",
             body: JSON.stringify({
               personalInfo: { fullName: user?.username || "", email: user?.email || "" },
-              businessInfo: {},
+              businessInfo: { websiteUrl: applyWebsiteUrl.trim() || undefined },
               advertisingInfo: { platform: platName },
               accountRequirements: {
                 hatType: applyHatType || undefined,
@@ -468,13 +558,18 @@ export default function ClientApplication() {
     application.status === "DOCUMENTS_REQUIRED";
 
   if (isDraftMode) {
+    const isBmIdValid = applyPlatform === "meta" && /^\d{14,18}$/.test(applyBmId.trim());
+
     return (
       <ClientLayout>
-        <div className="max-w-3xl mx-auto relative z-10 pb-20">
+        <div className="max-w-4xl mx-auto relative z-10 pb-20">
           {/* Stepper Header */}
           <div className="mb-8 pb-6 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black uppercase tracking-tight text-white">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-950/60 border border-violet-500/30 text-cyan-300 text-xs font-black uppercase tracking-widest mb-2">
+                <Compass className="w-3.5 h-3.5 text-cyan-400" /> Interactive Setup Wizard
+              </div>
+              <h1 className="text-3xl font-black uppercase tracking-tight text-white">
                 Ad Account <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Application</span>
               </h1>
               <div className="flex flex-wrap items-center gap-3 mt-1.5">
@@ -518,239 +613,146 @@ export default function ClientApplication() {
               onClick={handleSaveDraft}
               className="px-4 py-2 border border-zinc-800 hover:border-zinc-700 bg-[#060608] hover:bg-zinc-900 rounded-xl text-[10px] font-black uppercase tracking-wider text-zinc-300 transition-all cursor-pointer self-start sm:self-auto hover:text-white"
             >
-              Save Progress
+              Save Draft
             </button>
           </div>
 
           {renderAccountBar()}
 
-          {/* Pricing & Benefits */}
-          <div className="rounded-3xl border border-zinc-800 bg-[#060608] shadow-2xl p-6 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" />
-              <h3 className="text-base font-black uppercase tracking-wider text-white">
-                Before You Apply — <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">What's Included</span>
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Benefits */}
-              <div className="rounded-2xl border border-zinc-800/80 bg-black/60 p-4">
-                <div className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-2.5">Benefits</div>
-                <ul className="space-y-2">
-                  {[
-                    "Unlimited free replacements — lifetime, every account",
-                    "Business Manager access assigned on your topup",
-                    "Live status tracking from submit to activation",
-                    "100% refund if BM isn't assigned within 48 hrs",
-                    "Dedicated Telegram support 24/7",
-                  ].map((b) => (
-                    <li key={b} className="text-[10px] text-zinc-300 flex items-start gap-1.5">
-                      <CheckCircle className="w-3 h-3 mt-0.5 text-emerald-400 shrink-0" /> {b}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Minimum deposits */}
-              <div className="rounded-2xl border border-zinc-800/80 bg-black/60 p-4">
-                <div className="text-[10px] font-black uppercase tracking-widest text-cyan-400 mb-2.5">Minimum Deposits</div>
-                <ul className="space-y-2">
-                  <li className="text-[10px] text-zinc-300 flex items-start gap-1.5">
-                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-cyan-400 shrink-0" />
-                    <span><strong className="text-white">$10</strong> first topup — full credit, 0% fee</span>
-                  </li>
-                  <li className="text-[10px] text-zinc-300 flex items-start gap-1.5">
-                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-cyan-400 shrink-0" />
-                    <span><strong className="text-white">$50</strong> every topup after that — 0% fee</span>
-                  </li>
-                  <li className="text-[10px] text-zinc-300 flex items-start gap-1.5">
-                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-cyan-400 shrink-0" />
-                    <span><strong className="text-white">$50</strong> ad-account topup — unlocks BM access</span>
-                  </li>
-                  <li className="text-[10px] text-zinc-300 flex items-start gap-1.5">
-                    <CircleDollarSign className="w-3 h-3 mt-0.5 text-cyan-400 shrink-0" />
-                    <span><strong className="text-white">$10</strong> application fee per ad account</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Fee tiers */}
-              <div className="rounded-2xl border border-zinc-800/80 bg-black/60 p-4">
-                <div className="text-[10px] font-black uppercase tracking-widest text-violet-400 mb-2.5">Ad-Account Topup Fees</div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-[#0c0c10] px-3 py-2">
-                    <span className="text-[10px] font-bold text-zinc-300">Below $100</span>
-                    <span className="text-[10px] font-black text-cyan-300">3%</span>
+          {/* 3-Step Guided Navigation Header */}
+          <div className="grid grid-cols-3 gap-3 mb-8">
+            {[
+              { step: 1, label: "Platform & Niche", sub: "Auto-Recommender" },
+              { step: 2, label: "Account Specs & BM ID", sub: "Setup & Direct Link" },
+              { step: 3, label: "Review & Launch", sub: "Virtual Agency Card" },
+            ].map(({ step, label, sub }) => {
+              const isActive = wizardStep === step;
+              const isPast = wizardStep > step;
+              return (
+                <button
+                  key={step}
+                  type="button"
+                  onClick={() => setWizardStep(step as 1 | 2 | 3)}
+                  className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden ${
+                    isActive
+                      ? "bg-violet-950/40 border-cyan-400 text-white shadow-lg shadow-violet-500/10 ring-1 ring-cyan-500/50"
+                      : isPast
+                      ? "bg-black/60 border-zinc-800 hover:border-zinc-700 text-zinc-300"
+                      : "bg-[#060608] border-zinc-800/80 text-zinc-500"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${
+                      isPast
+                        ? "bg-emerald-500 text-black"
+                        : isActive
+                        ? "bg-gradient-to-r from-violet-600 to-cyan-500 text-white"
+                        : "bg-zinc-800 text-zinc-400"
+                    }`}>
+                      {isPast ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : step}
+                    </span>
+                    <span className="text-[9px] font-mono uppercase tracking-wider text-zinc-400">Step 0{step}</span>
                   </div>
-                  <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-[#0c0c10] px-3 py-2">
-                    <span className="text-[10px] font-bold text-zinc-300">$100 – $1,000</span>
-                    <span className="text-[10px] font-black text-cyan-300">2%</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-[#0c0c10] px-3 py-2">
-                    <span className="text-[10px] font-bold text-zinc-300">Above $1,000</span>
-                    <span className="text-[10px] font-black text-emerald-400">1.5%</span>
-                  </div>
-                </div>
-                <div className="mt-2.5 text-[9px] text-zinc-400 font-semibold flex items-start gap-1">
-                  <BadgeCheck className="w-3 h-3 mt-0.5 text-violet-400 shrink-0" />
-                  Wallet deposits are always commission-free — credited in full.
-                </div>
-              </div>
-            </div>
+                  <div className="text-xs font-black uppercase tracking-wider text-white">{label}</div>
+                  <div className="text-[10px] text-cyan-300 font-medium">{sub}</div>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Simple apply form */}
-          <div className="rounded-3xl border border-zinc-800 bg-[#060608] shadow-2xl p-8 mb-6 relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
-
-            <div className="space-y-6">
-              {/* Form title */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Sparkles className="w-5 h-5 text-cyan-400" />
-                  <h3 className="text-base font-black uppercase text-white tracking-wider">
-                    Ad Account <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Details</span>
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowBmGuide(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-500/10 border border-violet-500/30 text-violet-300 text-[10px] font-black uppercase tracking-wider hover:bg-violet-500/20 transition-all cursor-pointer"
-                >
-                  <HelpCircle className="w-3.5 h-3.5 text-cyan-400" /> Meta BM Guide
-                </button>
-              </div>
-
-              {/* Interactive Step Guide Bar */}
-              <div className="p-4 rounded-2xl bg-black border border-zinc-800 space-y-2.5">
+          {/* STEP 1: Platform & Niche Auto-Recommender */}
+          {wizardStep === 1 && (
+            <SpotlightCard tone="violet-cyan" className="p-6 md:p-8 rounded-3xl backdrop-blur-xl shadow-2xl space-y-8">
+              {/* Platform Selector */}
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black uppercase bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent flex items-center gap-1.5">
-                    <Info className="w-4 h-4 text-cyan-400" /> Application Checklist & Setup Guide
-                  </span>
-                  <span className="text-[10px] font-bold text-zinc-400">Fast 2-Min Process</span>
+                  <label className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-cyan-400" /> 1. Select Advertising Network *
+                  </label>
+                  <span className="text-[10px] text-zinc-400 font-medium">Whitelisted Agency Direct Lines</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-[11px]">
-                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${applyPlatform ? "bg-violet-500/10 border-violet-500/30 text-violet-200 font-bold" : "bg-[#060608] border-zinc-800 text-zinc-600"}`}>
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${applyPlatform ? "text-cyan-400" : "text-zinc-600"}`} />
-                    <span>1. Pick Platform</span>
-                  </div>
-                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${(applyPlatform === "meta" && applyBmId) || (applyPlatform === "google" && applyGmail) || applyPlatform === "tiktok" ? "bg-violet-500/10 border-violet-500/30 text-violet-200 font-bold" : "bg-[#060608] border-zinc-800 text-zinc-600"}`}>
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${(applyPlatform === "meta" && applyBmId) || (applyPlatform === "google" && applyGmail) || applyPlatform === "tiktok" ? "text-cyan-400" : "text-zinc-600"}`} />
-                    <span>2. Enter {applyPlatform === "meta" ? "BM ID" : applyPlatform === "google" ? "Gmail" : "Handle"}</span>
-                  </div>
-                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${applyHatType ? "bg-violet-500/10 border-violet-500/30 text-violet-200 font-bold" : "bg-[#060608] border-zinc-800 text-zinc-600"}`}>
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${applyHatType ? "text-cyan-400" : "text-zinc-600"}`} />
-                    <span>3. Choose Hat Tier</span>
-                  </div>
-                  <div className={`p-2 rounded-xl border flex items-center gap-2 ${walletBalance >= applyAppCount * 10 ? "bg-violet-500/10 border-violet-500/30 text-violet-200 font-bold" : "bg-[#060608] border-zinc-800 text-zinc-600"}`}>
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${walletBalance >= applyAppCount * 10 ? "text-cyan-400" : "text-zinc-600"}`} />
-                    <span>4. Submit ($10/app)</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Select Platform *</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
-                    { id: "meta", name: "Meta Ads", color: "text-cyan-300 border-cyan-500/40 bg-cyan-500/10" },
-                    { id: "google", name: "Google Ads", color: "text-amber-300 border-amber-500/40 bg-amber-500/10" },
-                    { id: "tiktok", name: "TikTok Ads", color: "text-pink-300 border-pink-500/40 bg-pink-500/10" },
-                  ].map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setApplyPlatform(p.id)}
-                      className={`p-3 rounded-xl border text-center transition-all text-[10px] font-black cursor-pointer ${
-                        applyPlatform === p.id ? `${p.color} border-current shadow-md` : "border-zinc-800 bg-black hover:border-zinc-700 text-zinc-400"
-                      }`}
-                    >
-                      {p.name}
-                    </button>
-                  ))}
+                    { id: "meta", name: "Meta Ads", icon: SiMeta, sub: "Facebook & Instagram Agency Pool", color: "text-[#1877F2]" },
+                    { id: "google", name: "Google Ads", icon: SiGoogleads, sub: "Search, YouTube & PMax MCC", color: "text-amber-400" },
+                    { id: "tiktok", name: "TikTok Ads", icon: SiTiktok, sub: "TikTok Global Agency Pool", color: "text-white" },
+                  ].map((p) => {
+                    const isSelected = applyPlatform === p.id;
+                    const Icon = p.icon;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setApplyPlatform(p.id)}
+                        className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden ${
+                          isSelected
+                            ? "border-cyan-400 bg-gradient-to-b from-violet-950/60 to-black text-white ring-1 ring-cyan-500/50 shadow-xl"
+                            : "border-zinc-800 bg-black/60 hover:border-zinc-700 text-zinc-300"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <Icon className={`w-6 h-6 ${p.color}`} />
+                          {isSelected && <BadgeCheck className="w-5 h-5 text-cyan-400" />}
+                        </div>
+                        <div className="text-sm font-black uppercase text-white tracking-wide">{p.name}</div>
+                        <div className="text-[10px] text-zinc-400 mt-0.5">{p.sub}</div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {applyPlatform === "meta" && (
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Meta Business Manager ID (BM ID) *</label>
-                    <button
-                      type="button"
-                      onClick={() => setShowBmGuide(true)}
-                      className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-cyan-400 hover:underline cursor-pointer"
-                    >
-                      <HelpCircle className="w-3 h-3" /> Where to find BM ID? (Guide)
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    value={applyBmId}
-                    onChange={(e) => setApplyBmId(e.target.value)}
-                    placeholder="e.g. 4920491029302"
-                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors placeholder:text-zinc-600"
-                  />
-                  <span className="text-[9px] text-zinc-500">The BM ID your ad account will be granted under.</span>
+              {/* Niche Auto-Recommender */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-cyan-400" /> 2. What is Your Business Niche? (Auto-Recommender)
+                  </label>
+                  <span className="text-[10px] text-cyan-300 font-bold">Auto-picks optimal hat tier</span>
                 </div>
-              )}
-
-              {applyPlatform === "google" && (
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Gmail for the Ad Account *</label>
-                  <input
-                    type="email"
-                    value={applyGmail}
-                    onChange={(e) => setApplyGmail(e.target.value)}
-                    placeholder="yourgmail@gmail.com"
-                    className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors placeholder:text-zinc-600"
-                  />
-                  <span className="text-[9px] text-zinc-500">Your Google Ads account will be created on this Gmail.</span>
-                </div>
-              )}
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Account Name (Optional)</label>
-                <input
-                  type="text"
-                  value={applyAccountName}
-                  onChange={(e) => setApplyAccountName(e.target.value)}
-                  placeholder="e.g. Scale Account 1"
-                  className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors placeholder:text-zinc-600"
-                />
-                <span className="text-[9px] text-zinc-500">Give your ad account your own name — it will appear in your dashboard.</span>
-              </div>
-
-              {/* Account country + currency */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Account Country *</label>
-                  <SearchableSelect
-                    value={applyCountry}
-                    onChange={setApplyCountry}
-                    options={ACCOUNT_COUNTRIES.map((c) => ({ value: c, label: c }))}
-                    placeholder="Search country..."
-                    buttonClassName="text-xs bg-black border-zinc-800"
-                  />
-                  <span className="text-[9px] text-zinc-500">The country your ad account will be registered in.</span>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Account Currency *</label>
-                  <SearchableSelect
-                    value={applyCurrency}
-                    onChange={setApplyCurrency}
-                    options={ACCOUNT_CURRENCIES.map((c) => ({ value: c.split(" — ")[0], label: c }))}
-                    placeholder="Search currency..."
-                    buttonClassName="text-xs bg-black border-zinc-800"
-                  />
-                  <span className="text-[9px] text-zinc-500">Billing currency for your ad account.</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                  {BUSINESS_NICHES.map((niche) => {
+                    const isSelected = selectedNiche === niche.id;
+                    return (
+                      <button
+                        key={niche.id}
+                        type="button"
+                        onClick={() => handleSelectNiche(niche.id)}
+                        className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-violet-500 bg-violet-950/50 text-white ring-1 ring-violet-500/50 shadow-lg"
+                            : "border-zinc-800 bg-black/60 hover:border-zinc-700 text-zinc-300"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-base">{niche.emoji}</span>
+                          <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                            niche.recommendedHat === "BLACK"
+                              ? "bg-purple-500/10 border-purple-500/40 text-purple-300"
+                              : niche.recommendedHat === "GREY"
+                              ? "bg-amber-500/10 border-amber-500/40 text-amber-300"
+                              : "bg-emerald-500/10 border-emerald-500/40 text-emerald-300"
+                          }`}>
+                            {niche.recommendedHat} Hat
+                          </span>
+                        </div>
+                        <div className="text-xs font-bold text-white">{niche.name}</div>
+                        <div className="text-[10px] text-zinc-400 leading-tight mt-0.5">{niche.desc}</div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Hat type */}
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Choose Hat Type *</label>
-                <div className="grid grid-cols-1 gap-2.5">
+              {/* Hat Type Selector */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-cyan-400" /> 3. Confirmed Hat Tier
+                  </label>
+                  <span className="text-[10px] text-zinc-400">All tiers include 100% free replacements</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {(Object.keys(HAT_FEATURES) as Array<"BLACK" | "GREY" | "WHITE">).map((key) => {
                     const hat = HAT_FEATURES[key];
                     const isSelected = applyHatType === key;
@@ -759,91 +761,337 @@ export default function ClientApplication() {
                         key={key}
                         type="button"
                         onClick={() => setApplyHatType(key)}
-                        className={`text-left rounded-2xl border p-4 transition-all cursor-pointer ${
-                          isSelected ? `${hat.styles} ring-1 ring-violet-500 shadow-xl` : "border-zinc-800 bg-black/60 hover:border-zinc-700 text-zinc-300"
+                        className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative ${
+                          isSelected
+                            ? `${hat.styles} ring-2 ring-cyan-400 shadow-xl`
+                            : "border-zinc-800 bg-black/60 hover:border-zinc-700 text-zinc-400"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className={`text-xs font-black uppercase tracking-wider ${isSelected ? "" : "text-white"}`}>
+                          <span className={`text-xs font-black uppercase tracking-wider ${isSelected ? "text-white" : "text-zinc-300"}`}>
                             {hat.emoji} {hat.title}
                           </span>
-                          <span
-                            className={`text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full border ${hat.badgeStyles}`}
-                          >
-                            {hat.badge}
-                          </span>
+                          {isSelected && <BadgeCheck className="w-4 h-4 text-cyan-400" />}
                         </div>
-                        <span className={`block text-[10px] font-semibold mb-1.5 ${isSelected ? "opacity-95" : "text-zinc-400"}`}>{hat.desc}</span>
-                        <ul className={`space-y-1 ${isSelected ? "opacity-95" : "text-zinc-400"}`}>
-                          {hat.features.map((f) => (
-                            <li key={f} className="text-[10px] flex items-start gap-1.5">
-                              <span className="shrink-0 text-cyan-400">•</span> {f}
-                            </li>
-                          ))}
-                        </ul>
+                        <p className="text-[10px] text-zinc-400 leading-snug mb-2">{hat.desc}</p>
+                        <span className={`inline-block text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${hat.badgeStyles}`}>
+                          {hat.badge}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-violet-500/30 bg-violet-500/10 p-4 text-xs text-violet-200 flex items-start gap-2.5">
-                <Wallet className="w-4 h-4 shrink-0 mt-0.5 text-cyan-400" />
-                <p>
-                  <strong>Application fee: $10 per ad account</strong> — includes{" "}
-                  <strong>UNLIMITED FREE REPLACEMENTS</strong> on every account, forever. Deducted from your
-                  main-wallet balance when you submit. Current balance:{" "}
-                  <strong className="text-white">${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>{" "}
-                  — deposits are commission-free, credited in full.
-                </p>
+              <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={handleSaveDraft}
+                  className="px-5 py-3 rounded-xl border border-zinc-800 hover:bg-zinc-900 text-xs font-black uppercase tracking-wider text-zinc-300 cursor-pointer"
+                >
+                  Save Draft
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWizardStep(2)}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 hover:scale-105 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-violet-600/30 cursor-pointer"
+                >
+                  Continue to Step 2: Specs <ArrowRight className="w-4 h-4 text-cyan-300" />
+                </button>
               </div>
+            </SpotlightCard>
+          )}
 
-              {user && walletBalance < applyAppCount * 10 && (
-                <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs flex items-start gap-2.5 text-rose-300">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
-                  <p>
-                    Your wallet balance is too low to unlock this account. Top up first —{" "}
-                    <strong className="text-white">zero commission, full credit</strong> — then submit instantly.
+          {/* STEP 2: Account Specs & BM ID Helper */}
+          {wizardStep === 2 && (
+            <SpotlightCard tone="cyber" className="p-6 md:p-8 rounded-3xl backdrop-blur-xl shadow-2xl space-y-8">
+              {/* Meta Business Manager ID Helper & Input */}
+              {applyPlatform === "meta" && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                      <SiMeta className="w-4 h-4 text-[#1877F2]" /> Meta Business Manager ID (BM ID) *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowBmGuide(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-violet-500/10 border border-violet-500/30 text-cyan-300 text-[10px] font-black uppercase tracking-wider hover:bg-violet-500/20 transition-all cursor-pointer"
+                    >
+                      <HelpCircle className="w-3.5 h-3.5 text-cyan-400" /> Where to Find BM ID? (Visual Guide)
+                    </button>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={applyBmId}
+                      onChange={(e) => setApplyBmId(e.target.value)}
+                      placeholder="e.g. 4920491029302 (15–16 digits)"
+                      className={`w-full bg-black border rounded-2xl px-4 py-3.5 text-white text-xs outline-none transition-colors placeholder:text-zinc-600 ${
+                        isBmIdValid ? "border-emerald-500/60 focus:border-emerald-400" : "border-zinc-800 focus:border-cyan-500/50"
+                      }`}
+                    />
+                    {isBmIdValid && (
+                      <div className="absolute right-3.5 top-3.5 text-emerald-400 flex items-center gap-1 text-[10px] font-black">
+                        <CheckCircle2 className="w-4 h-4" /> Valid BM ID Format
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Inline 2-Step Quick Helper */}
+                  <div className="p-4 rounded-2xl bg-black/80 border border-zinc-800 text-xs space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-zinc-300 flex items-center gap-1.5">
+                        <Info className="w-3.5 h-3.5 text-cyan-400" /> Quick 2-Step BM ID Retrieval:
+                      </span>
+                      <a
+                        href="https://business.facebook.com/settings/info"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-cyan-400 hover:underline"
+                      >
+                        Open Facebook BM Info ↗
+                      </a>
+                    </div>
+                    <ol className="list-decimal list-inside space-y-1 text-zinc-400 text-[11px] leading-relaxed">
+                      <li>Go to <strong className="text-zinc-200">business.facebook.com/settings/info</strong> (Business Info).</li>
+                      <li>Under <strong className="text-zinc-200">Business Account Info</strong>, copy your 15–16 digit <strong className="text-cyan-300">Business Account ID</strong>.</li>
+                    </ol>
+                  </div>
+                </div>
+              )}
+
+              {/* Google Ads Email */}
+              {applyPlatform === "google" && (
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                    <SiGoogleads className="w-4 h-4 text-yellow-400" /> Gmail for Google Ads Line *
+                  </label>
+                  <input
+                    type="email"
+                    value={applyGmail}
+                    onChange={(e) => setApplyGmail(e.target.value)}
+                    placeholder="yourgmail@gmail.com"
+                    className="w-full bg-black border border-zinc-800 rounded-2xl px-4 py-3.5 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors placeholder:text-zinc-600"
+                  />
+                  <p className="text-[10px] text-zinc-400">
+                    Your Google Premier MCC invitation will be sent to this Gmail address for 1-click admin access.
                   </p>
                 </div>
               )}
 
-              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs flex items-start gap-2.5 text-amber-200">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
-                <p>
-                  Please check and confirm all submitted details. Once you click Submit, your application will freeze edits until reviewed.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex justify-between items-center">
-            <button
-              onClick={handleSaveDraft}
-              disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-zinc-800 hover:bg-zinc-900 text-xs font-black uppercase tracking-wider text-zinc-300 transition-colors cursor-pointer disabled:opacity-50"
-            >
-              Save Draft
-            </button>
-
-            <button
-              onClick={handleSubmitApplication}
-              disabled={isSubmitting || (user ? walletBalance < applyAppCount * 10 : false)}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-wider hover:opacity-95 hover:scale-105 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-lg shadow-violet-600/30 cursor-pointer"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  Submit & Unlock Account <CheckCircle className="w-4 h-4 text-cyan-300" />
-                </>
+              {/* TikTok Email/Handle */}
+              {applyPlatform === "tiktok" && (
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                    <SiTiktok className="w-4 h-4 text-white" /> TikTok Business Center Email / Handle *
+                  </label>
+                  <input
+                    type="text"
+                    value={applyGmail}
+                    onChange={(e) => setApplyGmail(e.target.value)}
+                    placeholder="tiktok-bc-email@domain.com"
+                    className="w-full bg-black border border-zinc-800 rounded-2xl px-4 py-3.5 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors placeholder:text-zinc-600"
+                  />
+                  <p className="text-[10px] text-zinc-400">
+                    Your TikTok agency partner share will be routed to your TikTok Business Center.
+                  </p>
+                </div>
               )}
-            </button>
-          </div>
+
+              {/* Account Display Name & Website */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-white uppercase tracking-wider">Account Label / Brand Name (Optional)</label>
+                  <input
+                    type="text"
+                    value={applyAccountName}
+                    onChange={(e) => setApplyAccountName(e.target.value)}
+                    placeholder="e.g. Apex Scaling #01"
+                    className="w-full bg-black border border-zinc-800 rounded-2xl px-4 py-3 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors placeholder:text-zinc-600"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-white uppercase tracking-wider">Landing Page / Store URL (Optional)</label>
+                  <input
+                    type="url"
+                    value={applyWebsiteUrl}
+                    onChange={(e) => setApplyWebsiteUrl(e.target.value)}
+                    placeholder="https://yourstore.com"
+                    className="w-full bg-black border border-zinc-800 rounded-2xl px-4 py-3 text-white text-xs outline-none focus:border-cyan-500/50 transition-colors placeholder:text-zinc-600"
+                  />
+                </div>
+              </div>
+
+              {/* Country & Currency Dropdowns */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-white uppercase tracking-wider">Account Country Jurisdiction *</label>
+                  <SearchableSelect
+                    value={applyCountry}
+                    onChange={setApplyCountry}
+                    options={ACCOUNT_COUNTRIES.map((c) => ({ value: c, label: c }))}
+                    placeholder="Search country..."
+                    buttonClassName="text-xs bg-black border-zinc-800 py-3 rounded-2xl"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-white uppercase tracking-wider">Billing Currency *</label>
+                  <SearchableSelect
+                    value={applyCurrency}
+                    onChange={setApplyCurrency}
+                    options={ACCOUNT_CURRENCIES.map((c) => ({ value: c.split(" — ")[0], label: c }))}
+                    placeholder="Search currency..."
+                    buttonClassName="text-xs bg-black border-zinc-800 py-3 rounded-2xl"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setWizardStep(1)}
+                  className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl border border-zinc-800 hover:bg-zinc-900 text-xs font-black uppercase tracking-wider text-zinc-300 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Back to Step 1
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const invalid = validateApplyForm();
+                    if (invalid) {
+                      toast({ variant: "destructive", title: "Missing Required Details", description: invalid });
+                      return;
+                    }
+                    setWizardStep(3);
+                  }}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 hover:scale-105 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-violet-600/30 cursor-pointer"
+                >
+                  Review & Preview Line <ArrowRight className="w-4 h-4 text-cyan-300" />
+                </button>
+              </div>
+            </SpotlightCard>
+          )}
+
+          {/* STEP 3: Review & 1-Click Launch (Live Virtual Agency Card) */}
+          {wizardStep === 3 && (
+            <SpotlightCard tone="emerald" className="p-6 md:p-8 rounded-3xl backdrop-blur-xl shadow-2xl space-y-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-white">
+                    Step 3: Review & <span className="bg-gradient-to-r from-violet-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">Instant Launch</span>
+                  </h3>
+                  <p className="text-xs text-zinc-400 mt-0.5">Confirm your parameters before sending to the provisioning queue.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setWizardStep(2)}
+                  className="text-xs font-bold text-cyan-400 hover:underline cursor-pointer"
+                >
+                  Edit Specs
+                </button>
+              </div>
+
+              {/* LIVE VIRTUAL AGENCY AD ACCOUNT CARD PREVIEW */}
+              <div className="relative rounded-3xl border border-violet-500/40 bg-gradient-to-br from-[#0c0a1a] via-black to-[#06120e] p-6 shadow-2xl overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400" />
+
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-zinc-800/80">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-cyan-400 shrink-0 shadow-lg">
+                      {applyPlatform === "meta" ? <SiMeta className="w-7 h-7 text-[#1877F2]" /> : applyPlatform === "google" ? <SiGoogleads className="w-7 h-7 text-yellow-400" /> : <SiTiktok className="w-7 h-7 text-white" />}
+                    </div>
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-[9px] font-black uppercase tracking-widest mb-1">
+                        <Sparkles className="w-3 h-3 text-cyan-400" /> Ready to Provision
+                      </div>
+                      <h4 className="text-xl font-black uppercase tracking-tight text-white">
+                        {applyAccountName || `${platName} Line #01`}
+                      </h4>
+                      <p className="text-xs text-zinc-400 font-mono">
+                        {applyPlatform === "meta" ? `BM ID: ${applyBmId || "Not set"}` : `Gmail: ${applyGmail || "Not set"}`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 shrink-0">
+                    <span className="px-3 py-1.5 rounded-xl bg-purple-950/60 border border-purple-500/30 text-purple-300 text-xs font-black uppercase tracking-wider">
+                      {applyHatType} Hat Tier
+                    </span>
+                    <span className="px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-black uppercase tracking-wider">
+                      0% Billing Tax
+                    </span>
+                  </div>
+                </div>
+
+                {/* Account Specs Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
+                  <div>
+                    <div className="text-[10px] font-mono uppercase text-zinc-400">Daily Spend Limit</div>
+                    <div className="text-sm font-black text-white font-mono mt-0.5">Uncapped ($50k+/day)</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono uppercase text-zinc-400">Currency & Country</div>
+                    <div className="text-sm font-black text-cyan-300 font-mono mt-0.5">{applyCurrency} · {applyCountry}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono uppercase text-zinc-400">Replacement Guarantee</div>
+                    <div className="text-sm font-black text-emerald-400 font-mono mt-0.5">100% Free · 15-Min SLA</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono uppercase text-zinc-400">Provisioning Speed</div>
+                    <div className="text-sm font-black text-amber-400 font-mono mt-0.5">~15–30 Minutes</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Fee and Wallet Check Card */}
+              <div className="p-5 rounded-2xl bg-black border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="text-xs font-bold text-zinc-300">
+                    Application Fee: <strong className="text-white">${applyAppCount * 10}.00 USDT</strong> ({applyAppCount} Account{applyAppCount > 1 ? "s" : ""})
+                  </div>
+                  <div className="text-[11px] text-zinc-400">
+                    Wallet Balance: <strong className="text-cyan-300">${walletBalance.toFixed(2)} USDT</strong> (Deducted on submit)
+                  </div>
+                </div>
+                {walletBalance < applyAppCount * 10 && (
+                  <div className="text-xs text-rose-400 font-bold bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-xl">
+                    Insufficient balance ($10 min per line). Top up wallet first.
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setWizardStep(2)}
+                  className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl border border-zinc-800 hover:bg-zinc-900 text-xs font-black uppercase tracking-wider text-zinc-300 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Edit Details
+                </button>
+
+                <button
+                  onClick={handleSubmitApplication}
+                  disabled={isSubmitting || (user ? walletBalance < applyAppCount * 10 : false)}
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-widest hover:opacity-95 hover:scale-105 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-xl shadow-violet-600/30 cursor-pointer"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      Submitting to Queue...
+                    </>
+                  ) : (
+                    <>
+                      Submit & Launch {applyAppCount} Line{applyAppCount > 1 ? "s" : ""} <CheckCircle className="w-4 h-4 text-cyan-300" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </SpotlightCard>
+          )}
         </div>
 
         <BmGuideModal
@@ -882,7 +1130,7 @@ export default function ClientApplication() {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-widest hover:opacity-95 hover:scale-105 transition-all cursor-pointer shadow-lg shadow-violet-600/30"
         >
-          Priority Review Link <ExternalLink className="w-4 h-4 text-cyan-200" />
+          Priority Line Status <ExternalLink className="w-4 h-4 text-cyan-200" />
         </a>
       </div>
 
