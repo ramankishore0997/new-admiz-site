@@ -1046,22 +1046,7 @@ export default function ClientApplication() {
                 </div>
               </div>
 
-              {/* Fee and Wallet Check Card */}
-              <div className="p-5 rounded-2xl bg-black border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="text-xs font-bold text-zinc-300">
-                    Application Fee: <strong className="text-white">${applyAppCount * 10}.00 USDT</strong> ({applyAppCount} Account{applyAppCount > 1 ? "s" : ""})
-                  </div>
-                  <div className="text-[11px] text-zinc-400">
-                    Wallet Balance: <strong className="text-cyan-300">${walletBalance.toFixed(2)} USDT</strong> (Deducted on submit)
-                  </div>
-                </div>
-                {walletBalance < applyAppCount * 10 && (
-                  <div className="text-xs text-rose-400 font-bold bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-xl">
-                    Insufficient balance ($10 min per line). Top up wallet first.
-                  </div>
-                )}
-              </div>
+
 
               {/* Action Buttons */}
               <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
