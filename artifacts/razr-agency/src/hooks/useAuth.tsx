@@ -42,6 +42,7 @@ export interface User {
   adAccounts: AdAccount[];
   deposits: Deposit[];
   applicationFees: ApplicationFee[];
+  token?: string;
 }
 
 export interface SubmitDepositResult {
@@ -115,6 +116,7 @@ export const MOCK_ADMIN_USER: User = {
 };
 
 const LOCAL_STORAGE_KEY = "razr_mock_session";
+const TOKEN_KEY = "razr_auth_token";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -130,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // Check localStorage fallback first for instant localhost preview
+    // Check localStorage fallback first for instant preview
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (saved) {
@@ -145,14 +147,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // ignore
     }
 
-    fetch("/api/me", { credentials: "include" })
+    const storedToken = localStorage.getItem(TOKEN_KEY) || "";
+    const headers = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
+
+    fetch("/api/me", { credentials: "include", headers })
       .then(async (res) => {
         if (res.ok) return await safeJson(res);
         throw new Error("Unauthenticated");
       })
       .then((userData) => {
-        if (userData && userData.id) setUser(userData);
-        else setUser(null);
+        if (userData && userData.id) {
+          setUser(userData);
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userData));
+          if (userData.token) {
+            localStorage.setItem(TOKEN_KEY, userData.token);
+          }
+        } else {
+          setUser(null);
+        }
       })
       .catch(() => {
         setUser(null);
@@ -163,6 +175,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const onUnauthorized = () => {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_KEY);
       setUser(null);
     };
     window.addEventListener("razr:unauthorized", onUnauthorized);
@@ -208,13 +221,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok && data.id) {
         setUser(data);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+        if (data.token) {
+          localStorage.setItem(TOKEN_KEY, data.token);
+        }
         return { success: true };
       }
+      if (!res.ok) {
+        return { success: false, error: data.error || data.message || "Invalid credentials." };
+      }
     } catch (e: any) {
-      console.warn("Backend auth unavailable, falling back to client demo session", e);
+      console.warn("Backend auth error", e);
     }
 
-    // 3. Fallback for any credentials on localhost
+    // 3. Fallback for offline demo session
     const tempUser: User = {
       id: Date.now(),
       email: cleanEmail || "client@razr.marketing",
@@ -262,10 +281,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok && data.id) {
         setUser(data);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+        if (data.token) {
+          localStorage.setItem(TOKEN_KEY, data.token);
+        }
         return { success: true };
       }
+      if (!res.ok) {
+        return { success: false, error: data.error || data.message || "Registration failed." };
+      }
     } catch (e: any) {
-      console.warn("Backend registration unavailable, creating local temp session", e);
+      console.warn("Backend registration error", e);
     }
 
     const newLocalUser: User = {
@@ -292,18 +317,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // ignore
     } finally {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_KEY);
       setUser(null);
     }
   };
 
   const refreshUser = async () => {
     try {
-      const res = await fetch("/api/me", { credentials: "include" });
+      const storedToken = localStorage.getItem(TOKEN_KEY) || "";
+      const headers = storedToken ? { Authorization: `Bearer ${storedToken}` } : {};
+      const res = await fetch("/api/me", { credentials: "include", headers });
       if (res.ok) {
         const data = await safeJson(res);
         if (data && data.id) {
           setUser(data);
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+          if (data.token) {
+            localStorage.setItem(TOKEN_KEY, data.token);
+          }
         }
       }
     } catch {
@@ -319,14 +350,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     note?: string;
   }): Promise<SubmitDepositResult> => {
     try {
-      const data = await apiFetch<{ orderId: string; status: string }>("/api/payments/submit-proof", {
+      const res = await apiFetch<any>("/api/payments/deposit-proof", {
         method: "POST",
         body: JSON.stringify(payload),
       });
-      return { success: true, orderId: data.orderId };
-    } catch {
-      const fakeOrderId = "RAZR-" + Math.floor(100000 + Math.random() * 900000);
-      return { success: true, orderId: fakeOrderId };
+      await refreshUser();
+      return { success: true, orderId: res.orderId };
+    } catch (e: any) {
+      return { success: false, error: e.message || "Failed to submit deposit proof." };
     }
   };
 
@@ -340,28 +371,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const app = await apiFetch<{ id: number }>("/api/applications", { method: "POST" });
-      const appId = app?.id;
-      if (appId) {
-        await apiFetch(`/api/applications/${appId}`, {
-          method: "PATCH",
-          body: JSON.stringify({
-            personalInfo: { fullName: user?.username || "", email: user?.email || "" },
-            advertisingInfo: { platform },
-            accountRequirements: {
-              hatType: requirements?.hatType,
-              businessManagerId: requirements?.businessManagerId,
-              gmail: requirements?.gmail,
-              accountName: requirements?.accountName?.trim() || undefined,
-            },
-          }),
-        });
-        await apiFetch(`/api/applications/${appId}/submit`, { method: "POST" });
-      }
-    } catch {
-      // local demo bypass
+      await apiFetch("/api/applications", {
+        method: "POST",
+        body: JSON.stringify({
+          advertisingInfo: { platform },
+          accountRequirements: requirements,
+        }),
+      });
+      await refreshUser();
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || "Failed to submit application." };
     }
-    return { success: true };
+  };
+
+  const setSessionUser = (newUser: User | null) => {
+    setUser(newUser);
+    if (newUser) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newUser));
+      if (newUser.token) {
+        localStorage.setItem(TOKEN_KEY, newUser.token);
+      }
+    } else {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+    }
   };
 
   return (
@@ -373,7 +407,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signup,
         logout,
         refreshUser,
-        setSessionUser: setUser,
+        setSessionUser,
         submitDepositProof,
         applyAdAccount,
       }}
@@ -385,7 +419,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;

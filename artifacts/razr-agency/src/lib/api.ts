@@ -8,6 +8,20 @@ export class ApiError extends Error {
   }
 }
 
+export function getStoredAuthToken(): string {
+  try {
+    const raw = localStorage.getItem("razr_auth_token") || localStorage.getItem("razr_mock_session");
+    if (!raw) return "";
+    if (raw.startsWith("{")) {
+      const parsed = JSON.parse(raw);
+      return parsed?.token || "";
+    }
+    return raw;
+  } catch {
+    return "";
+  }
+}
+
 function getLocalMockResponse(path: string): any | null {
   const cleanPath = path.split("?")[0].replace(/\/$/, "");
 
@@ -47,9 +61,10 @@ function getLocalMockResponse(path: string): any | null {
 }
 
 /**
- * Shared API client. Connects directly to backend / database endpoints.
+ * Shared API client. Connects directly to backend / database endpoints with token + cookie fallback.
  */
 export async function apiFetch<T = unknown>(input: string, init?: RequestInit): Promise<T> {
+  const token = getStoredAuthToken();
   let res: Response | null = null;
   try {
     res = await fetch(input, {
@@ -59,6 +74,7 @@ export async function apiFetch<T = unknown>(input: string, init?: RequestInit): 
         ...(init?.body !== undefined && !(init?.headers instanceof Headers && init.headers.has("Content-Type"))
           ? { "Content-Type": "application/json" }
           : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(init?.headers || {}),
       },
     });

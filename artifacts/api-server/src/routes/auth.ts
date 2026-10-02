@@ -92,9 +92,9 @@ const handleRegister = async (req: any, res: Response, next: any) => {
     // Telegram admin notification (fail-soft)
     void telegramNotify.notifyNewUser(newUser);
     
-    // Return profile
+    // Return profile with token
     const { password: _, ...profile } = newUser;
-    return res.status(201).json(profile);
+    return res.status(201).json({ ...profile, token });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || "Registration failed" });
   }
@@ -283,7 +283,8 @@ const handleLogin = async (req: any, res: Response, next: any) => {
 
     res.cookie("token", token, COOKIE_OPTIONS);
 
-    return res.json(await buildProfile(user));
+    const profile = await buildProfile(user);
+    return res.json({ ...profile, token });
   } catch (err) {
     return next(err);
   }
@@ -343,7 +344,8 @@ router.post("/auth/oauth-sync", authLimiter, async (req: any, res: Response, nex
     const token = signToken({ id: user.id, role: user.role });
     res.cookie("token", token, COOKIE_OPTIONS);
 
-    return res.json(await buildProfile(user));
+    const profile = await buildProfile(user);
+    return res.json({ ...profile, token });
   } catch (err) {
     return next(err);
   }
