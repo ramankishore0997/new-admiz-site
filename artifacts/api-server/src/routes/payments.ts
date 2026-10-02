@@ -147,10 +147,10 @@ router.post("/payments/submit-proof", authenticate, async (req: AuthenticatedReq
 });
 
 /**
- * GET /api/payments/my-payments
- * List active user's payment verifications
+ * GET /api/payments/my-payments or /api/payments/me
+ * List active user's payment verifications from database
  */
-router.get("/payments/my-payments", authenticate, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+router.get(["/payments/my-payments", "/payments/me"], authenticate, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.userId;
     if (!userId) return res.status(401).json({ error: "Unauthenticated" });

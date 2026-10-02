@@ -102,10 +102,10 @@ router.post("/withdrawals/request", authenticate, async (req: AuthenticatedReque
 });
 
 /**
- * GET /api/withdrawals/my
+ * GET /api/withdrawals/my or /api/withdrawals/me
  * List the authenticated client's withdrawal requests
  */
-router.get("/withdrawals/my", authenticate, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+router.get(["/withdrawals/my", "/withdrawals/me"], authenticate, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.userId;
     if (!userId) return res.status(401).json({ error: "Unauthenticated" });

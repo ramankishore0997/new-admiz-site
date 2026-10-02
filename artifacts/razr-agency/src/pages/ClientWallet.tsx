@@ -78,10 +78,15 @@ export default function ClientWallet() {
     setIsLoadingPayments(true);
     setPaymentsError("");
     try {
-      const data = await apiFetch<any[]>("/api/payments/me");
+      const data = await apiFetch<any[]>("/api/payments/my-payments");
       setMyPayments(data || []);
     } catch (e: any) {
-      setPaymentsError(e.message || "Failed to load payment history.");
+      try {
+        const fallback = await apiFetch<any[]>("/api/payments/me");
+        setMyPayments(fallback || []);
+      } catch (err: any) {
+        setPaymentsError(err.message || "Failed to load payment history.");
+      }
     } finally {
       setIsLoadingPayments(false);
     }
@@ -94,7 +99,12 @@ export default function ClientWallet() {
       const data = await apiFetch<any[]>("/api/withdrawals/my");
       setMyWithdrawals(data || []);
     } catch (e: any) {
-      setWithdrawalsError(e.message || "Failed to load withdrawal history.");
+      try {
+        const fallback = await apiFetch<any[]>("/api/withdrawals/me");
+        setMyWithdrawals(fallback || []);
+      } catch (err: any) {
+        setWithdrawalsError(err.message || "Failed to load withdrawal history.");
+      }
     } finally {
       setIsLoadingWithdrawals(false);
     }
@@ -275,15 +285,24 @@ export default function ClientWallet() {
   };
 
   const totalDeposited = myPayments
-    .filter((p) => p.status === "PAID")
+    .filter((p) => {
+      const st = String(p.status || "").toUpperCase();
+      return st === "PAID" || st === "COMPLETED" || st === "APPROVED" || st === "SUCCESS";
+    })
     .reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
   const totalWithdrawn = myWithdrawals
-    .filter((w) => w.status === "APPROVED")
+    .filter((w) => {
+      const st = String(w.status || "").toUpperCase();
+      return st === "APPROVED" || st === "PAID" || st === "COMPLETED" || st === "SUCCESS";
+    })
     .reduce((sum, w) => sum + Number(w.amount || 0), 0);
 
   const pendingWithdrawals = myWithdrawals
-    .filter((w) => w.status === "PENDING")
+    .filter((w) => {
+      const st = String(w.status || "").toUpperCase();
+      return st === "PENDING" || st === "PENDING_APPROVAL" || st === "PROCESSING";
+    })
     .reduce((sum, w) => sum + Number(w.amount || 0), 0);
 
   return (
