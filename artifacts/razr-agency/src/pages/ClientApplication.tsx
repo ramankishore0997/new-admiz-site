@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "wouter";
 import ClientLayout from "@/components/layout/ClientLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -1044,32 +1045,124 @@ export default function ClientApplication() {
 
 
 
+              {/* Fee & Wallet Balance Status */}
+              {(() => {
+                const requiredFee = applyAppCount * 10;
+                const isInsufficient = Boolean(user && walletBalance < requiredFee);
+
+                return (
+                  <div className="space-y-4">
+                    {/* Fee Summary Bar */}
+                    <div className="rounded-2xl border border-zinc-800 bg-[#060608] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                          <CircleDollarSign className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-white flex items-center gap-2">
+                            <span>Application Fee:</span>
+                            <span className="text-cyan-300 font-mono font-black">${requiredFee}.00</span>
+                            <span className="text-[10px] text-zinc-500">($10 × {applyAppCount} Account Line{applyAppCount > 1 ? "s" : ""})</span>
+                          </div>
+                          <div className="text-[11px] text-zinc-400 mt-0.5">
+                            Available Wallet Balance:{" "}
+                            <span className={`font-mono font-bold ${isInsufficient ? "text-rose-400" : "text-emerald-400"}`}>
+                              ${walletBalance.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {isInsufficient ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] font-black uppercase tracking-wider">
+                            <AlertCircle className="w-3.5 h-3.5" /> Deposit Required
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Balance Ready
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Insufficient Funds Warning & Deposit Callout */}
+                    {isInsufficient && (
+                      <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-950/20 to-black p-4 md:p-5 shadow-lg shadow-amber-950/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-3.5">
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">
+                            <Wallet className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                ⚠️ Minimum $10 Deposit Required
+                              </span>
+                            </div>
+                            <h5 className="text-sm font-black text-white">
+                              Ad account apply karne ke liye please wallet me minimum <span className="text-amber-300 font-mono font-bold">$10.00</span> deposit kar lijiye.
+                            </h5>
+                            <p className="text-xs text-zinc-300 mt-1 leading-relaxed">
+                              Application submission fee per account line <strong>$10.00</strong> hai. Jaise hi aap wallet me minimum $10 deposit karenge, submit button instantly unlock ho jayega.
+                            </p>
+                          </div>
+                        </div>
+
+                        <Link
+                          href="/app/wallet"
+                          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-amber-500/20 whitespace-nowrap shrink-0 cursor-pointer hover:scale-105"
+                        >
+                          <Wallet className="w-4 h-4 text-black" /> Deposit $10+ (USDT) <ArrowRight className="w-4 h-4 text-black" />
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setWizardStep(2)}
-                  className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl border border-zinc-800 hover:bg-zinc-900 text-xs font-black uppercase tracking-wider text-zinc-300 cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1.5 px-5 py-3.5 rounded-xl border border-zinc-800 hover:bg-zinc-900 text-xs font-black uppercase tracking-wider text-zinc-300 cursor-pointer order-2 sm:order-1"
                 >
                   <ArrowLeft className="w-4 h-4" /> Edit Details
                 </button>
 
-                <button
-                  onClick={handleSubmitApplication}
-                  disabled={isSubmitting || (user ? walletBalance < applyAppCount * 10 : false)}
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-widest hover:opacity-95 hover:scale-105 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-xl shadow-violet-600/30 cursor-pointer"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      Submitting to Queue...
-                    </>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 order-1 sm:order-2">
+                  {walletBalance < applyAppCount * 10 ? (
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                      <span className="text-[11px] text-amber-400 font-bold text-center sm:text-right">
+                        Minimum $10 required in wallet to submit
+                      </span>
+                      <Link
+                        href="/app/wallet"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-black text-xs font-black uppercase tracking-widest hover:opacity-95 hover:scale-105 transition-all shadow-xl shadow-amber-500/20 cursor-pointer w-full sm:w-auto text-center"
+                      >
+                        <Wallet className="w-4 h-4 text-black" />
+                        Deposit Min $10 to Submit <ArrowRight className="w-4 h-4 text-black" />
+                      </Link>
+                    </div>
                   ) : (
-                    <>
-                      Submit & Launch {applyAppCount} Line{applyAppCount > 1 ? "s" : ""} <CheckCircle className="w-4 h-4 text-cyan-300" />
-                    </>
+                    <button
+                      onClick={handleSubmitApplication}
+                      disabled={isSubmitting}
+                      className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-widest hover:opacity-95 hover:scale-105 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-xl shadow-violet-600/30 cursor-pointer w-full sm:w-auto"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin text-white" />
+                          Submitting to Queue...
+                        </>
+                      ) : (
+                        <>
+                          Submit & Launch {applyAppCount} Line{applyAppCount > 1 ? "s" : ""} <CheckCircle className="w-4 h-4 text-cyan-300" />
+                        </>
+                      )}
+                    </button>
                   )}
-                </button>
+                </div>
               </div>
             </SpotlightCard>
           )}
