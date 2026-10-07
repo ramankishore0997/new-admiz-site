@@ -1100,10 +1100,10 @@ export default function ClientApplication() {
                               </span>
                             </div>
                             <h5 className="text-sm font-black text-white">
-                              Ad account apply karne ke liye please wallet me minimum <span className="text-amber-300 font-mono font-bold">$10.00</span> deposit kar lijiye.
+                              Please deposit a minimum of <span className="text-amber-300 font-mono font-bold">$10.00</span> into your wallet to submit your ad account application.
                             </h5>
                             <p className="text-xs text-zinc-300 mt-1 leading-relaxed">
-                              Application submission fee per account line <strong>$10.00</strong> hai. Jaise hi aap wallet me minimum $10 deposit karenge, submit button instantly unlock ho jayega.
+                              The application submission fee is <strong>$10.00</strong> per account line. Once you deposit at least $10.00 into your wallet, the submit button will unlock immediately.
                             </p>
                           </div>
                         </div>
