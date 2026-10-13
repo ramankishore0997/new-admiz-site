@@ -439,7 +439,7 @@ export default function ClientApplication() {
       toast({
         variant: "destructive",
         title: "Insufficient Balance",
-        description: `You have selected ${applyAppCount} application${applyAppCount > 1 ? "s" : ""} which requires $${requiredFee}. Your current balance is $${walletBalance.toFixed(2)}.`,
+        description: `Each ad account application requires $10.00. Your current balance is $${walletBalance.toFixed(2)}.`,
       });
       return;
     }
@@ -617,8 +617,8 @@ export default function ClientApplication() {
                           }`}
                           title={
                             isAffordable
-                              ? `${num} Account${num > 1 ? "s" : ""} ($${num * 10} from wallet)`
-                              : `Requires $${num * 10} wallet balance (Current: $${walletBalance.toFixed(2)})`
+                              ? `${num} Account${num > 1 ? "s" : ""} ($10 per account)`
+                              : `Requires minimum $10 per account (Current: $${walletBalance.toFixed(2)})`
                           }
                         >
                           {num}
@@ -1061,8 +1061,8 @@ export default function ClientApplication() {
                         <div>
                           <div className="font-bold text-white flex items-center gap-2">
                             <span>Application Fee:</span>
-                            <span className="text-cyan-300 font-mono font-black">${requiredFee}.00</span>
-                            <span className="text-[10px] text-zinc-500">($10 × {applyAppCount} Account Line{applyAppCount > 1 ? "s" : ""})</span>
+                            <span className="text-cyan-300 font-mono font-black">$10.00</span>
+                            <span className="text-xs text-zinc-400 font-medium">per ad account</span>
                           </div>
                           <div className="text-[11px] text-zinc-400 mt-0.5">
                             Available Wallet Balance:{" "}
