@@ -158,10 +158,15 @@ router.get("/admin/withdrawals", authenticate, requireAdmin, async (req: Authent
  * PATCH /api/admin/withdrawals/:id
  * Admin approves or rejects a withdrawal request
  */
-router.patch("/admin/withdrawals/:id", authenticate, requireAdmin, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+router.patch(["/admin/withdrawals/:id", "/admin/withdrawals/:id/approve", "/admin/withdrawals/:id/reject"], authenticate, requireAdmin, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const withdrawalId = Number(req.params.id);
-    const status = req.body?.status;
+    let status = req.body?.status;
+    if (req.url.endsWith("/approve")) {
+      status = "APPROVED";
+    } else if (req.url.endsWith("/reject")) {
+      status = "REJECTED";
+    }
     const rejectionReason = req.body?.rejectionReason;
     const adminId = req.userId;
 

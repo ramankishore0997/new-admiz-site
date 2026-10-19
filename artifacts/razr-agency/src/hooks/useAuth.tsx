@@ -133,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check localStorage fallback first for instant preview
+    let hasLocalUser = false;
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (saved) {
@@ -140,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (parsed && parsed.id) {
           setUser(parsed);
           setIsLoading(false);
-          return;
+          hasLocalUser = true;
         }
       }
     } catch {
@@ -153,7 +154,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fetch("/api/me", { credentials: "include", headers })
       .then(async (res) => {
         if (res.ok) return await safeJson(res);
-        throw new Error("Unauthenticated");
+        if (res.status === 401) {
+          throw new Error("401");
+        }
+        throw new Error("Failed");
       })
       .then((userData) => {
         if (userData && userData.id) {
@@ -162,12 +166,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (userData.token) {
             localStorage.setItem(TOKEN_KEY, userData.token);
           }
-        } else {
+        } else if (!hasLocalUser) {
           setUser(null);
         }
       })
-      .catch(() => {
-        setUser(null);
+      .catch((err) => {
+        if (err?.message === "401") {
+          setUser(null);
+          localStorage.removeItem(LOCAL_STORAGE_KEY);
+          localStorage.removeItem(TOKEN_KEY);
+        }
       })
       .finally(() => {
         setIsLoading(false);

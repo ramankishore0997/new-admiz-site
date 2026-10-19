@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { apiFetch } from "@/lib/api";
 import {
   Users,
   PlusCircle,
@@ -45,10 +46,8 @@ export default function AdminUsers() {
 
   const loadUsers = async () => {
     try {
-      const res = await fetch("/api/admin/users");
-      if (res.ok) {
-        setUsers(await res.json());
-      }
+      const list = await apiFetch<any[]>("/api/admin/users");
+      setUsers(Array.isArray(list) ? list : []);
       setIsLoading(false);
     } catch {
       setIsLoading(false);
@@ -93,9 +92,8 @@ export default function AdminUsers() {
 
     setIsAdjustingBalance(true);
     try {
-      const res = await fetch("/api/admin/users/adjust-balance", {
+      const data = await apiFetch<any>("/api/admin/users/adjust-balance", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: Number(selectedUserId),
           mode: balanceMode,
@@ -104,28 +102,19 @@ export default function AdminUsers() {
         }),
       });
 
-      const data = await res.json();
-      if (res.ok) {
-        toast({
-          title: "Balance Updated",
-          description: data.message || `Balance updated successfully.`,
-        });
-        setShowBalanceModal(false);
-        setBalanceAmount("");
-        setBalanceNote("");
-        await loadUsers();
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Adjustment Failed",
-          description: data.error || "Could not adjust balance.",
-        });
-      }
-    } catch {
+      toast({
+        title: "Balance Updated",
+        description: data.message || `Balance updated successfully.`,
+      });
+      setShowBalanceModal(false);
+      setBalanceAmount("");
+      setBalanceNote("");
+      await loadUsers();
+    } catch (err: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to connect to server.",
+        title: "Adjustment Failed",
+        description: err.message || "Could not adjust balance.",
       });
     } finally {
       setIsAdjustingBalance(false);

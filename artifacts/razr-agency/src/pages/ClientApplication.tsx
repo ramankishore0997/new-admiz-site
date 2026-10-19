@@ -102,7 +102,7 @@ const BUSINESS_NICHES = [
 ];
 
 export default function ClientApplication() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
@@ -227,6 +227,9 @@ export default function ClientApplication() {
   const loadData = async () => {
     setLoadError("");
     try {
+      if (refreshUser) {
+        await refreshUser();
+      }
       const list = await apiFetch<any[]>("/api/applications");
       setApplications(list || []);
       if (Array.isArray(list) && list.length > 0) {

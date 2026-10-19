@@ -205,10 +205,10 @@ router.get("/admin/payments", authenticate, requireAdmin, async (req: Authentica
 });
 
 /**
- * PATCH /api/admin/payments/:id/verify
+ * PATCH /api/admin/payments/:id/status
  * Admin approve or reject manual payment submission
  */
-router.patch("/admin/payments/:id/verify", authenticate, requireAdmin, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+router.patch(["/admin/payments/:id/status", "/admin/payments/:id/confirm"], authenticate, requireAdmin, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const paymentId = Number(req.params.id);
     const status = req.body?.status;

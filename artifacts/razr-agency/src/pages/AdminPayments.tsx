@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { useToast } from "@/hooks/use-toast";
+import { apiFetch } from "@/lib/api";
 import {
   DollarSign,
   CheckCircle,
@@ -44,10 +45,8 @@ export default function AdminPayments() {
   const fetchPayments = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/admin/payments");
-      if (res.ok) {
-        setPayments(await res.json());
-      }
+      const list = await apiFetch<any[]>("/api/admin/payments");
+      setPayments(Array.isArray(list) ? list : []);
     } catch {
       toast({ variant: "destructive", title: "Error", description: "Failed to load payment requests." });
     } finally {
@@ -58,10 +57,8 @@ export default function AdminPayments() {
   const fetchWithdrawals = async () => {
     setIsLoadingWithdrawals(true);
     try {
-      const res = await fetch("/api/admin/withdrawals");
-      if (res.ok) {
-        setWithdrawals(await res.json());
-      }
+      const list = await apiFetch<any[]>("/api/admin/withdrawals");
+      setWithdrawals(Array.isArray(list) ? list : []);
     } catch {
       toast({ variant: "destructive", title: "Error", description: "Failed to load withdrawal requests." });
     } finally {
@@ -94,15 +91,10 @@ export default function AdminPayments() {
 
     setIsSubmittingAction(true);
     try {
-      const res = await fetch(`/api/admin/payments/${approvingPayment.id}/status`, {
+      await apiFetch(`/api/admin/payments/${approvingPayment.id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "PAID", amount: num }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to approve payment.");
-      }
       toast({ title: "Approved!", description: `Payment approved and credited: $${num} USDT.` });
       setApprovingPayment(null);
       setEditedAmount("");
@@ -117,15 +109,10 @@ export default function AdminPayments() {
   const handleQuickApprove = async (id: number, currentAmount: number) => {
     setIsSubmittingAction(true);
     try {
-      const res = await fetch(`/api/admin/payments/${id}/status`, {
+      await apiFetch(`/api/admin/payments/${id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "PAID", amount: currentAmount }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to approve payment.");
-      }
       toast({ title: "Approved!", description: `Payment approved and credited: $${currentAmount} USDT.` });
       fetchPayments();
     } catch (err: any) {
@@ -139,15 +126,10 @@ export default function AdminPayments() {
     if (!rejectingPaymentId) return;
     setIsSubmittingAction(true);
     try {
-      const res = await fetch(`/api/admin/payments/${rejectingPaymentId}/status`, {
+      await apiFetch(`/api/admin/payments/${rejectingPaymentId}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "REJECTED", rejectionReason }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to reject payment.");
-      }
       toast({ title: "Rejected", description: "Payment status set to REJECTED." });
       setRejectingPaymentId(null);
       setRejectionReason("");
@@ -162,14 +144,10 @@ export default function AdminPayments() {
   const handleApproveWithdrawal = async (id: number) => {
     setIsSubmittingWithdrawalAction(true);
     try {
-      const res = await fetch(`/api/admin/withdrawals/${id}/approve`, {
+      await apiFetch(`/api/admin/withdrawals/${id}/approve`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "APPROVED" }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to approve withdrawal.");
-      }
       toast({ title: "Approved!", description: "Withdrawal marked as approved and processed." });
       fetchWithdrawals();
     } catch (err: any) {
@@ -183,15 +161,10 @@ export default function AdminPayments() {
     if (!rejectingWithdrawalId) return;
     setIsSubmittingWithdrawalAction(true);
     try {
-      const res = await fetch(`/api/admin/withdrawals/${rejectingWithdrawalId}/reject`, {
+      await apiFetch(`/api/admin/withdrawals/${rejectingWithdrawalId}/reject`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rejectionReason: withdrawalRejectionReason }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to reject withdrawal.");
-      }
       toast({ title: "Rejected", description: "Withdrawal rejected and balance refunded." });
       setRejectingWithdrawalId(null);
       setWithdrawalRejectionReason("");
