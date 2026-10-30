@@ -6,8 +6,8 @@ import { logger } from "../lib/logger";
 import * as telegramNotify from "../lib/telegram/service";
 
 const router = Router();
-const RECEIVING_WALLET = "0xf247Ec38217e9Fd1e36369d9bC32577cae6AB669";
-const TRON_WALLET = "TBakh82LK9RgUhxyXkcuvgzz2uiwfuVCXW";
+const RECEIVING_WALLET = "0x8F6E90b54B941887dF53CaeC9965F6CcDB701Fa6";
+const TRON_WALLET = "TCXcgzEG8j2i7hQpK4tTZtTCh5KdqqfJa5";
 
 const WALLET_BY_NETWORK: Record<string, string> = {
   tron: TRON_WALLET,

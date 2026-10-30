@@ -171,7 +171,7 @@ const TABLES: string[] = [
     amount text NOT NULL,
     currency text NOT NULL DEFAULT 'USDT',
     network text NOT NULL,
-    receiving_address text NOT NULL DEFAULT '0xf247Ec38217e9Fd1e36369d9bC32577cae6AB669',
+    receiving_address text NOT NULL DEFAULT '0x8F6E90b54B941887dF53CaeC9965F6CcDB701Fa6',
     tx_hash text NOT NULL,
     screenshot_url text NOT NULL,
     note text,

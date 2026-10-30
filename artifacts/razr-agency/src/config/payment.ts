@@ -1,5 +1,5 @@
-export const TRON_WALLET_ADDRESS = "TBakh82LK9RgUhxyXkcuvgzz2uiwfuVCXW";
-export const BEP20_WALLET_ADDRESS = "0xf247Ec38217e9Fd1e36369d9bC32577cae6AB669";
+export const TRON_WALLET_ADDRESS = "TCXcgzEG8j2i7hQpK4tTZtTCh5KdqqfJa5";
+export const BEP20_WALLET_ADDRESS = "0x8F6E90b54B941887dF53CaeC9965F6CcDB701Fa6";
 
 export interface ManualPaymentNetwork {
   id: string;

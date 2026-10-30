@@ -233,8 +233,8 @@ router.post("/bm-orders/buy", authenticate, async (req: AuthenticatedRequest, re
   }
 });
 
-const RECEIVING_WALLET = "0xf247Ec38217e9Fd1e36369d9bC32577cae6AB669";
-const TRON_WALLET = "TBakh82LK9RgUhxyXkcuvgzz2uiwfuVCXW";
+const RECEIVING_WALLET = "0x8F6E90b54B941887dF53CaeC9965F6CcDB701Fa6";
+const TRON_WALLET = "TCXcgzEG8j2i7hQpK4tTZtTCh5KdqqfJa5";
 const SUPPORTED_NETWORKS = ["bsc", "eth", "polygon", "arbitrum", "optimism", "tron"];
 const EVM_TX_REGEX = /^0x[a-fA-F0-9]{64}$/;
 const TRON_TX_REGEX = /^[a-fA-F0-9]{64}$/;
