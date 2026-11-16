@@ -19,13 +19,12 @@ import {
   Wallet,
   Headphones
 } from "lucide-react";
-import { SiTelegram, SiWhatsapp } from "react-icons/si";
+import { SiTelegram } from "react-icons/si";
 import ClientGuideDrawer from "@/components/onboarding/ClientGuideDrawer";
 import MobileGlassDock from "@/components/layout/MobileGlassDock";
 import { PAYMENT_CONFIG } from "@/config/payment";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl || "https://t.me/RazrMarketing";
-const WHATSAPP_SUPPORT_URL = PAYMENT_CONFIG.whatsappSupportUrl || "https://wa.me/447473951923?text=Hello%20Razr%20Support,%20I%20need%20assistance";
 
 interface MenuItem {
   name: string;
@@ -137,22 +136,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <p className="text-[11px] text-zinc-400 font-medium leading-snug">
           Instant limit boosts, deposit approvals & account setup.
         </p>
-        <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+        <div className="pt-0.5">
           <a
             href={TELEGRAM_SUPPORT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+            className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white text-[10px] font-black uppercase tracking-wider transition-all shadow-md shadow-violet-600/20 cursor-pointer"
           >
-            <SiTelegram className="w-3.5 h-3.5" /> Telegram
-          </a>
-          <a
-            href={WHATSAPP_SUPPORT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer"
-          >
-            <SiWhatsapp className="w-3.5 h-3.5 text-emerald-400" /> WhatsApp
+            <SiTelegram className="w-3.5 h-3.5" /> Telegram Support
           </a>
         </div>
       </div>
@@ -220,19 +211,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             href={TELEGRAM_SUPPORT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-cyan-500 text-white text-[10px] font-bold"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-cyan-500 text-white text-[10px] font-bold"
             title="Telegram Support"
           >
             <SiTelegram className="w-3.5 h-3.5" />
-          </a>
-          <a
-            href={WHATSAPP_SUPPORT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-white text-[10px] font-bold"
-            title="WhatsApp Support"
-          >
-            <SiWhatsapp className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Telegram</span>
           </a>
           <button
             onClick={() => setIsMobileOpen(true)}

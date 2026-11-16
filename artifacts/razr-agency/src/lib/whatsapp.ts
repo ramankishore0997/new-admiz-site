@@ -1,8 +1,6 @@
 import { getAttributionLabel } from "./utm";
 
 export const TELEGRAM_URL = "https://t.me/RazrMarketing";
-export const WHATSAPP_NUMBER = "+44 7473 951923";
-export const WHATSAPP_URL = "https://wa.me/447473951923?text=Hello%20Razr%20Support,%20I%20need%20assistance";
 
 export type WaIntent =
   | "general"
@@ -29,9 +27,6 @@ export function buildWaLink(_intent: WaIntent = "general", _extras: IntentExtras
   return TELEGRAM_URL;
 }
 
-export function buildDirectWhatsAppLink(customMsg?: string): string {
-  if (customMsg) {
-    return `https://wa.me/447473951923?text=${encodeURIComponent(customMsg)}`;
-  }
-  return WHATSAPP_URL;
+export function buildDirectWhatsAppLink(_customMsg?: string): string {
+  return TELEGRAM_URL;
 }

@@ -44,7 +44,7 @@ const SECTIONS = [
   },
   {
     title: "11. Contact",
-    body: "For questions about these Terms of Service, contact our team via Telegram @RazrMarketing, WhatsApp +44 7473 951923, or email scale@razr.marketing.",
+    body: "For questions about these Terms of Service, contact our team via Telegram @RazrMarketing or email scale@razr.marketing.",
   },
 ];
 

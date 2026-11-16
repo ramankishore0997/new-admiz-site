@@ -14,12 +14,11 @@ import {
   LifeBuoy,
   Headphones
 } from "lucide-react";
-import { SiTelegram, SiWhatsapp } from "react-icons/si";
+import { SiTelegram } from "react-icons/si";
 import { PAYMENT_CONFIG } from "@/config/payment";
 import { apiFetch } from "@/lib/api";
 
 const TELEGRAM_SUPPORT_URL = PAYMENT_CONFIG.telegramSupportUrl;
-const WHATSAPP_SUPPORT_URL = PAYMENT_CONFIG.whatsappSupportUrl || "https://wa.me/447473951923?text=Hello%20Razr%20Support,%20I%20need%20assistance";
 
 export default function ClientSupport() {
   const { toast } = useToast();
@@ -142,14 +141,6 @@ export default function ClientSupport() {
                 className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#229ED9] hover:bg-[#1a8bc2] text-white text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer shadow-lg transition-all"
               >
                 <SiTelegram className="w-4 h-4" /> Telegram VIP
-              </a>
-              <a
-                href={WHATSAPP_SUPPORT_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer shadow-lg transition-all"
-              >
-                <SiWhatsapp className="w-4 h-4" /> WhatsApp Support
               </a>
               <button
                 onClick={() => setShowCreateForm(!showCreateForm)}

@@ -29,7 +29,7 @@ const SECTIONS = [
   },
   {
     title: "3. Resolution Claim Process",
-    body: "Contact your dedicated agent via Telegram @RazrMarketing or WhatsApp +44 7473 951923 with your invoice reference, screenshots, and logs. Cases are acknowledged within 12 minutes.",
+    body: "Contact your dedicated agent via Telegram @RazrMarketing with your invoice reference, screenshots, and logs. Cases are acknowledged within 12 minutes.",
   },
   {
     title: "4. Settlement Timelines",
@@ -119,14 +119,6 @@ export default function Refund() {
               >
                 Telegram Support
                 <ArrowRight className="w-4 h-4" />
-              </a>
-              <a
-                href="https://wa.me/447473951923"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border border-zinc-700 bg-zinc-900/80 text-white font-black text-xs uppercase tracking-widest hover:bg-zinc-800 transition-all"
-              >
-                WhatsApp Desk
               </a>
             </div>
           </SpotlightCard>

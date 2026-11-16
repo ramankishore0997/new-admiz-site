@@ -4,7 +4,7 @@ import { SpotlightCard } from "@/components/ui/SpotlightCard";
 const SECTIONS = [
   {
     title: "1. Information We Collect",
-    body: "We collect information you provide directly when you contact us via Telegram, WhatsApp, email, or our application forms. This includes your contact information, business profile, Telegram handle, and requested ad spend volume.",
+    body: "We collect information you provide directly when you contact us via Telegram, email, or our application forms. This includes your contact information, business profile, Telegram handle, and requested ad spend volume.",
   },
   {
     title: "2. How We Use Your Information",
