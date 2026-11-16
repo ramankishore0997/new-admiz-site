@@ -15,7 +15,6 @@ import {
   ChevronRight,
   BookOpen,
   ShieldCheck,
-  ShoppingBag,
   Wallet,
   Headphones
 } from "lucide-react";
@@ -45,7 +44,6 @@ const CLIENT_MENU_SECTIONS: MenuSection[] = [
       { name: "Dashboard", href: "/app/dashboard", icon: LayoutDashboard },
       { name: "Wallet & Funds", href: "/app/wallet", icon: Wallet, badge: "USDT" },
       { name: "My Ad Accounts", href: "/app/application", icon: FileText, badge: "Instant" },
-      { name: "Buy Business Manager", href: "/app/buy-bm", icon: ShoppingBag, badge: "Store" },
     ],
   },
   {

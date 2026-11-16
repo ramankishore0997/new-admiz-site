@@ -144,7 +144,7 @@ export default function BmGuideModal({ isOpen, onClose }: BmGuideModalProps) {
             <div className="p-3.5 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-start gap-3 text-xs text-cyan-200">
               <Info className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold text-white">Don't have a Business Manager yet?</span> You can buy an active institutional Business Manager directly from our <a href="/app/buy-bm" className="underline font-bold text-cyan-300">BM Store</a> starting at $7 USDT with instant delivery.
+                <span className="font-bold text-white">Don't have a Business Manager yet?</span> You can easily create a free Business Manager for your business directly at <a href="https://business.facebook.com" target="_blank" rel="noopener noreferrer" className="underline font-bold text-cyan-300">business.facebook.com</a>.
               </div>
             </div>
 

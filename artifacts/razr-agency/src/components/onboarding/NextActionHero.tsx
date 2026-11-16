@@ -37,17 +37,12 @@ export default function NextActionHero({
   const safeBalance = Number(walletBalance) || 0;
   const safeApps = Array.isArray(applications) ? applications : [];
   const safeAdAccs = Array.isArray(adAccounts) ? adAccounts : [];
-  const safeBmOrders = Array.isArray(bmOrders) ? bmOrders : [];
-
-  // 1. Check if there is a ready BM store order with invite link
-  const readyBmOrder = safeBmOrders.find((o) => o?.status === "COMPLETED" && o?.inviteLink);
-
-  // 2. Check if there is an active/approved ad account with BM access link/ID
+  // 1. Check if there is an active/approved ad account with access link/ID
   const activeAdAccWithBm = safeAdAccs.find(
     (a) => (a?.status === "ACTIVE" || a?.status === "APPROVED") && (a?.inviteLink || a?.businessPortfolioId)
   );
 
-  // 3. Check application states
+  // 2. Check application states
   const draftApp = safeApps.find((a) => a?.status === "DRAFT");
   const reviewApp = safeApps.find((a) => ["SUBMITTED", "UNDER_REVIEW", "INFORMATION_REQUIRED"].includes(a?.status));
   const needsTopupAcc = safeAdAccs.find((a) => a?.status === "APPROVED" && (Number(a?.balance) || 0) < 50);
@@ -57,52 +52,12 @@ export default function NextActionHero({
     setCopiedLink(true);
     toast({
       title: "Invite Link Copied!",
-      description: "Paste into your browser or accept the Business Manager invite.",
+      description: "Paste into your browser or accept the ad account invite.",
     });
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  // State 1: Ready BM Store Order
-  if (readyBmOrder) {
-    return (
-      <SpotlightCard tone="violet-cyan" className="p-6 md:p-8 shadow-2xl backdrop-blur-xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-1.5 max-w-xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-950/60 border border-violet-500/30 text-[10px] font-black uppercase tracking-widest text-cyan-300">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin" style={{ animationDuration: "6s" }} /> Action Required · BM Invite Ready
-            </div>
-            <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight text-white">
-              Your Purchased Meta Business Manager is <span className="bg-gradient-to-r from-violet-400 to-cyan-300 bg-clip-text text-transparent">Ready!</span>
-            </h2>
-            <p className="text-xs text-zinc-300 leading-relaxed font-medium">
-              Order <strong className="text-white">#{readyBmOrder.orderId}</strong> ({readyBmOrder.bmType}) has been provisioned. Click below to accept the BM admin invite immediately.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <a
-              href={readyBmOrder.inviteLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 text-white text-xs font-black uppercase tracking-widest hover:opacity-95 hover:scale-105 transition-all shadow-lg shadow-violet-600/30 cursor-pointer"
-            >
-              Accept BM Invite <ExternalLink className="w-4 h-4" />
-            </a>
-            <button
-              type="button"
-              onClick={() => handleCopyLink(readyBmOrder.inviteLink)}
-              className="inline-flex items-center gap-1.5 px-4 py-3.5 rounded-xl bg-black hover:bg-zinc-900 text-white text-xs font-black uppercase tracking-widest border border-zinc-800 transition-all cursor-pointer"
-            >
-              {copiedLink ? <Check className="w-4 h-4 text-cyan-400" /> : <Copy className="w-4 h-4" />}
-              <span>{copiedLink ? "Copied" : "Copy Link"}</span>
-            </button>
-          </div>
-        </div>
-      </SpotlightCard>
-    );
-  }
-
-  // State 2: Ready Ad Account with Invite Link or BM access
+  // State 1: Ready Ad Account with Invite Link or Partner access
   if (activeAdAccWithBm && activeAdAccWithBm.inviteLink) {
     return (
       <SpotlightCard tone="cyber" className="p-6 md:p-8 shadow-2xl backdrop-blur-xl">

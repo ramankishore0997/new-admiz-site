@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
 import { captureAttribution } from "@/lib/utm";
 import { trackViewContent, trackLead, trackSubscribe } from "@/lib/pixel";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -157,7 +157,7 @@ function Router() {
             {() => <ProtectedRoute path="/app/wallet" component={ClientWallet} />}
           </Route>
           <Route path="/app/buy-bm">
-            {() => <ProtectedRoute path="/app/buy-bm" component={BuyBusinessManager} />}
+            {() => <Redirect to="/app/application" />}
           </Route>
           <Route path="/app/application">
             {() => <ProtectedRoute path="/app/application" component={ClientApplication} />}
@@ -190,7 +190,7 @@ function Router() {
             {() => <ProtectedRoute path="/admin/dashboard" component={AdminApplications} role="ADMIN" />}
           </Route>
           <Route path="/admin/bm-orders">
-            {() => <ProtectedRoute path="/admin/bm-orders" component={AdminBmOrders} role="ADMIN" />}
+            {() => <Redirect to="/admin/dashboard" />}
           </Route>
           <Route path="/admin/payments">
             {() => <ProtectedRoute path="/admin/payments" component={AdminPayments} role="ADMIN" />}

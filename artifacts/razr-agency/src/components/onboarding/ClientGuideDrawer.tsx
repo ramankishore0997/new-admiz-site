@@ -292,15 +292,18 @@ export default function ClientGuideDrawer({ isOpen, onClose, onOpenDeposit }: Cl
                   </div>
 
                   <div className="p-4 rounded-2xl bg-violet-950/30 border border-violet-500/30 space-y-2">
-                    <div className="text-xs font-black uppercase text-cyan-300">Need a New Business Manager?</div>
+                    <div className="text-xs font-black uppercase text-cyan-300">Don't Have a Business Manager?</div>
                     <p className="text-xs text-zinc-300 leading-relaxed">
-                      Purchase high-trust, active Meta Business Managers from our store starting at $7 USDT with instant delivery.
+                      You can register and set up a free Meta Business Manager account directly at business.facebook.com to receive your agency ad line.
                     </p>
-                    <Link href="/app/buy-bm">
-                      <span onClick={onClose} className="inline-flex items-center gap-1.5 text-xs font-black uppercase text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer">
-                        Open BM Store <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
-                    </Link>
+                    <a
+                      href="https://business.facebook.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-black uppercase text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer"
+                    >
+                      Open Meta Business Suite <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
                   </div>
                 </div>
               )}

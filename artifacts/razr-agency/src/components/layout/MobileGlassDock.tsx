@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Wallet, FileText, ShoppingBag, Headphones } from "lucide-react";
+import { LayoutDashboard, Wallet, FileText, Headphones } from "lucide-react";
 
 export default function MobileGlassDock() {
   const [location] = useLocation();
@@ -9,7 +9,6 @@ export default function MobileGlassDock() {
     { name: "Dashboard", href: "/app/dashboard", icon: LayoutDashboard },
     { name: "Wallet", href: "/app/wallet", icon: Wallet },
     { name: "Apply", href: "/app/application", icon: FileText },
-    { name: "BM Store", href: "/app/buy-bm", icon: ShoppingBag },
     { name: "Support", href: "/app/support", icon: Headphones },
   ];
 

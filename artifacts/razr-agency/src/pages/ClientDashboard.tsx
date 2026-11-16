@@ -99,7 +99,6 @@ export default function ClientDashboard() {
   const [submittedWithdrawal, setSubmittedWithdrawal] = useState<any>(null);
   const [myWithdrawals, setMyWithdrawals] = useState<any[]>([]);
   const [isLoadingWithdrawals, setIsLoadingWithdrawals] = useState(true);
-  const [myBmOrders, setMyBmOrders] = useState<any[]>([]);
   const [showGuideDrawer, setShowGuideDrawer] = useState(false);
 
   const MIN_WITHDRAWAL = 200;
@@ -109,15 +108,6 @@ export default function ClientDashboard() {
 
   const getLoadFeeRate = (amount: number) => (amount < 100 ? 0.03 : amount <= 1000 ? 0.02 : 0.015);
   const getLoadFeePct = (amount: number) => Math.round(getLoadFeeRate(amount) * 1000) / 10;
-
-  const fetchMyBmOrders = async () => {
-    try {
-      const data = await apiFetch<any[]>("/api/bm-orders/my");
-      setMyBmOrders(data || []);
-    } catch {
-      setMyBmOrders([]);
-    }
-  };
 
   const fetchMyWithdrawals = async () => {
     setIsLoadingWithdrawals(true);
@@ -162,9 +152,6 @@ export default function ClientDashboard() {
       apiFetch<any[]>("/api/applications")
         .then((data) => setApplications(data || []))
         .catch(() => {});
-      apiFetch<any[]>("/api/bm-orders/my")
-        .then((data) => setMyBmOrders(data || []))
-        .catch(() => {});
     }, 30000);
     return () => clearInterval(id);
   }, []);
@@ -173,7 +160,6 @@ export default function ClientDashboard() {
     fetchApplications();
     fetchMyPayments();
     fetchMyWithdrawals();
-    fetchMyBmOrders();
   }, []);
 
   const handleCopy = (text: string, label: string) => {
@@ -539,7 +525,6 @@ export default function ClientDashboard() {
           walletBalance={effectiveWalletBalance}
           applications={applications}
           adAccounts={adAccounts}
-          bmOrders={myBmOrders}
           onOpenDeposit={() => {
             setShowDepositModal(true);
             setDepositStep(1);
